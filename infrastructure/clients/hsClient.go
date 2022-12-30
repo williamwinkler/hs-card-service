@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/williamwinkler/hs-card-service/domain"
 	"github.com/williamwinkler/hs-card-service/infrastructure/clients/dto"
 )
 
@@ -28,13 +29,54 @@ func NewHsClient() (*HsClient, error) {
 		return &HsClient{}, err
 	}
 
-	return &HsClient{
+	hsClient := HsClient{
 		Token: token,
-	}, nil
+	}
+	return &hsClient, nil
 }
 
-// func (hc *HsClient) getCardsWithPagination(page int, pageSize int)
+func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error) {
+	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards"
 
+	queryParams := url.Values{}
+	queryParams.Set("locale", "en_US")
+	queryParams.Set("page", string(page))
+	queryParams.Set("pageSize", string(pageSize))
+
+	queryString := queryParams.Encode()
+
+	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []domain.Card{}, fmt.Errorf("failed to create new GET-request for /cards")
+	}
+	req.Header.Set("Authorization", "Bearer "+hc.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []domain.Card{}, fmt.Errorf("failed to do GET-request for /cards")
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return []domain.Card{}, err
+	}
+
+	fmt.Println(body)
+
+	var cardsReponse dto.GetCardsResponse
+	err = json.Unmarshal(body, &cardsReponse)
+	if err != nil {
+		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards. Body was %+v", body)
+	}
+
+	//fmt.Println(cardsReponse)
+	return []domain.Card{}, nil
+}
 
 func getToken() (string, error) {
 	urlAdress := "https://oauth.battle.net/token"
@@ -42,7 +84,6 @@ func getToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")

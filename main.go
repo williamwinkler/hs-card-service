@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -19,5 +18,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Token: %s", hsClient.Token)
+	cards, err := hsClient.GetCardsWithPagination(1, 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	println(cards)
 }
