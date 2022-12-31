@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/williamwinkler/hs-card-service/domain"
 	"github.com/williamwinkler/hs-card-service/infrastructure/clients/dto"
@@ -40,12 +41,13 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 
 	queryParams := url.Values{}
 	queryParams.Set("locale", "en_US")
-	queryParams.Set("page", string(page))
-	queryParams.Set("pageSize", string(pageSize))
+	queryParams.Set("page", strconv.Itoa(page))
+	queryParams.Set("pageSize", strconv.Itoa(pageSize))
 
 	queryString := queryParams.Encode()
 
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
+	fmt.Println(url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -66,16 +68,15 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 		return []domain.Card{}, err
 	}
 
-	fmt.Println(body)
-
 	var cardsReponse dto.GetCardsResponse
 	err = json.Unmarshal(body, &cardsReponse)
 	if err != nil {
 		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards. Body was %+v", body)
 	}
 
-	//fmt.Println(cardsReponse)
-	return []domain.Card{}, nil
+	cards := mapToCards(cardsReponse)
+
+	return cards, nil
 }
 
 func getToken() (string, error) {
@@ -128,4 +129,36 @@ func getClientCredentials() (Creds, error) {
 	return Creds{
 		clientId:     clientId,
 		clientSecret: clientSecret}, nil
+}
+
+func mapToCards(cardResp dto.GetCardsResponse) []domain.Card {
+	var cards []domain.Card
+	for _, p := range cardResp.Cards {
+		var c domain.Card
+		c.ID = p.ID
+		c.Collectible = p.Collectible
+		c.Slug = p.Slug
+		c.ClassID = p.ClassID
+		c.MultiClassIds = p.MultiClassIds
+		c.CardTypeID = p.CardTypeID
+		c.CardSetID = p.CardSetID
+		c.RarityID = p.RarityID
+		c.ArtistName = p.ArtistName
+		c.Health = p.Health
+		c.Attack = p.Attack
+		c.ManaCost = p.ManaCost
+		c.Name = p.Name
+		c.Text = p.Text
+		c.Image = p.Image
+		c.ImageGold = p.ImageGold
+		c.FlavorText = p.FlavorText
+		c.CropImage = p.CropImage
+		c.ParentID = p.ParentID
+		c.KeywordIds = p.KeywordIds
+		c.CopyOfCardID = p.CopyOfCardID
+		c.Duels = p.Duels
+
+		cards = append(cards, c)
+	}
+	return cards
 }

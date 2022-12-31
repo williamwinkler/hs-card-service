@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -18,9 +19,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cards, err := hsClient.GetCardsWithPagination(1, 1)
+	cards, err := hsClient.GetCardsWithPagination(1, 20)
 	if err != nil {
 		log.Fatal(err)
 	}
-	println(cards)
+	for _, card := range cards {
+		fmt.Println(card.Name)
+	}
 }
