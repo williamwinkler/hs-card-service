@@ -14,6 +14,8 @@ func main() {
 		log.Fatal("Failed to load .env file")
 	}
 
+	// cardRepo, err := infrastructure.NewCardRepository()
+
 	hsClient, err := clients.NewHsClient()
 	if err != nil {
 		log.Fatal(err)
