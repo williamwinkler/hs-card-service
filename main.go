@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cards, err := hsClient.GetCardsWithPagination(1, 20)
+	cards, err := hsClient.GetCardsWithPagination(1, 287)
 	if err != nil {
 		log.Fatal(err)
 	}

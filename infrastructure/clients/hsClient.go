@@ -68,13 +68,13 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 		return []domain.Card{}, err
 	}
 
-	var cardsReponse dto.GetCardsResponse
-	err = json.Unmarshal(body, &cardsReponse)
+	var cardsDto dto.CardsDto
+	err = json.Unmarshal(body, &cardsDto)
 	if err != nil {
 		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards. Body was %+v", body)
 	}
 
-	cards := mapToCards(cardsReponse)
+	cards := mapToCards(cardsDto)
 
 	return cards, nil
 }
@@ -131,7 +131,7 @@ func getClientCredentials() (Creds, error) {
 		clientSecret: clientSecret}, nil
 }
 
-func mapToCards(cardResp dto.GetCardsResponse) []domain.Card {
+func mapToCards(cardResp dto.CardsDto) []domain.Card {
 	var cards []domain.Card
 	for _, p := range cardResp.Cards {
 		var c domain.Card

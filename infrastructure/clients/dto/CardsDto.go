@@ -1,6 +1,6 @@
 package dto
 
-type GetCardsResponse struct {
+type CardsDto struct {
 	Cards []struct {
 		ID            int           `json:"id"`
 		Collectible   int           `json:"collectible"`
