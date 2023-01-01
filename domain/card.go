@@ -21,7 +21,6 @@ type Card struct {
 	CropImage     string        `json:"cropImage"`
 	ParentID      int           `json:"parentId"`
 	KeywordIds    []int         `json:"keywordIds"`
-	CopyOfCardID  int           `json:"copyOfCardId"`
 	Duels         Duels         `json:"duels"`
 }
 
@@ -29,4 +28,3 @@ type Duels struct {
 	Relevant    bool `json:"relevant"`
 	Constructed bool `json:"constructed"`
 }
-

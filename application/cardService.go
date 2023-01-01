@@ -7,9 +7,13 @@ type CardService struct {
 	CardRepo *interfaces.CardRepository
 }
 
-func NewCardService(hsclient *interfaces.HsClient, cardRepo interfaces.CardRepository) *CardService {
+func NewCardService(hsclient *interfaces.HsClient, cardRepo *interfaces.CardRepository) *CardService {
 	return &CardService{
 		HsClient: hsclient,
-		CardRepo: &cardRepo,
+		CardRepo: cardRepo,
 	}
+}
+
+func (c *CardService) UpdateCards() error {
+	return nil
 }

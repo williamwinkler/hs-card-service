@@ -15,8 +15,10 @@ import (
 	"github.com/williamwinkler/hs-card-service/infrastructure/clients/dto"
 )
 
+const PAGE_SIZE int = 250
+
 type HsClient struct {
-	Token string
+	token string
 }
 
 type Creds struct {
@@ -31,9 +33,33 @@ func NewHsClient() (*HsClient, error) {
 	}
 
 	hsClient := HsClient{
-		Token: token,
+		token: token,
 	}
 	return &hsClient, nil
+}
+
+func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
+	log.Println("Getting all cards...")
+
+	var cardsList []domain.Card
+	page := 1
+	for {
+		cards, err := hc.GetCardsWithPagination(page, PAGE_SIZE)
+		if err != nil {
+			return []domain.Card{}, err
+		}
+		if len(cards) == 0 {
+			break
+		}
+
+		for _, card := range cards {
+			cardsList = append(cardsList, card)
+		}
+		page += 1
+	}
+
+	log.Printf("Finished getting all cards. In total: %d", len(cardsList))
+	return cardsList, nil
 }
 
 func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error) {
@@ -47,13 +73,13 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	queryString := queryParams.Encode()
 
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
-	fmt.Println(url)
+	//fmt.Println(url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return []domain.Card{}, fmt.Errorf("failed to create new GET-request for /cards")
 	}
-	req.Header.Set("Authorization", "Bearer "+hc.Token)
+	req.Header.Set("Authorization", "Bearer "+hc.token)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := http.Client{}
@@ -134,6 +160,10 @@ func getClientCredentials() (Creds, error) {
 func mapToCards(cardResp dto.CardsDto) []domain.Card {
 	var cards []domain.Card
 	for _, p := range cardResp.Cards {
+		if p.CopyOfCardID != 0 {
+			continue // if CopyOfCard is not 0, it's an unwanted outdated version
+		}
+
 		var c domain.Card
 		c.ID = p.ID
 		c.Collectible = p.Collectible
@@ -155,7 +185,6 @@ func mapToCards(cardResp dto.CardsDto) []domain.Card {
 		c.CropImage = p.CropImage
 		c.ParentID = p.ParentID
 		c.KeywordIds = p.KeywordIds
-		c.CopyOfCardID = p.CopyOfCardID
 		c.Duels = p.Duels
 
 		cards = append(cards, c)

@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"github.com/williamwinkler/hs-card-service/domain"
+	"github.com/williamwinkler/hs-card-service/infrastructure/clients"
 	"github.com/williamwinkler/hs-card-service/infrastructure/repositories"
 )
 
@@ -19,25 +19,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	card := domain.Card{
-		Name: "test",
+	hsClient, err := clients.NewHsClient()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	cardRepo.Insert(card)
+	//cardService := application.NewCardService(hsClient, cardRepo)
 
+	cards, err := hsClient.GetAllCards()
 
-	// hsClient, err := clients.NewHsClient()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// cards, err := hsClient.GetCardsWithPagination(1, 287)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// for _, card := range cards {
-	// 	fmt.Println(card.Name)
-	// }
+	log.Println("Inserting cards into database")
+	err = cardRepo.InsertMany(cards)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Finished inserting cards into database")
+	}
 
 	log.Println("Program Ended")
 }

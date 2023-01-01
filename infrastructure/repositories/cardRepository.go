@@ -42,3 +42,12 @@ func (c *CardRepository) Insert(card domain.Card) error {
 	_, err := c.cardsCollection.InsertOne(context.TODO(), card)
 	return err
 }
+
+func (c *CardRepository) InsertMany(cards []domain.Card) error {
+	cardsInterface := make([]interface{}, len(cards))
+	for i, card := range cards {
+		cardsInterface[i] = card
+	}
+	_, err := c.cardsCollection.InsertMany(context.TODO(), cardsInterface)
+	return err
+}
