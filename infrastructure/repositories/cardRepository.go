@@ -39,5 +39,6 @@ func NewCardRepository() (*CardRepository, error) {
 }
 
 func (c *CardRepository) Insert(card domain.Card) error {
-	return nil
+	_, err := c.cardsCollection.InsertOne(context.TODO(), card)
+	return err
 }
