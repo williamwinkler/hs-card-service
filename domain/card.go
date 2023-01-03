@@ -1,5 +1,7 @@
 package domain
 
+import "reflect"
+
 type Card struct {
 	ID            int           `json:"id"`
 	Collectible   int           `json:"collectible"`
@@ -27,4 +29,8 @@ type Card struct {
 type Duels struct {
 	Relevant    bool `json:"relevant"`
 	Constructed bool `json:"constructed"`
+}
+
+func (c *Card) IsEqual(p Card) bool {
+	return reflect.DeepEqual(c, p)
 }
