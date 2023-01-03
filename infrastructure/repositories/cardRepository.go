@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/williamwinkler/hs-card-service/domain"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -50,4 +51,26 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 	}
 	_, err := c.cardsCollection.InsertMany(context.TODO(), cardsInterface)
 	return err
+}
+
+func (c *CardRepository) FindAll() ([]domain.Card, error) {
+	cursor, err := c.cardsCollection.Find(context.TODO(), bson.M{}, nil)
+	if err != nil {
+		return []domain.Card{}, err
+	}
+
+	return decodeToCards(cursor)
+}
+
+func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {
+	var cards []domain.Card
+	for cursor.Next(context.TODO()) {
+		var card domain.Card
+		err := cursor.Decode(&card)
+		if err != nil {
+			return []domain.Card{}, err
+		}
+		cards = append(cards, card)
+	}
+	return cards, nil
 }
