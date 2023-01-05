@@ -11,8 +11,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/williamwinkler/hs-card-service/domain"
-	"github.com/williamwinkler/hs-card-service/infrastructure/clients/dto"
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients/dto"
 )
 
 const PAGE_SIZE int = 250

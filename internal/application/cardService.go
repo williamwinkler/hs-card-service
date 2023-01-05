@@ -3,8 +3,8 @@ package application
 import (
 	"sort"
 
-	"github.com/williamwinkler/hs-card-service/application/interfaces"
-	"github.com/williamwinkler/hs-card-service/domain"
+	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+	"github.com/williamwinkler/hs-card-service/internal/domain"
 )
 
 type CardService struct {

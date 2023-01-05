@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"github.com/williamwinkler/hs-card-service/domain"
+	"github.com/williamwinkler/hs-card-service/internal/domain"
 )
 
 type CardRepository interface {

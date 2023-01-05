@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"github.com/williamwinkler/hs-card-service/application"
-	"github.com/williamwinkler/hs-card-service/infrastructure/clients"
-	"github.com/williamwinkler/hs-card-service/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/application"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
 func main() {

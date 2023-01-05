@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/williamwinkler/hs-card-service/domain"
+	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -67,6 +67,10 @@ func (c *CardRepository) UpdateOne(card domain.Card) error {
 	cardIdFilter := bson.M{"id": card.ID}
 	_, err := c.cardsCollection.UpdateOne(context.TODO(), cardIdFilter, card, nil)
 	return err
+}
+
+func (c *CardRepository) DeleteOne(domain.Card) error {
+	return nil
 }
 
 func (c *CardRepository) DeleteAll() error {
