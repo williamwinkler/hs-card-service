@@ -39,7 +39,7 @@ func NewCardRepository() (*CardRepository, error) {
 	}, nil
 }
 
-func (c *CardRepository) Insert(card domain.Card) error {
+func (c *CardRepository) InsertOne(card domain.Card) error {
 	_, err := c.cardsCollection.InsertOne(context.TODO(), card)
 	return err
 }
@@ -54,12 +54,31 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 }
 
 func (c *CardRepository) FindAll() ([]domain.Card, error) {
-	cursor, err := c.cardsCollection.Find(context.TODO(), bson.M{}, nil)
+	sortByNameFilter := options.Find().SetSort(bson.M{"name": 1})
+	cursor, err := c.cardsCollection.Find(context.TODO(), bson.M{}, sortByNameFilter)
 	if err != nil {
 		return []domain.Card{}, err
 	}
 
 	return decodeToCards(cursor)
+}
+
+func (c *CardRepository) UpdateOne(card domain.Card) error {
+	cardIdFilter := bson.M{"id": card.ID}
+	_, err := c.cardsCollection.UpdateOne(context.TODO(), cardIdFilter, card, nil)
+	return err
+}
+
+func (c *CardRepository) DeleteAll() error {
+	result, err := c.cardsCollection.DeleteMany(context.TODO(), bson.M{}, nil)
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("zero documents were deleted")
+	}
+
+	return nil
 }
 
 func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {

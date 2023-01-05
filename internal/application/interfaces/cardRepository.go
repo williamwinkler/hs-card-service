@@ -5,7 +5,10 @@ import (
 )
 
 type CardRepository interface {
-	Insert(card domain.Card) error
+	InsertOne(card domain.Card) error
 	InsertMany(cards []domain.Card) error
 	FindAll() ([]domain.Card, error)
+	UpdateOne(domain.Card) error
+	DeleteOne(domain.Card) error
+	DeleteAll() error
 }
