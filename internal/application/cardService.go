@@ -1,6 +1,7 @@
 package application
 
 import (
+	"log"
 	"sort"
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
@@ -20,6 +21,8 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 }
 
 func (c *CardService) UpdateCards() error {
+	log.Println("Updating cards...")
+
 	cards, err := c.HsClient.GetAllCards()
 	if err != nil {
 		return err
@@ -31,34 +34,52 @@ func (c *CardService) UpdateCards() error {
 		return err
 	}
 
-	newCardsMap := make(map[*domain.Card]bool)
+	newCardsMap := make(map[int]bool)
 	for _, card := range newCards {
-		newCardsMap[&card] = true
+		newCardsMap[card.ID] = true
 	}
 
-	oldCardsMap := make(map[*domain.Card]bool)
+	oldCardsMap := make(map[int]bool)
 	for _, card := range oldCards {
-		oldCardsMap[&card] = true
+		oldCardsMap[card.ID] = true
 	}
 
+	// Remove old cards from the collection which are not in the new list
 	for i, card := range oldCards {
-		if !newCardsMap[&card] {
-			c.CardRepo.DeleteOne(card)
-			oldCards = append(oldCards[:i], oldCards[i+1:]...)
-		} else {
-			if !card.IsEqual(newCards[i]) {
-				c.CardRepo.UpdateOne(newCards[i])
-				oldCards[i] = newCards[i]
+		if !newCardsMap[card.ID] {
+			err := c.CardRepo.DeleteOne(card)
+			if err != nil {
+				log.Fatalf("Card %d failed to be deleted: %v", card.ID, err)
+				continue
 			}
-			delete(newCardsMap, &card)
-			delete(oldCardsMap, &card)
+			log.Printf("Card %d was deleted", card.ID)
+			delete(oldCardsMap, card.ID)
+			oldCards = append(oldCards[:i], oldCards[i+1:]...)
 		}
 	}
 
-	for card := range newCardsMap {
-		c.CardRepo.InsertOne(*card)
+	// Add new or update cards to the collection
+	for i, card := range newCards {
+		if !oldCardsMap[card.ID] {
+			err := c.CardRepo.InsertOne(card)
+			if err != nil {
+				log.Fatalf("Card %d failed to inserted: %v", card.ID, err)
+				continue
+			}
+			log.Printf("Card %d was added", card.ID)
+		} else {
+			if !card.IsEqual(oldCards[i]) {
+				err := c.CardRepo.UpdateOne(card)
+				if err != nil {
+					log.Fatalf("Card %d failed to be updated: %v", card.ID, err)
+					continue
+				}
+				log.Printf("Card %d was updated", card.ID)
+			}
+		}
 	}
 
+	log.Println("Finished updating cards")
 	return nil
 }
 

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/joho/godotenv"
-	"github.com/williamwinkler/hs-card-service/internal/application"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"github.com/williamwinkler/hs-card-service/internal/tests/mocks"
 )
 
 func main() {
@@ -15,18 +15,28 @@ func main() {
 		log.Fatal("Failed to load .env file")
 	}
 
-	cardRepo, err := repositories.NewCardRepository()
-	if err != nil {
-		log.Fatal(err)
+	newCards := []domain.Card{
+		{
+			ID:   1,
+			Name: "card_a",
+		},
+		{
+			ID:   2,
+			Name: "card_b",
+		},
+		{
+			ID:   4,
+			Name: "card_d",
+		},
 	}
 
-	hsClient, err := clients.NewHsClient()
-	if err != nil {
-		log.Fatal(err)
-	}
+	cardRepo := mocks.NewCardRepository()
 
-	cardService := application.NewCardService(hsClient, cardRepo)
-	cardService.UpdateCards()
+	cardRepo.InsertMany(newCards)
+
+	cards, _ := cardRepo.FindAll()
+
+	fmt.Println(cards)
 
 	// cards, err := hsClient.GetAllCards()
 
