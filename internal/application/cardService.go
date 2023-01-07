@@ -21,7 +21,7 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 }
 
 func (c *CardService) UpdateCards() error {
-	log.Println("Updating cards...")
+	log.Println("Started updating cards...")
 
 	cards, err := c.HsClient.GetAllCards()
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *CardService) UpdateCards() error {
 			}
 			log.Printf("Card %d was added", card.ID)
 		} else {
-			if !card.IsEqual(oldCards[i]) {
+			if !card.Equals(oldCards[i]) {
 				err := c.CardRepo.UpdateOne(card)
 				if err != nil {
 					log.Fatalf("Card %d failed to be updated: %v", card.ID, err)

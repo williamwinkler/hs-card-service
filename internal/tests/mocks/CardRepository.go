@@ -5,7 +5,7 @@ package mocks
 import "github.com/williamwinkler/hs-card-service/internal/domain"
 
 type CardRepository struct {
-	Cards map[int]domain.Card
+	Cards map[int]domain.Card // used like a InMemory db
 }
 
 func NewCardRepository() CardRepository {

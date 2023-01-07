@@ -1,0 +1,157 @@
+swagger: "2.0"
+info:
+    description: Serves Hearthstone cards
+    title: Hearthstone Card Service
+    version: 1.0.0
+schemes:
+    - https
+consumes:
+    - application/json
+produces:
+    - application/json
+paths:
+    /:
+        get:
+            summary: Get information about the service
+            tags:
+                - info
+            responses:
+                200:
+                    description: Get current status of amount of cards and last update
+                    schema:
+                        type: object
+                        $ref: "#/definitions/info"
+    /cards:
+        get:
+            summary: Get cards with or without query
+            tags:
+                - cards
+            parameters:
+                -   name: name
+                    in: query
+                    type: string
+                    minLength: 1 
+                -   name: manaCost
+                    in: query
+                    type: integer
+                    minimum: 0
+                -   name: health
+                    in: query
+                    type: integer
+                    minimum: 0
+                -   name: attack
+                    in: query
+                    type: integer
+                    minimum: 0
+                -   name: class
+                    in: query
+                    type: integer    
+                    minimum: 1
+                    maximum: 14
+                -   name: rarity
+                    in: query
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                -   name: page
+                    in: query
+                    type: integer
+                    default: 1
+                    minimum: 1
+                -   name: limit
+                    in: query
+                    type: integer
+                    minimum: 1
+                    default: 20
+                    maximum: 100
+            responses:
+                200:
+                    description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
+                    schema:
+                        type: array
+                        items:
+                             $ref: "#/definitions/card"
+                400:
+                    description: The query is incorrect
+                    schema:
+                        $ref: "#/definitions/error"
+                500:
+                    description: Something went wrong internally
+                    schema:
+                        $ref: "#/definitions/error"
+
+
+definitions:
+    info:
+        type: object
+        properties:
+            amountOfCards:
+                type: integer
+            timeSinceLastUpdate:
+                type: integer
+                description: Seconds since last update
+            uptime:
+                type: integer
+                description: Uptime in hours
+    card:
+        type: object
+        properties:
+            id:
+                type: integer
+                description: This is the ID from blizzards API
+            collectible:
+                type: integer
+            classId:
+                type: integer
+            cardTypeId:
+                type: integer
+            cardSetType:
+                type: integer
+            rarityId:
+                type: integer
+            artistName:
+                type: string
+            health:
+                type: integer
+            attack:
+                type: integer
+            manaCost:
+                type: integer
+            name:
+                type: string
+            text:
+                type: string
+            image:
+                type: string
+                description: Links to a png-image of the card
+            imageGold:
+                type: string
+                description: Links to a png-image of the golden version of the card
+            flavorText: 
+                type: string
+            parentId:
+                type: integer
+            duals:
+                $ref: "#/definitions/duals"
+    duals: 
+        type: object
+        properties:
+            relevant: 
+                type: boolean
+            constructed: 
+                type: boolean
+    error:
+        type: object
+        required:
+            - message
+        properties:
+            code:
+                type: integer
+                format: int64
+                description: HTTPS reponse 400+
+            message:
+                type: string
+            
+
+
+            

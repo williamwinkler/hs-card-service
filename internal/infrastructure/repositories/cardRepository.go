@@ -65,7 +65,8 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 
 func (c *CardRepository) UpdateOne(card domain.Card) error {
 	cardIdFilter := bson.M{"id": card.ID}
-	_, err := c.cardsCollection.UpdateOne(context.TODO(), cardIdFilter, card, nil)
+	cardUpdate := bson.M{"$set": card}
+	_, err := c.cardsCollection.UpdateOne(context.TODO(), cardIdFilter, cardUpdate, nil)
 	return err
 }
 
