@@ -8,8 +8,10 @@ package models
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // Info info
@@ -20,15 +22,37 @@ type Info struct {
 	// amount of cards
 	AmountOfCards int64 `json:"amountOfCards,omitempty"`
 
+	// formatted as RFC 3339
+	// Format: date-time
+	SystemStartTime strfmt.DateTime `json:"systemStartTime,omitempty"`
+
 	// Seconds since last update
 	TimeSinceLastUpdate int64 `json:"timeSinceLastUpdate,omitempty"`
-
-	// Uptime in hours
-	Uptime int64 `json:"uptime,omitempty"`
 }
 
 // Validate validates this info
 func (m *Info) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateSystemStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Info) validateSystemStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(m.SystemStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("systemStartTime", "body", "date-time", m.SystemStartTime.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

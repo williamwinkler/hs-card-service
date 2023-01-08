@@ -94,9 +94,10 @@ definitions:
             timeSinceLastUpdate:
                 type: integer
                 description: Seconds since last update
-            uptime:
-                type: integer
-                description: Uptime in hours
+            systemStartTime:
+                type: string
+                format: date-time
+                description: formatted as RFC 3339
     card:
         type: object
         properties:

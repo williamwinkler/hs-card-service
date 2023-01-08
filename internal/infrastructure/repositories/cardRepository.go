@@ -22,12 +22,12 @@ func NewCardRepository() (*CardRepository, error) {
 	}
 	clientOptions := options.Client().ApplyURI(connection_string)
 
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return &CardRepository{}, err
 	}
 
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
 		return &CardRepository{}, err
 	}
@@ -40,7 +40,7 @@ func NewCardRepository() (*CardRepository, error) {
 }
 
 func (c *CardRepository) InsertOne(card domain.Card) error {
-	_, err := c.cardsCollection.InsertOne(context.TODO(), card)
+	_, err := c.cardsCollection.InsertOne(context.Background(), card)
 	return err
 }
 
@@ -49,13 +49,13 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 	for i, card := range cards {
 		cardsInterface[i] = card
 	}
-	_, err := c.cardsCollection.InsertMany(context.TODO(), cardsInterface)
+	_, err := c.cardsCollection.InsertMany(context.Background(), cardsInterface)
 	return err
 }
 
 func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	sortByNameFilter := options.Find().SetSort(bson.M{"name": 1})
-	cursor, err := c.cardsCollection.Find(context.TODO(), bson.M{}, sortByNameFilter)
+	cursor, err := c.cardsCollection.Find(context.Background(), bson.M{}, sortByNameFilter)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -66,7 +66,7 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 func (c *CardRepository) UpdateOne(card domain.Card) error {
 	cardIdFilter := bson.M{"id": card.ID}
 	cardUpdate := bson.M{"$set": card}
-	_, err := c.cardsCollection.UpdateOne(context.TODO(), cardIdFilter, cardUpdate, nil)
+	_, err := c.cardsCollection.UpdateOne(context.Background(), cardIdFilter, cardUpdate, nil)
 	return err
 }
 
@@ -75,7 +75,7 @@ func (c *CardRepository) DeleteOne(domain.Card) error {
 }
 
 func (c *CardRepository) DeleteAll() error {
-	result, err := c.cardsCollection.DeleteMany(context.TODO(), bson.M{}, nil)
+	result, err := c.cardsCollection.DeleteMany(context.Background(), bson.M{}, nil)
 	if err != nil {
 		return err
 	}
@@ -87,12 +87,12 @@ func (c *CardRepository) DeleteAll() error {
 }
 
 func (c *CardRepository) Count() (int64, error) {
-	return c.cardsCollection.CountDocuments(context.TODO(), nil, nil)
+	return c.cardsCollection.CountDocuments(context.Background(), bson.M{}, nil)
 }
 
 func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {
 	var cards []domain.Card
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(context.Background()) {
 		var card domain.Card
 		err := cursor.Decode(&card)
 		if err != nil {

@@ -233,12 +233,13 @@ func init() {
         "amountOfCards": {
           "type": "integer"
         },
+        "systemStartTime": {
+          "description": "formatted as RFC 3339",
+          "type": "string",
+          "format": "date-time"
+        },
         "timeSinceLastUpdate": {
           "description": "Seconds since last update",
-          "type": "integer"
-        },
-        "uptime": {
-          "description": "Uptime in hours",
           "type": "integer"
         }
       }
@@ -464,12 +465,13 @@ func init() {
         "amountOfCards": {
           "type": "integer"
         },
+        "systemStartTime": {
+          "description": "formatted as RFC 3339",
+          "type": "string",
+          "format": "date-time"
+        },
         "timeSinceLastUpdate": {
           "description": "Seconds since last update",
-          "type": "integer"
-        },
-        "uptime": {
-          "description": "Uptime in hours",
           "type": "integer"
         }
       }
