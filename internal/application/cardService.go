@@ -9,27 +9,27 @@ import (
 )
 
 type CardService struct {
-	HsClient interfaces.HsClient
-	CardRepo interfaces.CardRepository
+	hsClient interfaces.HsClient
+	cardRepo interfaces.CardRepository
 }
 
 func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardRepository) *CardService {
 	return &CardService{
-		HsClient: hsclient,
-		CardRepo: cardRepo,
+		hsClient: hsclient,
+		cardRepo: cardRepo,
 	}
 }
 
 func (c *CardService) UpdateCards() error {
 	log.Println("Started updating cards...")
 
-	cards, err := c.HsClient.GetAllCards()
+	cards, err := c.hsClient.GetAllCards()
 	if err != nil {
 		return err
 	}
 	newCards := sortCardsByAlphabet(cards)
 
-	oldCards, err := c.CardRepo.FindAll()
+	oldCards, err := c.cardRepo.FindAll()
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (c *CardService) UpdateCards() error {
 	// Remove old cards from the collection which are not in the new list
 	for i, card := range oldCards {
 		if !newCardsMap[card.ID] {
-			err := c.CardRepo.DeleteOne(card)
+			err := c.cardRepo.DeleteOne(card)
 			if err != nil {
 				log.Fatalf("Card %d failed to be deleted: %v", card.ID, err)
 				continue
@@ -61,7 +61,7 @@ func (c *CardService) UpdateCards() error {
 	// Add new or update cards to the collection
 	for i, card := range newCards {
 		if !oldCardsMap[card.ID] {
-			err := c.CardRepo.InsertOne(card)
+			err := c.cardRepo.InsertOne(card)
 			if err != nil {
 				log.Fatalf("Card %d failed to inserted: %v", card.ID, err)
 				continue
@@ -69,7 +69,7 @@ func (c *CardService) UpdateCards() error {
 			log.Printf("Card %d was added", card.ID)
 		} else {
 			if !card.Equals(oldCards[i]) {
-				err := c.CardRepo.UpdateOne(card)
+				err := c.cardRepo.UpdateOne(card)
 				if err != nil {
 					log.Fatalf("Card %d failed to be updated: %v", card.ID, err)
 					continue
