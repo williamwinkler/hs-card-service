@@ -21,6 +21,10 @@ paths:
                     schema:
                         type: object
                         $ref: "#/definitions/info"
+                500:
+                    description: Something went wrong
+                    schema:
+                        $ref: "#/definitions/error"
     /cards:
         get:
             summary: Get cards with or without query
@@ -147,7 +151,6 @@ definitions:
         properties:
             code:
                 type: integer
-                format: int64
                 description: HTTPS reponse 400+
             message:
                 type: string

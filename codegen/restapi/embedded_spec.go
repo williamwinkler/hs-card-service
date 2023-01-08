@@ -47,6 +47,12 @@ func init() {
               "type": "object",
               "$ref": "#/definitions/info"
             }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -214,8 +220,7 @@ func init() {
       "properties": {
         "code": {
           "description": "HTTPS reponse 400+",
-          "type": "integer",
-          "format": "int64"
+          "type": "integer"
         },
         "message": {
           "type": "string"
@@ -270,6 +275,12 @@ func init() {
               "type": "object",
               "$ref": "#/definitions/info"
             }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -440,8 +451,7 @@ func init() {
       "properties": {
         "code": {
           "description": "HTTPS reponse 400+",
-          "type": "integer",
-          "format": "int64"
+          "type": "integer"
         },
         "message": {
           "type": "string"

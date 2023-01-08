@@ -86,6 +86,10 @@ func (c *CardRepository) DeleteAll() error {
 	return nil
 }
 
+func (c *CardRepository) Count() (int64, error) {
+	return c.cardsCollection.CountDocuments(context.TODO(), nil, nil)
+}
+
 func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {
 	var cards []domain.Card
 	for cursor.Next(context.TODO()) {
