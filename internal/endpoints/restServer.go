@@ -43,12 +43,24 @@ func (s *RestServer) StartServer() {
 	flag.Parse()
 	server.Port = *portFlag
 
-	// handle for different paths
-	inforHandler := handlers.NewInfoHandler(api, s.cardRepo)
-	inforHandler.SetupInfoHandler()
+	// inizalize handlers
+	handlers := []Handler{
+		handlers.NewInfoHandler(api, s.cardRepo),
+	}
+	inizializeHandlers(handlers)
 
 	// serve API
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
+	}
+}
+
+type Handler interface {
+	SetupHandler()
+}
+
+func inizializeHandlers(handlers []Handler) {
+	for _, handler := range handlers {
+		handler.SetupHandler()
 	}
 }

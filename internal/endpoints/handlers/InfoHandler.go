@@ -27,13 +27,13 @@ func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *reposit
 	}
 }
 
-func (i *InfoHandler) SetupInfoHandler() {
+func (i *InfoHandler) SetupHandler() {
 	i.api.InfoGetHandler = info.GetHandlerFunc(
 		func(gp info.GetParams) middleware.Responder {
 
 			count, err := i.cardRepo.Count()
 			if err != nil {
-				log.Fatalf("GetInfo: %v", err)
+				log.Fatalf("GetInfo failed: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong getting with getting card count")
 				return info.NewGetInternalServerError().WithPayload(errorMessage)
 			}
