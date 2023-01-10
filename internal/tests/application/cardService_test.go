@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/tests/mocks"
@@ -52,9 +53,11 @@ func Test_UpdateCards(t *testing.T) {
 	assert := assert.New(t)
 	cardRepo := mocks.NewCardRepository()
 	hsClient := mocks.HsClient{}
-	cardService := application.NewCardService(&hsClient, &cardRepo)
+	cardMetaRepo := mocks.CardMetaRepository{}
+	cardService := application.NewCardService(&hsClient, &cardRepo, &cardMetaRepo)
 	cardRepo.InsertMany(oldCards)
 	hsClient.On("GetAllCards").Return(newCards, nil)
+	cardMetaRepo.On("InsertOne", mock.AnythingOfType("domain.CardMeta")).Return(nil)
 
 	// Act
 	err := cardService.UpdateCards()
