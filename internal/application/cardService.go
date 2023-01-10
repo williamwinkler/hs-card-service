@@ -9,14 +9,16 @@ import (
 )
 
 type CardService struct {
-	hsClient interfaces.HsClient
-	cardRepo interfaces.CardRepository
+	hsClient     interfaces.HsClient
+	cardRepo     interfaces.CardRepository
+	cardMetaRepo interfaces.CardMetaRepository
 }
 
-func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardRepository) *CardService {
+func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardRepository, cardMetaRepo interfaces.CardMetaRepository) *CardService {
 	return &CardService{
-		hsClient: hsclient,
-		cardRepo: cardRepo,
+		hsClient:     hsclient,
+		cardRepo:     cardRepo,
+		cardMetaRepo: cardMetaRepo,
 	}
 }
 

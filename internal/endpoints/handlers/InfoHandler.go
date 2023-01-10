@@ -30,20 +30,18 @@ func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *reposit
 func (i *InfoHandler) SetupHandler() {
 	i.api.InfoGetHandler = info.GetHandlerFunc(
 		func(gp info.GetParams) middleware.Responder {
+			defer log.Println("Handled GetInfo request")
 
 			count, err := i.cardRepo.Count()
 			if err != nil {
-				log.Fatalf("GetInfo failed: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong getting with getting card count")
 				return info.NewGetInternalServerError().WithPayload(errorMessage)
 			}
 
-			// TODO: get real TimeSinceLastUpdate
-
 			infoResponse := models.Info{
-				AmountOfCards:       count,
-				TimeSinceLastUpdate: 2,
-				SystemStartTime:     strfmt.DateTime(systemStartTime),
+				AmountOfCards:   count,
+				LastUpdate:      strfmt.DateTime(time.Now()),
+				SystemStartTime: strfmt.DateTime(systemStartTime),
 			}
 			return info.NewGetOK().WithPayload(&infoResponse)
 		},

@@ -231,16 +231,18 @@ func init() {
       "type": "object",
       "properties": {
         "amountOfCards": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "lastUpdate": {
+          "description": "formatted as RFC 3339",
+          "type": "string",
+          "format": "date-time"
         },
         "systemStartTime": {
           "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
-        },
-        "timeSinceLastUpdate": {
-          "description": "Seconds since last update",
-          "type": "integer"
         }
       }
     }
@@ -463,16 +465,18 @@ func init() {
       "type": "object",
       "properties": {
         "amountOfCards": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "lastUpdate": {
+          "description": "formatted as RFC 3339",
+          "type": "string",
+          "format": "date-time"
         },
         "systemStartTime": {
           "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
-        },
-        "timeSinceLastUpdate": {
-          "description": "Seconds since last update",
-          "type": "integer"
         }
       }
     }

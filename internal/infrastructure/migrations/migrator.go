@@ -13,7 +13,7 @@ import (
 
 const DATABASE = "hs-card-service"
 const CARDS_COLLECTION = "cards"
-const INFO_COLLECTION = "info"
+const CARDS_META_COLLECTION = "cards-meta"
 
 type Database struct {
 	Client *mongo.Client
@@ -38,7 +38,7 @@ func SetupDatabase() (*Database, error) {
 	if err != nil {
 		return &Database{}, err
 	}
-	err = createCollection(db, INFO_COLLECTION)
+	err = createCollection(db, CARDS_META_COLLECTION)
 	if err != nil {
 		return &Database{}, err
 	}
@@ -63,11 +63,11 @@ func createDatabase(client *mongo.Client, dbName string) {
 
 func createCollection(db *mongo.Database, collectionName string) error {
 	err := db.CreateCollection(context.TODO(), collectionName)
-	if err.Error() == fmt.Sprintf("(NamespaceExists) Collection %s.%s already exists.", db.Name(), collectionName) {
-		log.Printf("Collection '%s' already exists", collectionName)
-		return nil
-	}
 	if err != nil {
+		if err.Error() == fmt.Sprintf("(NamespaceExists) Collection %s.%s already exists.", db.Name(), collectionName) { // TODO: better error checking
+			log.Printf("Collection '%s' already exists", collectionName)
+			return nil
+		}
 		return fmt.Errorf("Failed to create collection '%s' in database '%s': %v", collectionName, db.Name(), err)
 	}
 

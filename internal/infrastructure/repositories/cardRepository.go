@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,12 +15,12 @@ type CardRepository struct {
 	cardsCollection *mongo.Collection
 }
 
-func NewCardRepository(db *mongo.Database) (*CardRepository, error) {
-	cardsCollection := db.Collection("cards")
+func NewCardRepository(db *mongo.Database) *CardRepository {
+	cardsCollection := db.Collection(migrations.CARDS_COLLECTION)
 
 	return &CardRepository{
 		cardsCollection: cardsCollection,
-	}, nil
+	}
 }
 
 func (c *CardRepository) InsertOne(card domain.Card) error {

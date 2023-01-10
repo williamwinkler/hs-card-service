@@ -20,19 +20,24 @@ import (
 type Info struct {
 
 	// amount of cards
-	AmountOfCards int64 `json:"amountOfCards,omitempty"`
+	AmountOfCards int64 `json:"amountOfCards"`
+
+	// formatted as RFC 3339
+	// Format: date-time
+	LastUpdate strfmt.DateTime `json:"lastUpdate,omitempty"`
 
 	// formatted as RFC 3339
 	// Format: date-time
 	SystemStartTime strfmt.DateTime `json:"systemStartTime,omitempty"`
-
-	// Seconds since last update
-	TimeSinceLastUpdate int64 `json:"timeSinceLastUpdate,omitempty"`
 }
 
 // Validate validates this info
 func (m *Info) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateLastUpdate(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateSystemStartTime(formats); err != nil {
 		res = append(res, err)
@@ -41,6 +46,18 @@ func (m *Info) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Info) validateLastUpdate(formats strfmt.Registry) error {
+	if swag.IsZero(m.LastUpdate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lastUpdate", "body", "date-time", m.LastUpdate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

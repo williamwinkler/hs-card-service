@@ -27,12 +27,10 @@ func main() {
 		log.Fatalf("Failed to start HsClient: %v", err)
 	}
 
-	cardRepository, err := repositories.NewCardRepository(database.Db)
-	if err != nil {
-		log.Fatalf("Failed to start cardRepository: %v", err)
-	}
+	cardRepository := repositories.NewCardRepository(database.Db)
+	cardMetaRepository := repositories.NewCardMetaRepository(database.Db)
 
-	cardService := application.NewCardService(hsClient, cardRepository)
+	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 
 	restServer := endpoints.NewRestServer(cardService, cardRepository)
 

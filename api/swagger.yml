@@ -91,9 +91,11 @@ definitions:
         properties:
             amountOfCards:
                 type: integer
-            timeSinceLastUpdate:
-                type: integer
-                description: Seconds since last update
+                x-omitempty: false
+            lastUpdate:
+                type: string
+                format: date-time
+                description: formatted as RFC 33
             systemStartTime:
                 type: string
                 format: date-time

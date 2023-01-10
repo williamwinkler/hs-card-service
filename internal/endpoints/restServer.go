@@ -19,7 +19,10 @@ type RestServer struct {
 	cardRepo    *repositories.CardRepository
 }
 
-func NewRestServer(cardService *application.CardService, cardRepo *repositories.CardRepository) *RestServer {
+func NewRestServer(
+	cardService *application.CardService,
+	cardRepo *repositories.CardRepository,
+) *RestServer {
 	return &RestServer{
 		cardService: cardService,
 		cardRepo:    cardRepo,
