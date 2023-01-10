@@ -34,6 +34,7 @@ func (i *InfoHandler) SetupHandler() {
 
 			count, err := i.cardRepo.Count()
 			if err != nil {
+				log.Printf("Error occurred in GET /info: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong getting with getting card count")
 				return info.NewGetInternalServerError().WithPayload(errorMessage)
 			}

@@ -22,7 +22,7 @@ type Info struct {
 	// amount of cards
 	AmountOfCards int64 `json:"amountOfCards"`
 
-	// formatted as RFC 3339
+	// formatted as RFC 33
 	// Format: date-time
 	LastUpdate strfmt.DateTime `json:"lastUpdate,omitempty"`
 

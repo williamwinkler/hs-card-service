@@ -139,6 +139,28 @@ func init() {
           }
         }
       }
+    },
+    "/cards/update": {
+      "post": {
+        "description": "Checks for updates to cards",
+        "tags": [
+          "cards"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -235,7 +257,7 @@ func init() {
           "x-omitempty": false
         },
         "lastUpdate": {
-          "description": "formatted as RFC 3339",
+          "description": "formatted as RFC 33",
           "type": "string",
           "format": "date-time"
         },
@@ -373,6 +395,28 @@ func init() {
           }
         }
       }
+    },
+    "/cards/update": {
+      "post": {
+        "description": "Checks for updates to cards",
+        "tags": [
+          "cards"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -469,7 +513,7 @@ func init() {
           "x-omitempty": false
         },
         "lastUpdate": {
-          "description": "formatted as RFC 3339",
+          "description": "formatted as RFC 33",
           "type": "string",
           "format": "date-time"
         },

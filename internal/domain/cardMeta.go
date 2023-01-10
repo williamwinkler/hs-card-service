@@ -19,8 +19,14 @@ type CardChangeType string
 const (
 	CardChangeTypeUpdated CardChangeType = "Updated"
 	CardChangeTypeDeleted CardChangeType = "Deleted"
-	CardChangeTypeAdded    CardChangeType = "Added"
+	CardChangeTypeAdded   CardChangeType = "Added"
 )
+
+func NewCardMeta() CardMeta {
+	return CardMeta{
+		Updated: time.Now(),
+	}
+}
 
 func (c *CardMeta) UpdateCard(prevCard Card, newCard Card) {
 	cardChange := CardChange{

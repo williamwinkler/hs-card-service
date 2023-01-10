@@ -51,6 +51,9 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 		CardsGetCardsHandler: cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		}),
+		CardsPostCardsUpdateHandler: cards.PostCardsUpdateHandlerFunc(func(params cards.PostCardsUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.PostCardsUpdate has not yet been implemented")
+		}),
 	}
 }
 
@@ -91,6 +94,8 @@ type HearthstoneCardServiceAPI struct {
 	InfoGetHandler info.GetHandler
 	// CardsGetCardsHandler sets the operation handler for the get cards operation
 	CardsGetCardsHandler cards.GetCardsHandler
+	// CardsPostCardsUpdateHandler sets the operation handler for the post cards update operation
+	CardsPostCardsUpdateHandler cards.PostCardsUpdateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -173,6 +178,9 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 	}
 	if o.CardsGetCardsHandler == nil {
 		unregistered = append(unregistered, "cards.GetCardsHandler")
+	}
+	if o.CardsPostCardsUpdateHandler == nil {
+		unregistered = append(unregistered, "cards.PostCardsUpdateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -270,6 +278,10 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/cards"] = cards.NewGetCards(o.context, o.CardsGetCardsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/cards/update"] = cards.NewPostCardsUpdate(o.context, o.CardsPostCardsUpdateHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

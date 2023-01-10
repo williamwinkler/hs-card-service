@@ -46,6 +46,8 @@ func (c *CardService) UpdateCards() error {
 		oldCardsMap[card.ID] = true
 	}
 
+	cardsUpdate := domain.NewCardMeta()
+
 	// Remove old cards from the collection which are not in the new list
 	for i, card := range oldCards {
 		if !newCardsMap[card.ID] {
@@ -57,6 +59,7 @@ func (c *CardService) UpdateCards() error {
 			log.Printf("Card %d was deleted", card.ID)
 			delete(oldCardsMap, card.ID)
 			oldCards = append(oldCards[:i], oldCards[i+1:]...)
+			cardsUpdate.DeleteCard(card)
 		}
 	}
 
@@ -69,6 +72,7 @@ func (c *CardService) UpdateCards() error {
 				continue
 			}
 			log.Printf("Card %d was added", card.ID)
+			cardsUpdate.AddCard(card)
 		} else {
 			if !card.Equals(oldCards[i]) {
 				err := c.cardRepo.UpdateOne(card)
@@ -77,8 +81,14 @@ func (c *CardService) UpdateCards() error {
 					continue
 				}
 				log.Printf("Card %d was updated", card.ID)
+				cardsUpdate.UpdateCard(oldCards[i], card)
 			}
 		}
+	}
+
+	err = c.cardMetaRepo.InsertOne(cardsUpdate)
+	if err != nil {
+		return err
 	}
 
 	log.Println("Finished updating cards")
