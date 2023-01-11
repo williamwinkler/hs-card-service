@@ -24,8 +24,8 @@ type Card struct {
 	// attack
 	Attack int64 `json:"attack,omitempty"`
 
-	// card set type
-	CardSetType int64 `json:"cardSetType,omitempty"`
+	// card set Id
+	CardSetID int64 `json:"cardSetId,omitempty"`
 
 	// card type Id
 	CardTypeID int64 `json:"cardTypeId,omitempty"`

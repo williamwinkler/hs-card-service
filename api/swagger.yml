@@ -126,7 +126,7 @@ definitions:
                 type: integer
             cardTypeId:
                 type: integer
-            cardSetType:
+            cardSetId:
                 type: integer
             rarityId:
                 type: integer

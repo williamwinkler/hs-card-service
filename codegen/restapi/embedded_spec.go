@@ -173,7 +173,7 @@ func init() {
         "attack": {
           "type": "integer"
         },
-        "cardSetType": {
+        "cardSetId": {
           "type": "integer"
         },
         "cardTypeId": {
@@ -429,7 +429,7 @@ func init() {
         "attack": {
           "type": "integer"
         },
-        "cardSetType": {
+        "cardSetId": {
           "type": "integer"
         },
         "cardTypeId": {

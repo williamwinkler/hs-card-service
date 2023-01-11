@@ -4,8 +4,10 @@ import (
 	"log"
 	"sort"
 
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CardService struct {
@@ -20,6 +22,43 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 		cardRepo:     cardRepo,
 		cardMetaRepo: cardMetaRepo,
 	}
+}
+
+func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, error) {
+	filter := bson.M{}
+
+	if params.Name != nil {
+		filter["Name"] = params.Name
+	}
+	if params.ManaCost != nil {
+		filter["ManaCost"] = params.ManaCost
+	}
+	if params.Health != nil {
+		filter["Health"] = params.Health
+	}
+	if params.Attack != nil {
+		filter["Attack"] = params.Attack
+	}
+	if params.Class != nil {
+		filter["Class"] = params.Class
+	}
+	if params.Rarity != nil {
+		filter["Rarity"] = params.Rarity
+	}
+	if params.Page != nil {
+		filter["Page"] = params.Page
+	}
+	if params.Limit != nil {
+		filter["Limit"] = params.Limit
+	}
+
+	// TODO: this query does not work !!!
+	cards, err := c.cardRepo.FindWithFilter(filter)
+	if err != nil {
+		return []domain.Card{}, err
+	}
+
+	return cards, nil
 }
 
 func (c *CardService) UpdateCards() error {
@@ -44,7 +83,7 @@ func (c *CardService) UpdateCards() error {
 		oldCardsMap[card.ID] = true
 	}
 
-	cardsUpdate := domain.NewCardMeta()
+	cardsMetaUpdate := domain.NewCardMeta()
 
 	// Remove old cards from the collection which are not in the new list
 	for i, card := range oldCards {
@@ -57,7 +96,7 @@ func (c *CardService) UpdateCards() error {
 			log.Printf("Card %d was deleted", card.ID)
 			delete(oldCardsMap, card.ID)
 			oldCards = append(oldCards[:i], oldCards[i+1:]...)
-			cardsUpdate.DeleteCard(card)
+			cardsMetaUpdate.DeleteCard(card)
 		}
 	}
 
@@ -70,7 +109,7 @@ func (c *CardService) UpdateCards() error {
 				continue
 			}
 			log.Printf("Card %d was added", card.ID)
-			cardsUpdate.AddCard(card)
+			cardsMetaUpdate.AddCard(card)
 		} else {
 			if !card.Equals(oldCards[i]) {
 				err := c.cardRepo.UpdateOne(card)
@@ -79,12 +118,12 @@ func (c *CardService) UpdateCards() error {
 					continue
 				}
 				log.Printf("Card %d was updated", card.ID)
-				cardsUpdate.UpdateCard(oldCards[i], card)
+				cardsMetaUpdate.UpdateCard(oldCards[i], card)
 			}
 		}
 	}
 
-	err = c.cardMetaRepo.InsertOne(cardsUpdate)
+	err = c.cardMetaRepo.InsertOne(cardsMetaUpdate)
 	if err != nil {
 		return err
 	}

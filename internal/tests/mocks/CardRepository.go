@@ -2,7 +2,10 @@
 
 package mocks
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 type CardRepository struct {
 	Cards map[int]domain.Card // used like a InMemory db
@@ -33,6 +36,10 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	}
 
 	return cards, nil
+}
+
+func (c *CardRepository) FindWithFilter(filter bson.M) ([]domain.Card, error) {
+	return []domain.Card{}, nil
 }
 
 func (c *CardRepository) UpdateOne(card domain.Card) error {

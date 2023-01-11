@@ -47,6 +47,15 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	return decodeToCards(cursor)
 }
 
+func (c *CardRepository) FindWithFilter(filter bson.M) ([]domain.Card, error) {
+	cursor, err := c.cardsCollection.Find(context.TODO(), filter)
+	if err != nil {
+		return []domain.Card{}, err
+	}
+
+	return decodeToCards(cursor)
+}
+
 func (c *CardRepository) UpdateOne(card domain.Card) error {
 	cardIdFilter := bson.M{"id": card.ID}
 	cardUpdate := bson.M{"$set": card}

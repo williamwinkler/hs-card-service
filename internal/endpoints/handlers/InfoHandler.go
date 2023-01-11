@@ -30,7 +30,7 @@ func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *reposit
 func (i *InfoHandler) SetupHandler() {
 	i.api.InfoGetHandler = info.GetHandlerFunc(
 		func(gp info.GetParams) middleware.Responder {
-			defer log.Println("Handled GetInfo request")
+			defer log.Printf("Handled %s request", gp.HTTPRequest.URL)
 
 			count, err := i.cardRepo.Count()
 			if err != nil {

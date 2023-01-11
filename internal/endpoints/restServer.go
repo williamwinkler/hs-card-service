@@ -50,6 +50,7 @@ func (s *RestServer) StartServer() {
 	handlers := []Handler{
 		handlers.NewInfoHandler(api, s.cardRepo),
 		handlers.NewCardUpdateHandler(api, s.cardService),
+		handlers.NewCardHandler(api, s.cardService),
 	}
 	inizializeHandlers(handlers)
 

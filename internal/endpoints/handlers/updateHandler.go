@@ -27,7 +27,7 @@ func (c *CardUpdateHandler) SetupHandler() {
 	c.api.CardsPostCardsUpdateHandler = cards.PostCardsUpdateHandlerFunc(
 		func(pup cards.PostCardsUpdateParams) middleware.Responder {
 			log.Println("Handling request POST /cards/update...")
-			defer log.Println("Handled PostUpdate request")
+			defer log.Printf("Handled %s request", pup.HTTPRequest.URL)
 
 			err := c.cardService.UpdateCards()
 			if err != nil {
