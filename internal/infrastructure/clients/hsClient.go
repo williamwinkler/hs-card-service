@@ -39,8 +39,6 @@ func NewHsClient() (*HsClient, error) {
 }
 
 func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
-	log.Println("Getting all cards...")
-
 	var cardsList []domain.Card
 	page := 1
 	for {
@@ -58,7 +56,6 @@ func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
 		page += 1
 	}
 
-	log.Printf("Finished getting all cards. In total: %d", len(cardsList))
 	return cardsList, nil
 }
 

@@ -23,8 +23,6 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 }
 
 func (c *CardService) UpdateCards() error {
-	log.Println("Started updating cards...")
-
 	cards, err := c.hsClient.GetAllCards()
 	if err != nil {
 		return err
@@ -91,7 +89,6 @@ func (c *CardService) UpdateCards() error {
 		return err
 	}
 
-	log.Println("Finished updating cards")
 	return nil
 }
 
