@@ -81,7 +81,11 @@ func (c *CardRepository) DeleteAll() error {
 }
 
 func (c *CardRepository) Count() (int64, error) {
-	return c.cardsCollection.CountDocuments(context.Background(), bson.M{}, nil)
+	return c.CountWithFilter(bson.M{})
+}
+
+func (c *CardRepository) CountWithFilter(filter bson.M) (int64, error) {
+	return c.cardsCollection.CountDocuments(context.Background(), filter, nil)
 }
 
 func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {

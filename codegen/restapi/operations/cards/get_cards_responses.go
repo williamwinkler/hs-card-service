@@ -26,7 +26,7 @@ type GetCardsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*models.Card `json:"body,omitempty"`
+	Payload *models.Cards `json:"body,omitempty"`
 }
 
 // NewGetCardsOK creates GetCardsOK with default headers values
@@ -36,13 +36,13 @@ func NewGetCardsOK() *GetCardsOK {
 }
 
 // WithPayload adds the payload to the get cards o k response
-func (o *GetCardsOK) WithPayload(payload []*models.Card) *GetCardsOK {
+func (o *GetCardsOK) WithPayload(payload *models.Cards) *GetCardsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get cards o k response
-func (o *GetCardsOK) SetPayload(payload []*models.Card) {
+func (o *GetCardsOK) SetPayload(payload *models.Cards) {
 	o.Payload = payload
 }
 
@@ -50,14 +50,11 @@ func (o *GetCardsOK) SetPayload(payload []*models.Card) {
 func (o *GetCardsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		// return empty array
-		payload = make([]*models.Card, 0, 50)
-	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

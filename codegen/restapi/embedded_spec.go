@@ -119,10 +119,7 @@ func init() {
           "200": {
             "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/card"
-              }
+              "$ref": "#/definitions/cards"
             }
           },
           "400": {
@@ -230,6 +227,26 @@ func init() {
         },
         "text": {
           "type": "string"
+        }
+      }
+    },
+    "cards": {
+      "type": "object",
+      "properties": {
+        "cardCount": {
+          "type": "integer"
+        },
+        "cards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/card"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageCount": {
+          "type": "integer"
         }
       }
     },
@@ -385,10 +402,7 @@ func init() {
           "200": {
             "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/card"
-              }
+              "$ref": "#/definitions/cards"
             }
           },
           "400": {
@@ -496,6 +510,26 @@ func init() {
         },
         "text": {
           "type": "string"
+        }
+      }
+    },
+    "cards": {
+      "type": "object",
+      "properties": {
+        "cardCount": {
+          "type": "integer"
+        },
+        "cards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/card"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageCount": {
+          "type": "integer"
         }
       }
     },

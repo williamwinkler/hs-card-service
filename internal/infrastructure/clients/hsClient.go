@@ -60,10 +60,9 @@ func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
 }
 
 func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error) {
-	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards"
+	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards?locale=en_US"
 
 	queryParams := url.Values{}
-	queryParams.Set("locale", "en_US")
 	queryParams.Set("page", strconv.Itoa(page))
 	queryParams.Set("pageSize", strconv.Itoa(pageSize))
 
@@ -72,19 +71,13 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
 	//fmt.Println(url)
 
-	req, err := hc.createGetRequest(url)
+	response, err := hc.executeCreateGetRequest(url)
 	if err != nil {
 		return []domain.Card{}, err
 	}
 
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return []domain.Card{}, fmt.Errorf("failed to do GET-request for /cards")
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -95,30 +88,51 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards. Body was %+v", body)
 	}
 
-	cards := mapToCards(cardsDto)
+	cards := dto.MapToCards(cardsDto)
 
 	return cards, nil
 }
 
-func (hc *HsClient) GetSets() error {
+func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	url := "https://us.api.blizzard.com/hearthstone/metadata/sets?locale=en_US"
 
-	_, err := hc.createGetRequest(url)
+	response, err := hc.executeCreateGetRequest(url)
 	if err != nil {
-		return err
+		return []domain.Set{}, err
 	}
-	return nil
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []domain.Set{}, err
+	}
+
+	var setsDto dto.SetsDto
+	err = json.Unmarshal(body, &setsDto)
+	if err != nil {
+		return []domain.Set{}, err
+	}
+
+	sets := dto.MapToSets(setsDto)
+
+	return sets, nil
 }
 
-func (hc *HsClient) createGetRequest(url string) (*http.Request, error) {
+func (hc *HsClient) executeCreateGetRequest(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return &http.Request{}, fmt.Errorf("failed to create new GET-request for /cards")
+		return &http.Response{}, fmt.Errorf("failed to create new GET-request for /cards")
 	}
 	req.Header.Set("Authorization", "Bearer "+hc.token)
 	req.Header.Set("Content-Type", "application/json")
 
-	return req, nil
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return &http.Response{}, fmt.Errorf("failed to GET url: %s", url)
+	}
+
+	return resp, nil
 }
 
 func getToken() (string, error) {
@@ -171,39 +185,4 @@ func getClientCredentials() (Creds, error) {
 	return Creds{
 		clientId:     clientId,
 		clientSecret: clientSecret}, nil
-}
-
-func mapToCards(cardResp dto.CardsDto) []domain.Card {
-	var cards []domain.Card
-	for _, p := range cardResp.Cards {
-		if p.CopyOfCardID != 0 {
-			continue // if CopyOfCard is not 0, it's an unwanted outdated version
-		}
-
-		var c domain.Card
-		c.ID = p.ID
-		c.Collectible = p.Collectible
-		c.Slug = p.Slug
-		c.ClassID = p.ClassID
-		c.MultiClassIds = p.MultiClassIds
-		c.CardTypeID = p.CardTypeID
-		c.CardSetID = p.CardSetID
-		c.RarityID = p.RarityID
-		c.ArtistName = p.ArtistName
-		c.Health = p.Health
-		c.Attack = p.Attack
-		c.ManaCost = p.ManaCost
-		c.Name = p.Name
-		c.Text = p.Text
-		c.Image = p.Image
-		c.ImageGold = p.ImageGold
-		c.FlavorText = p.FlavorText
-		c.CropImage = p.CropImage
-		c.ParentID = p.ParentID
-		c.KeywordIds = p.KeywordIds
-		c.Duels = p.Duels
-
-		cards = append(cards, c)
-	}
-	return cards
 }

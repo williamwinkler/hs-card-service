@@ -27,6 +27,13 @@ func main() {
 		log.Fatalf("Failed to start HsClient: %v", err)
 	}
 
+	// sets, err := hsClient.GetSets()
+	// if err != nil {
+	// 	log.Fatal("sets failed")
+	// }
+
+	// fmt.Println(sets)
+
 	cardRepository := repositories.NewCardRepository(database.Db)
 	cardMetaRepository := repositories.NewUpdateMetaRepository(database.Db)
 

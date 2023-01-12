@@ -25,10 +25,8 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 	}
 }
 
-func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, error) {
+func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, int64, error) {
 	filter := bson.M{}
-
-	fmt.Printf("%+v", params)
 
 	if params.Name != nil {
 		filter["name"] = params.Name
@@ -52,10 +50,15 @@ func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, erro
 
 	cards, err := c.cardRepo.FindWithFilter(filter, int(*params.Page), int(*params.Limit))
 	if err != nil {
-		return []domain.Card{}, err
+		return []domain.Card{}, 0, err
 	}
 
-	return cards, nil
+	count, err := c.cardRepo.CountWithFilter(filter)
+	if err != nil {
+		return []domain.Card{}, 0, err
+	}
+
+	return cards, count, nil
 }
 
 func (c *CardService) UpdateCards() error {

@@ -13,4 +13,5 @@ type CardRepository interface {
 	UpdateOne(domain.Card) error
 	DeleteOne(domain.Card) error
 	DeleteAll() error
+	CountWithFilter(filter bson.M) (int64, error)
 }

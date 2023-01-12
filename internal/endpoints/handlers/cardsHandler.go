@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log"
+	"math"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/williamwinkler/hs-card-service/codegen/models"
@@ -27,15 +28,22 @@ func (c *CardHandler) SetupHandler() {
 	c.api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(
 		func(gcp cards.GetCardsParams) middleware.Responder {
 
-			foundCards, err := c.cardService.GetCards(gcp)
+			foundCards, count, err := c.cardService.GetCards(gcp)
 			if err != nil {
 				return cards.NewGetCardsInternalServerError()
 			}
 
 			mappedCards := mapDomainCardsToExternal(foundCards)
+			pageCount := math.Ceil(float64(count) / float64(*gcp.Limit))
 
 			log.Printf("Handled %s request (%d)", gcp.HTTPRequest.URL, len(mappedCards))
-			return cards.NewGetCardsOK().WithPayload(mappedCards)
+			response := models.Cards{
+				Page:      *gcp.Page,
+				PageCount: int64(pageCount),
+				CardCount: int64(count),
+				Cards:     mappedCards,
+			}
+			return cards.NewGetCardsOK().WithPayload(&response)
 		},
 	)
 }
