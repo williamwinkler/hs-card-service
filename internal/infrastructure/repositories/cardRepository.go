@@ -47,8 +47,9 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	return decodeToCards(cursor)
 }
 
-func (c *CardRepository) FindWithFilter(filter bson.M) ([]domain.Card, error) {
-	cursor, err := c.cardsCollection.Find(context.TODO(), filter)
+func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
+	options := options.Find().SetSort(bson.M{"manacost": 1}).SetLimit(int64(limit)).SetSkip(int64(limit * (page - 1)))
+	cursor, err := c.cardsCollection.Find(context.TODO(), filter, options)
 	if err != nil {
 		return []domain.Card{}, err
 	}

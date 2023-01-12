@@ -38,7 +38,7 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	return cards, nil
 }
 
-func (c *CardRepository) FindWithFilter(filter bson.M) ([]domain.Card, error) {
+func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
 	return []domain.Card{}, nil
 }
 

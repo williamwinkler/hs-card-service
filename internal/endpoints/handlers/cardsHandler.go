@@ -26,17 +26,15 @@ func NewCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *appl
 func (c *CardHandler) SetupHandler() {
 	c.api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(
 		func(gcp cards.GetCardsParams) middleware.Responder {
-			defer log.Printf("Handled %s request", gcp.HTTPRequest.URL)
 
 			foundCards, err := c.cardService.GetCards(gcp)
 			if err != nil {
 				return cards.NewGetCardsInternalServerError()
 			}
 
-			println(foundCards)
-
 			mappedCards := mapDomainCardsToExternal(foundCards)
 
+			log.Printf("Handled %s request (%d)", gcp.HTTPRequest.URL, len(mappedCards))
 			return cards.NewGetCardsOK().WithPayload(mappedCards)
 		},
 	)

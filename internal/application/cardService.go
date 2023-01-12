@@ -1,6 +1,7 @@
 package application
 
 import (
+	"fmt"
 	"log"
 	"sort"
 
@@ -27,33 +28,29 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, error) {
 	filter := bson.M{}
 
+	fmt.Printf("%+v", params)
+
 	if params.Name != nil {
-		filter["Name"] = params.Name
+		filter["name"] = params.Name
 	}
 	if params.ManaCost != nil {
-		filter["ManaCost"] = params.ManaCost
+		filter["manacost"] = params.ManaCost
 	}
 	if params.Health != nil {
-		filter["Health"] = params.Health
+		fmt.Println(params.Health)
+		filter["health"] = params.Health
 	}
 	if params.Attack != nil {
-		filter["Attack"] = params.Attack
+		filter["attack"] = params.Attack
 	}
 	if params.Class != nil {
-		filter["Class"] = params.Class
+		filter["classid"] = params.Class
 	}
 	if params.Rarity != nil {
-		filter["Rarity"] = params.Rarity
-	}
-	if params.Page != nil {
-		filter["Page"] = params.Page
-	}
-	if params.Limit != nil {
-		filter["Limit"] = params.Limit
+		filter["rarityid"] = params.Rarity
 	}
 
-	// TODO: this query does not work !!!
-	cards, err := c.cardRepo.FindWithFilter(filter)
+	cards, err := c.cardRepo.FindWithFilter(filter, int(*params.Page), int(*params.Limit))
 	if err != nil {
 		return []domain.Card{}, err
 	}

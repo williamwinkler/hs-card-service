@@ -19,22 +19,22 @@ import (
 type Card struct {
 
 	// artist name
-	ArtistName string `json:"artistName,omitempty"`
+	ArtistName string `json:"artistName"`
 
 	// attack
-	Attack int64 `json:"attack,omitempty"`
+	Attack int64 `json:"attack"`
 
 	// card set Id
-	CardSetID int64 `json:"cardSetId,omitempty"`
+	CardSetID int64 `json:"cardSetId"`
 
 	// card type Id
-	CardTypeID int64 `json:"cardTypeId,omitempty"`
+	CardTypeID int64 `json:"cardTypeId"`
 
 	// class Id
-	ClassID int64 `json:"classId,omitempty"`
+	ClassID int64 `json:"classId"`
 
 	// collectible
-	Collectible int64 `json:"collectible,omitempty"`
+	Collectible int64 `json:"collectible"`
 
 	// duals
 	Duals *Duals `json:"duals,omitempty"`
@@ -43,7 +43,7 @@ type Card struct {
 	FlavorText string `json:"flavorText,omitempty"`
 
 	// health
-	Health int64 `json:"health,omitempty"`
+	Health int64 `json:"health"`
 
 	// This is the ID from blizzards API
 	ID int64 `json:"id,omitempty"`
@@ -55,16 +55,16 @@ type Card struct {
 	ImageGold string `json:"imageGold,omitempty"`
 
 	// mana cost
-	ManaCost int64 `json:"manaCost,omitempty"`
+	ManaCost int64 `json:"manaCost"`
 
 	// name
 	Name string `json:"name,omitempty"`
 
 	// parent Id
-	ParentID int64 `json:"parentId,omitempty"`
+	ParentID int64 `json:"parentId"`
 
 	// rarity Id
-	RarityID int64 `json:"rarityId,omitempty"`
+	RarityID int64 `json:"rarityId"`
 
 	// text
 	Text string `json:"text,omitempty"`

@@ -168,22 +168,28 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "attack": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cardSetId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cardTypeId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "classId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "collectible": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -192,7 +198,8 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "id": {
           "description": "This is the ID from blizzards API",
@@ -207,16 +214,19 @@ func init() {
           "type": "string"
         },
         "manaCost": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "rarityId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "text": {
           "type": "string"
@@ -424,22 +434,28 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "attack": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cardSetId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cardTypeId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "classId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "collectible": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -448,7 +464,8 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "id": {
           "description": "This is the ID from blizzards API",
@@ -463,16 +480,19 @@ func init() {
           "type": "string"
         },
         "manaCost": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "rarityId": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "text": {
           "type": "string"

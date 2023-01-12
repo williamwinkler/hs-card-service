@@ -122,22 +122,31 @@ definitions:
                 description: This is the ID from blizzards API
             collectible:
                 type: integer
+                x-omitempty: false
             classId:
                 type: integer
+                x-omitempty: false
             cardTypeId:
                 type: integer
+                x-omitempty: false
             cardSetId:
                 type: integer
+                x-omitempty: false
             rarityId:
                 type: integer
+                x-omitempty: false
             artistName:
                 type: string
+                x-omitempty: false
             health:
                 type: integer
+                x-omitempty: false
             attack:
                 type: integer
+                x-omitempty: false
             manaCost:
                 type: integer
+                x-omitempty: false
             name:
                 type: string
             text:
@@ -152,6 +161,7 @@ definitions:
                 type: string
             parentId:
                 type: integer
+                x-omitempty: false
             duals:
                 $ref: "#/definitions/duals"
     duals: 
