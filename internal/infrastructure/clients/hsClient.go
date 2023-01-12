@@ -72,12 +72,10 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
 	//fmt.Println(url)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := hc.createGetRequest(url)
 	if err != nil {
-		return []domain.Card{}, fmt.Errorf("failed to create new GET-request for /cards")
+		return []domain.Card{}, err
 	}
-	req.Header.Set("Authorization", "Bearer "+hc.token)
-	req.Header.Set("Content-Type", "application/json")
 
 	client := http.Client{}
 	resp, err := client.Do(req)
@@ -100,6 +98,27 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	cards := mapToCards(cardsDto)
 
 	return cards, nil
+}
+
+func (hc *HsClient) GetSets() error {
+	url := "https://us.api.blizzard.com/hearthstone/metadata/sets?locale=en_US"
+
+	_, err := hc.createGetRequest(url)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (hc *HsClient) createGetRequest(url string) (*http.Request, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return &http.Request{}, fmt.Errorf("failed to create new GET-request for /cards")
+	}
+	req.Header.Set("Authorization", "Bearer "+hc.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	return req, nil
 }
 
 func getToken() (string, error) {

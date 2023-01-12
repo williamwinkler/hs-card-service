@@ -9,24 +9,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CardMetaRepository struct {
+type UpdateMetaRepository struct {
 	metaCollection *mongo.Collection
 }
 
-func NewCardMetaRepository(db *mongo.Database) *CardMetaRepository {
-	metaCollection := db.Collection(migrations.CARDS_META_COLLECTION)
+func NewUpdateMetaRepository(db *mongo.Database) *UpdateMetaRepository {
+	metaCollection := db.Collection(migrations.CARDS_UPDATE_META_COLLECTION)
 
-	return &CardMetaRepository{
+	return &UpdateMetaRepository{
 		metaCollection: metaCollection,
 	}
 }
 
-func (c *CardMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
+func (c *UpdateMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
 	_, err := c.metaCollection.InsertOne(context.Background(), cardMeta)
 	return err
 }
 
-func (c *CardMetaRepository) FindNewest() (domain.CardMeta, error) {
+func (c *UpdateMetaRepository) FindNewest() (domain.CardMeta, error) {
 	pipeline := []bson.M{{"$sort": bson.M{"updated": -1}}, {"limt": 1}}
 
 	result, err := c.metaCollection.Aggregate(context.TODO(), pipeline)

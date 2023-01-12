@@ -6,10 +6,3 @@ type Token struct {
 	ExpiresIn   int    `json:"expires_in"`
 	Sub         string `json:"sub"`
 }
-
-// type GetCardsBodyRequest struct {
-// 	Locale   string `json:"locale"`
-// 	Page     int    `json:"page"`
-// 	PageSize int    `json:"pageSize"`
-// }
-

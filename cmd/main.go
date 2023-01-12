@@ -28,7 +28,7 @@ func main() {
 	}
 
 	cardRepository := repositories.NewCardRepository(database.Db)
-	cardMetaRepository := repositories.NewCardMetaRepository(database.Db)
+	cardMetaRepository := repositories.NewUpdateMetaRepository(database.Db)
 
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 

@@ -14,10 +14,10 @@ import (
 type CardService struct {
 	hsClient     interfaces.HsClient
 	cardRepo     interfaces.CardRepository
-	cardMetaRepo interfaces.CardMetaRepository
+	cardMetaRepo interfaces.UpdateMetaRepository
 }
 
-func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardRepository, cardMetaRepo interfaces.CardMetaRepository) *CardService {
+func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardRepository, cardMetaRepo interfaces.UpdateMetaRepository) *CardService {
 	return &CardService{
 		hsClient:     hsclient,
 		cardRepo:     cardRepo,
