@@ -39,7 +39,7 @@ func main() {
 
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 
-	restServer := endpoints.NewRestServer(cardService, cardRepository)
+	restServer := endpoints.NewRestServer(cardService, cardRepository, cardMetaRepository)
 
 	restServer.StartServer()
 

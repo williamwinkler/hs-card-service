@@ -15,17 +15,20 @@ import (
 var portFlag = flag.Int("port", 3000, "Port to run this service on")
 
 type RestServer struct {
-	cardService *application.CardService
-	cardRepo    *repositories.CardRepository
+	cardService    *application.CardService
+	cardRepo       *repositories.CardRepository
+	updateMetaRepo *repositories.UpdateMetaRepository
 }
 
 func NewRestServer(
 	cardService *application.CardService,
 	cardRepo *repositories.CardRepository,
+	updateMetaRepo *repositories.UpdateMetaRepository,
 ) *RestServer {
 	return &RestServer{
-		cardService: cardService,
-		cardRepo:    cardRepo,
+		cardService:    cardService,
+		cardRepo:       cardRepo,
+		updateMetaRepo: updateMetaRepo,
 	}
 }
 
@@ -48,7 +51,7 @@ func (s *RestServer) StartServer() {
 
 	// inizalize handlers
 	handlers := []Handler{
-		handlers.NewInfoHandler(api, s.cardRepo),
+		handlers.NewInfoHandler(api, s.cardRepo, s.updateMetaRepo),
 		handlers.NewCardUpdateHandler(api, s.cardService),
 		handlers.NewCardHandler(api, s.cardService),
 	}

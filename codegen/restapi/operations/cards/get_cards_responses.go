@@ -58,51 +58,6 @@ func (o *GetCardsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 	}
 }
 
-// GetCardsBadRequestCode is the HTTP code returned for type GetCardsBadRequest
-const GetCardsBadRequestCode int = 400
-
-/*
-GetCardsBadRequest The query is incorrect
-
-swagger:response getCardsBadRequest
-*/
-type GetCardsBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *models.Error `json:"body,omitempty"`
-}
-
-// NewGetCardsBadRequest creates GetCardsBadRequest with default headers values
-func NewGetCardsBadRequest() *GetCardsBadRequest {
-
-	return &GetCardsBadRequest{}
-}
-
-// WithPayload adds the payload to the get cards bad request response
-func (o *GetCardsBadRequest) WithPayload(payload *models.Error) *GetCardsBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the get cards bad request response
-func (o *GetCardsBadRequest) SetPayload(payload *models.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *GetCardsBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // GetCardsInternalServerErrorCode is the HTTP code returned for type GetCardsInternalServerError
 const GetCardsInternalServerErrorCode int = 500
 

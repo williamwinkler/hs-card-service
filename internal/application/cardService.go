@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"log"
 	"sort"
 
@@ -35,7 +34,6 @@ func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, int6
 		filter["manacost"] = params.ManaCost
 	}
 	if params.Health != nil {
-		fmt.Println(params.Health)
 		filter["health"] = params.Health
 	}
 	if params.Attack != nil {

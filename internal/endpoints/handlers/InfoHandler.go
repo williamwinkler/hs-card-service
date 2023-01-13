@@ -16,14 +16,16 @@ import (
 var systemStartTime = time.Now()
 
 type InfoHandler struct {
-	api      *operations.HearthstoneCardServiceAPI
-	cardRepo *repositories.CardRepository
+	api            *operations.HearthstoneCardServiceAPI
+	cardRepo       *repositories.CardRepository
+	updateMetaRepo *repositories.UpdateMetaRepository
 }
 
-func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *repositories.CardRepository) *InfoHandler {
+func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *repositories.CardRepository, updateMetaRepo *repositories.UpdateMetaRepository) *InfoHandler {
 	return &InfoHandler{
-		api:      api,
-		cardRepo: cardRepo,
+		api:            api,
+		cardRepo:       cardRepo,
+		updateMetaRepo: updateMetaRepo,
 	}
 }
 
@@ -35,13 +37,20 @@ func (i *InfoHandler) SetupHandler() {
 			count, err := i.cardRepo.Count()
 			if err != nil {
 				log.Printf("Error occurred in GET /info: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong getting with getting card count")
+				errorMessage := utils.CreateErrorMessage(500)
+				return info.NewGetInternalServerError().WithPayload(errorMessage)
+			}
+
+			newestUpdate, err := i.updateMetaRepo.FindNewest()
+			if err != nil {
+				log.Printf("Error occurred in GET /info: %v", err)
+				errorMessage := utils.CreateErrorMessage(500)
 				return info.NewGetInternalServerError().WithPayload(errorMessage)
 			}
 
 			infoResponse := models.Info{
 				AmountOfCards:   count,
-				LastUpdate:      strfmt.DateTime(time.Now()),
+				LastUpdate:      strfmt.DateTime(newestUpdate.Updated),
 				SystemStartTime: strfmt.DateTime(systemStartTime),
 			}
 			return info.NewGetOK().WithPayload(&infoResponse)

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients/dto"
@@ -18,16 +19,16 @@ import (
 const PAGE_SIZE int = 250
 
 type HsClient struct {
-	token string
+	token token
 }
 
-type Creds struct {
-	clientId     string
-	clientSecret string
+type token struct {
+	accessToken string
+	expireDate  time.Time
 }
 
 func NewHsClient() (*HsClient, error) {
-	token, err := getToken()
+	token, err := fetchToken()
 	if err != nil {
 		return &HsClient{}, err
 	}
@@ -42,6 +43,7 @@ func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
 	var cardsList []domain.Card
 	page := 1
 	for {
+		// log.Printf("Getting cards with page %d limit %d", page, PAGE_SIZE)
 		cards, err := hc.GetCardsWithPagination(page, PAGE_SIZE)
 		if err != nil {
 			return []domain.Card{}, err
@@ -60,18 +62,18 @@ func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
 }
 
 func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error) {
-	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards?locale=en_US"
+	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards"
 
 	queryParams := url.Values{}
+	queryParams.Set("locale", "en_US")
 	queryParams.Set("page", strconv.Itoa(page))
 	queryParams.Set("pageSize", strconv.Itoa(pageSize))
 
 	queryString := queryParams.Encode()
 
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
-	//fmt.Println(url)
 
-	response, err := hc.executeCreateGetRequest(url)
+	response, err := hc.executeGetRequest(url)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -96,7 +98,7 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	url := "https://us.api.blizzard.com/hearthstone/metadata/sets?locale=en_US"
 
-	response, err := hc.executeCreateGetRequest(url)
+	response, err := hc.executeGetRequest(url)
 	if err != nil {
 		return []domain.Set{}, err
 	}
@@ -118,12 +120,17 @@ func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	return sets, nil
 }
 
-func (hc *HsClient) executeCreateGetRequest(url string) (*http.Response, error) {
+func (hc *HsClient) executeGetRequest(url string) (*http.Response, error) {
+	token, err := hc.getToken()
+	if err != nil {
+		return &http.Response{}, err
+	}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return &http.Response{}, fmt.Errorf("failed to create new GET-request for /cards")
 	}
-	req.Header.Set("Authorization", "Bearer "+hc.token)
+	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := http.Client{}
@@ -135,54 +142,72 @@ func (hc *HsClient) executeCreateGetRequest(url string) (*http.Response, error) 
 	return resp, nil
 }
 
-func getToken() (string, error) {
+func (hc *HsClient) getToken() (string, error) {
+	//hc.token.expireDate = hc.token.expireDate.AddDate(0, 0, -1)
+	if hc.token.expireDate.Before(time.Now()) {
+		newToken, err := fetchToken()
+		if err != nil {
+			return "", err
+		}
+		hc.token = newToken
+	}
+
+	return hc.token.accessToken, nil
+}
+
+func fetchToken() (token, error) {
 	urlAdress := "https://oauth.battle.net/token"
-	creds, err := getClientCredentials()
+	clientId, clientSecret, err := getClientCredentials()
 	if err != nil {
-		return "", err
+		return token{}, err
 	}
 
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
 	req, err := http.NewRequest("POST", urlAdress, bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return "", err
+		return token{}, err
 	}
-	req.SetBasicAuth(creds.clientId, creds.clientSecret)
+	req.SetBasicAuth(clientId, clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return token{}, err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return token{}, err
 	}
 
 	var tokenDto dto.Token
 	err = json.Unmarshal(body, &tokenDto)
 	if err != nil {
-		return "", err
+		return token{}, err
+	}
+
+	expireDate := time.Now().Add(time.Duration(tokenDto.ExpiresIn) * time.Second)
+	token := token{
+		accessToken: tokenDto.AccessToken,
+		expireDate:  expireDate,
 	}
 
 	log.Println("Received new token")
-	return tokenDto.AccessToken, nil
+	return token, nil
 }
 
-func getClientCredentials() (Creds, error) {
+// returns clientId, clientSecret, error
+func getClientCredentials() (string, string, error) {
 	clientId, present := os.LookupEnv("client_id")
 	if !present {
-		return Creds{}, fmt.Errorf("client_id is not present in .env")
+		return "", "", fmt.Errorf("client_id is not present in .env")
 	}
 	clientSecret, present := os.LookupEnv("client_secret")
 	if !present {
-		return Creds{}, fmt.Errorf("client_secret is not present in .env")
+		return "", "", fmt.Errorf("client_secret is not present in .env")
 	}
-	return Creds{
-		clientId:     clientId,
-		clientSecret: clientSecret}, nil
+	return clientId, clientSecret, nil
 }

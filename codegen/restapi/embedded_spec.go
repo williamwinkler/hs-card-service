@@ -122,12 +122,6 @@ func init() {
               "$ref": "#/definitions/cards"
             }
           },
-          "400": {
-            "description": "The query is incorrect",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
           "500": {
             "description": "Something went wrong internally",
             "schema": {
@@ -284,7 +278,7 @@ func init() {
           "x-omitempty": false
         },
         "lastUpdate": {
-          "description": "formatted as RFC 33",
+          "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
         },
@@ -405,12 +399,6 @@ func init() {
               "$ref": "#/definitions/cards"
             }
           },
-          "400": {
-            "description": "The query is incorrect",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
           "500": {
             "description": "Something went wrong internally",
             "schema": {
@@ -567,7 +555,7 @@ func init() {
           "x-omitempty": false
         },
         "lastUpdate": {
-          "description": "formatted as RFC 33",
+          "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
         },

@@ -73,10 +73,6 @@ paths:
                     description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
                     schema:
                         $ref: "#/definitions/cards"
-                400:
-                    description: The query is incorrect
-                    schema:
-                        $ref: "#/definitions/error"
                 500:
                     description: Something went wrong internally
                     schema:
@@ -107,7 +103,7 @@ definitions:
             lastUpdate:
                 type: string
                 format: date-time
-                description: formatted as RFC 33
+                description: formatted as RFC 3339
             systemStartTime:
                 type: string
                 format: date-time
@@ -123,6 +119,7 @@ definitions:
                 type: integer
             cards:
                 type: array
+                description: if there a no cards, the array is null
                 items:
                     $ref: "#/definitions/card"
     card:

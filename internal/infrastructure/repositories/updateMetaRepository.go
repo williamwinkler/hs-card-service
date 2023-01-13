@@ -27,12 +27,13 @@ func (c *UpdateMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
 }
 
 func (c *UpdateMetaRepository) FindNewest() (domain.CardMeta, error) {
-	pipeline := []bson.M{{"$sort": bson.M{"updated": -1}}, {"limt": 1}}
+	pipeline := []bson.M{{"$sort": bson.M{"updated": -1, "limit": 1}}}
 
 	result, err := c.metaCollection.Aggregate(context.TODO(), pipeline)
 	if err != nil {
 		return domain.CardMeta{}, err
 	}
+
 	var cardMeta domain.CardMeta
 	err = result.Decode(&cardMeta)
 	if err != nil {
