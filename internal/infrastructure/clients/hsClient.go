@@ -145,6 +145,31 @@ func (hc *HsClient) GetClasses() ([]domain.Class, error) {
 	return classes, nil
 }
 
+func (hc *HsClient) GetKeywords() ([]domain.Keyword, error) {
+	url := "https://us.api.blizzard.com/hearthstone/metadata/keywords?locale=en_US"
+
+	response, err := hc.executeGetRequest(url)
+	if err != nil {
+		return []domain.Keyword{}, err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []domain.Keyword{}, err
+	}
+
+	var keywordsDto dto.KeywordsDto
+	err = json.Unmarshal(body, &keywordsDto)
+	if err != nil {
+		return []domain.Keyword{}, err
+	}
+
+	keywords := dto.MapToKeywords(keywordsDto)
+
+	return keywords, nil
+}
+
 func (hc *HsClient) executeGetRequest(url string) (*http.Response, error) {
 	token, err := hc.getToken()
 	if err != nil {

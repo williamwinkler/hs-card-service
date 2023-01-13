@@ -7,4 +7,5 @@ type HsClient interface {
 	GetAllCards() ([]domain.Card, error)
 	GetSets() ([]domain.Set, error)
 	GetClasses() ([]domain.Class, error)
+	GetKeywords() ([]domain.Keyword, error)
 }

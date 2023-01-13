@@ -71,3 +71,19 @@ func MapToClasses(classesResp ClassesDto) []domain.Class {
 	}
 	return classes
 }
+
+func MapToKeywords(keywordsResp KeywordsDto) []domain.Keyword {
+	var keywords []domain.Keyword
+	for _, r := range keywordsResp {
+		var s domain.Keyword
+		s.ID = r.ID
+		s.Slug = r.Slug
+		s.Name = r.Name
+		s.RefText = r.RefText
+		s.Text = r.Text
+		s.GameModes = r.GameModes
+
+		keywords = append(keywords, s)
+	}
+	return keywords
+}

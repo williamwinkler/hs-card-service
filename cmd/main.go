@@ -31,12 +31,14 @@ func main() {
 	cardMetaRepository := repositories.NewUpdateMetaRepository(database.Db)
 	setRepository := repositories.NewSetRepository(database.Db)
 	classRepository := repositories.NewClassRepository(database.Db)
+	keywordRepository := repositories.NewKeywordRepository(database.Db)
 
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 	setService := application.NewSetService(setRepository, hsClient)
 	classService := application.NewClassService(classRepository, hsClient)
+	keywordService := application.NewKeywordService(keywordRepository, hsClient)
 
-	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, cardService, setService, classService)
+	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, cardService, setService, classService, keywordService)
 
 	restServer.StartServer()
 

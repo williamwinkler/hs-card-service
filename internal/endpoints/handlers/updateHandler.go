@@ -13,10 +13,11 @@ import (
 )
 
 type CardUpdateHandler struct {
-	api          *operations.HearthstoneCardServiceAPI
-	cardService  *application.CardService
-	setService   *application.SetService
-	classService *application.ClassService
+	api            *operations.HearthstoneCardServiceAPI
+	cardService    *application.CardService
+	setService     *application.SetService
+	classService   *application.ClassService
+	keywordService *application.KeywordService
 }
 
 func NewCardUpdateHandler(
@@ -24,12 +25,14 @@ func NewCardUpdateHandler(
 	cardService *application.CardService,
 	setService *application.SetService,
 	classService *application.ClassService,
+	keywordsService *application.KeywordService,
 ) *CardUpdateHandler {
 	return &CardUpdateHandler{
-		api:          api,
-		cardService:  cardService,
-		setService:   setService,
-		classService: classService,
+		api:            api,
+		cardService:    cardService,
+		setService:     setService,
+		classService:   classService,
+		keywordService: keywordsService,
 	}
 }
 
@@ -57,6 +60,13 @@ func (c *CardUpdateHandler) SetupHandler() {
 			if err != nil {
 				log.Printf("Error occurred in POST /cards/update: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating classes")
+				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
+			}
+
+			err = c.keywordService.Update()
+			if err != nil {
+				log.Printf("Error occurred in POST /cards/update: %v", err)
+				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating keywords")
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 
