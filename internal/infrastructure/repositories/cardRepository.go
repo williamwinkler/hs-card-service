@@ -12,19 +12,19 @@ import (
 )
 
 type CardRepository struct {
-	cardsCollection *mongo.Collection
+	cards *mongo.Collection
 }
 
 func NewCardRepository(db *mongo.Database) *CardRepository {
 	cardsCollection := db.Collection(migrations.CARDS_COLLECTION)
 
 	return &CardRepository{
-		cardsCollection: cardsCollection,
+		cards: cardsCollection,
 	}
 }
 
 func (c *CardRepository) InsertOne(card domain.Card) error {
-	_, err := c.cardsCollection.InsertOne(context.Background(), card)
+	_, err := c.cards.InsertOne(context.Background(), card)
 	return err
 }
 
@@ -33,13 +33,13 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 	for i, card := range cards {
 		cardsInterface[i] = card
 	}
-	_, err := c.cardsCollection.InsertMany(context.Background(), cardsInterface)
+	_, err := c.cards.InsertMany(context.Background(), cardsInterface)
 	return err
 }
 
 func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	sortByNameFilter := options.Find().SetSort(bson.M{"name": 1})
-	cursor, err := c.cardsCollection.Find(context.Background(), bson.M{}, sortByNameFilter)
+	cursor, err := c.cards.Find(context.Background(), bson.M{}, sortByNameFilter)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -49,7 +49,7 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 
 func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
 	options := options.Find().SetSort(bson.M{"manacost": 1}).SetLimit(int64(limit)).SetSkip(int64(limit * (page - 1)))
-	cursor, err := c.cardsCollection.Find(context.TODO(), filter, options)
+	cursor, err := c.cards.Find(context.TODO(), filter, options)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -60,7 +60,7 @@ func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]d
 func (c *CardRepository) UpdateOne(card domain.Card) error {
 	cardIdFilter := bson.M{"id": card.ID}
 	cardUpdate := bson.M{"$set": card}
-	_, err := c.cardsCollection.UpdateOne(context.Background(), cardIdFilter, cardUpdate, nil)
+	_, err := c.cards.UpdateOne(context.Background(), cardIdFilter, cardUpdate, nil)
 	return err
 }
 
@@ -69,7 +69,7 @@ func (c *CardRepository) DeleteOne(domain.Card) error {
 }
 
 func (c *CardRepository) DeleteAll() error {
-	result, err := c.cardsCollection.DeleteMany(context.Background(), bson.M{}, nil)
+	result, err := c.cards.DeleteMany(context.Background(), bson.M{}, nil)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (c *CardRepository) Count() (int64, error) {
 }
 
 func (c *CardRepository) CountWithFilter(filter bson.M) (int64, error) {
-	return c.cardsCollection.CountDocuments(context.Background(), filter, nil)
+	return c.cards.CountDocuments(context.Background(), filter, nil)
 }
 
 func decodeToCards(cursor *mongo.Cursor) ([]domain.Card, error) {

@@ -131,11 +131,11 @@ func init() {
         }
       }
     },
-    "/cards/update": {
+    "/update": {
       "post": {
         "description": "Checks for updates to cards",
         "tags": [
-          "cards"
+          "update"
         ],
         "responses": {
           "200": {
@@ -231,6 +231,7 @@ func init() {
           "type": "integer"
         },
         "cards": {
+          "description": "if there a no cards, the array is null",
           "type": "array",
           "items": {
             "$ref": "#/definitions/card"
@@ -408,11 +409,11 @@ func init() {
         }
       }
     },
-    "/cards/update": {
+    "/update": {
       "post": {
         "description": "Checks for updates to cards",
         "tags": [
-          "cards"
+          "update"
         ],
         "responses": {
           "200": {
@@ -508,6 +509,7 @@ func init() {
           "type": "integer"
         },
         "cards": {
+          "description": "if there a no cards, the array is null",
           "type": "array",
           "items": {
             "$ref": "#/definitions/card"

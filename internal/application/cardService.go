@@ -59,7 +59,7 @@ func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, int6
 	return cards, count, nil
 }
 
-func (c *CardService) UpdateCards() error {
+func (c *CardService) Update() error {
 	cards, err := c.hsClient.GetAllCards()
 	if err != nil {
 		return err

@@ -10,26 +10,26 @@ import (
 )
 
 type UpdateMetaRepository struct {
-	metaCollection *mongo.Collection
+	updateMeta *mongo.Collection
 }
 
 func NewUpdateMetaRepository(db *mongo.Database) *UpdateMetaRepository {
 	metaCollection := db.Collection(migrations.CARDS_UPDATE_META_COLLECTION)
 
 	return &UpdateMetaRepository{
-		metaCollection: metaCollection,
+		updateMeta: metaCollection,
 	}
 }
 
 func (c *UpdateMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
-	_, err := c.metaCollection.InsertOne(context.Background(), cardMeta)
+	_, err := c.updateMeta.InsertOne(context.Background(), cardMeta)
 	return err
 }
 
 func (c *UpdateMetaRepository) FindNewest() (domain.CardMeta, error) {
 	pipeline := []bson.M{{"$sort": bson.M{"updated": -1, "limit": 1}}}
 
-	result, err := c.metaCollection.Aggregate(context.TODO(), pipeline)
+	result, err := c.updateMeta.Aggregate(context.TODO(), pipeline)
 	if err != nil {
 		return domain.CardMeta{}, err
 	}

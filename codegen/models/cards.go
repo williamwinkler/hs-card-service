@@ -22,7 +22,7 @@ type Cards struct {
 	// card count
 	CardCount int64 `json:"cardCount,omitempty"`
 
-	// cards
+	// if there a no cards, the array is null
 	Cards []*Card `json:"cards"`
 
 	// page

@@ -21,6 +21,7 @@ import (
 
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 )
 
 // NewHearthstoneCardServiceAPI creates a new HearthstoneCardService instance
@@ -51,8 +52,8 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 		CardsGetCardsHandler: cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		}),
-		CardsPostCardsUpdateHandler: cards.PostCardsUpdateHandlerFunc(func(params cards.PostCardsUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.PostCardsUpdate has not yet been implemented")
+		UpdatePostUpdateHandler: update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
 		}),
 	}
 }
@@ -94,8 +95,8 @@ type HearthstoneCardServiceAPI struct {
 	InfoGetHandler info.GetHandler
 	// CardsGetCardsHandler sets the operation handler for the get cards operation
 	CardsGetCardsHandler cards.GetCardsHandler
-	// CardsPostCardsUpdateHandler sets the operation handler for the post cards update operation
-	CardsPostCardsUpdateHandler cards.PostCardsUpdateHandler
+	// UpdatePostUpdateHandler sets the operation handler for the post update operation
+	UpdatePostUpdateHandler update.PostUpdateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -179,8 +180,8 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 	if o.CardsGetCardsHandler == nil {
 		unregistered = append(unregistered, "cards.GetCardsHandler")
 	}
-	if o.CardsPostCardsUpdateHandler == nil {
-		unregistered = append(unregistered, "cards.PostCardsUpdateHandler")
+	if o.UpdatePostUpdateHandler == nil {
+		unregistered = append(unregistered, "update.PostUpdateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -281,7 +282,7 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/cards/update"] = cards.NewPostCardsUpdate(o.context, o.CardsPostCardsUpdateHandler)
+	o.handlers["POST"]["/update"] = update.NewPostUpdate(o.context, o.UpdatePostUpdateHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

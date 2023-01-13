@@ -53,14 +53,14 @@ func Test_UpdateCards(t *testing.T) {
 	assert := assert.New(t)
 	cardRepo := mocks.NewCardRepository()
 	hsClient := mocks.HsClient{}
-	cardMetaRepo := mocks.CardMetaRepository{}
+	cardMetaRepo := mocks.UpdateMetaRepository{}
 	cardService := application.NewCardService(&hsClient, &cardRepo, &cardMetaRepo)
 	cardRepo.InsertMany(oldCards)
 	hsClient.On("GetAllCards").Return(newCards, nil)
 	cardMetaRepo.On("InsertOne", mock.AnythingOfType("domain.CardMeta")).Return(nil)
 
 	// Act
-	err := cardService.UpdateCards()
+	err := cardService.Update()
 	assert.Nil(err)
 
 	// Assert

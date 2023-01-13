@@ -25,6 +25,20 @@ paths:
                     description: Something went wrong
                     schema:
                         $ref: "#/definitions/error"
+    /update:
+        post:
+            description: Checks for updates to cards
+            tags:
+                - update
+            responses:
+                200:
+                    description: OK
+                401:
+                    description: Unauthorized request
+                500:
+                    description: Something went wrong internally
+                    schema:
+                        $ref: "#/definitions/error"
     /cards:
         get:
             summary: Get cards with or without query
@@ -77,21 +91,7 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
-    /cards/update:
-        post:
-            description: Checks for updates to cards
-            tags:
-                - cards
-            responses:
-                200:
-                    description: OK
-                401:
-                    description: Unauthorized request
-                500:
-                    description: Something went wrong internally
-                    schema:
-                        $ref: "#/definitions/error"
-
+    
 
 definitions:
     info:

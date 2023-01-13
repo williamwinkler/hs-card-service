@@ -87,7 +87,7 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	var cardsDto dto.CardsDto
 	err = json.Unmarshal(body, &cardsDto)
 	if err != nil {
-		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards. Body was %+v", body)
+		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards: %v", err)
 	}
 
 	cards := dto.MapToCards(cardsDto)

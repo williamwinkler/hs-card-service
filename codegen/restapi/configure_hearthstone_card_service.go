@@ -13,6 +13,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 )
 
 //go:generate swagger generate server --target ../../codegen --name HearthstoneCardService --spec ../../api/swagger.yml --principal interface{} --exclude-main
@@ -49,9 +50,9 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		})
 	}
-	if api.CardsPostCardsUpdateHandler == nil {
-		api.CardsPostCardsUpdateHandler = cards.PostCardsUpdateHandlerFunc(func(params cards.PostCardsUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.PostCardsUpdate has not yet been implemented")
+	if api.UpdatePostUpdateHandler == nil {
+		api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
 		})
 	}
 
