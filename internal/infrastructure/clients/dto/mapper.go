@@ -53,6 +53,21 @@ func MapToSets(setsResp SetsDto) []domain.Set {
 
 		sets = append(sets, s)
 	}
-
 	return sets
+}
+
+func MapToClasses(classesResp ClassesDto) []domain.Class {
+	var classes []domain.Class
+	for _, r := range classesResp {
+		var s domain.Class
+		s.Slug = r.Slug
+		s.ID = r.ID
+		s.Name = r.Name
+		s.CardID = r.CardID
+		s.HeroPowerCardID = r.HeroPowerCardID
+		s.AlternateHeroCardIds = r.AlternateHeroCardIds
+
+		classes = append(classes, s)
+	}
+	return classes
 }

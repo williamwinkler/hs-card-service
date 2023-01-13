@@ -120,6 +120,31 @@ func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	return sets, nil
 }
 
+func (hc *HsClient) GetClasses() ([]domain.Class, error) {
+	url := "https://us.api.blizzard.com/hearthstone/metadata/classes?locale=en_US"
+
+	response, err := hc.executeGetRequest(url)
+	if err != nil {
+		return []domain.Class{}, err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []domain.Class{}, err
+	}
+
+	var classesDto dto.ClassesDto
+	err = json.Unmarshal(body, &classesDto)
+	if err != nil {
+		return []domain.Class{}, err
+	}
+
+	classes := dto.MapToClasses(classesDto)
+
+	return classes, nil
+}
+
 func (hc *HsClient) executeGetRequest(url string) (*http.Response, error) {
 	token, err := hc.getToken()
 	if err != nil {

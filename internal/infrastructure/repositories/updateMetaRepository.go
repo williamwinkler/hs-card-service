@@ -26,6 +26,7 @@ func (c *UpdateMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
 	return err
 }
 
+// TODO: query does not work
 func (c *UpdateMetaRepository) FindNewest() (domain.CardMeta, error) {
 	pipeline := []bson.M{{"$sort": bson.M{"updated": -1, "limit": 1}}}
 

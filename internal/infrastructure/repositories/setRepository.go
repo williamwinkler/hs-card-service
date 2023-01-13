@@ -22,11 +22,11 @@ func NewSetRepository(db *mongo.Database) *SetRepository {
 }
 
 func (c *SetRepository) InsertMany(sets []domain.Set) error {
-	setsInterface := make([]interface{}, len(sets))
+	setInterfaces := make([]interface{}, len(sets))
 	for i, set := range sets {
-		setsInterface[i] = set
+		setInterfaces[i] = set
 	}
-	_, err := c.sets.InsertMany(context.TODO(), setsInterface)
+	_, err := c.sets.InsertMany(context.TODO(), setInterfaces)
 	return err
 }
 

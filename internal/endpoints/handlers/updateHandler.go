@@ -13,16 +13,23 @@ import (
 )
 
 type CardUpdateHandler struct {
-	api         *operations.HearthstoneCardServiceAPI
-	cardService *application.CardService
-	setService  *application.SetService
+	api          *operations.HearthstoneCardServiceAPI
+	cardService  *application.CardService
+	setService   *application.SetService
+	classService *application.ClassService
 }
 
-func NewCardUpdateHandler(api *operations.HearthstoneCardServiceAPI, cardService *application.CardService, setService *application.SetService) *CardUpdateHandler {
+func NewCardUpdateHandler(
+	api *operations.HearthstoneCardServiceAPI,
+	cardService *application.CardService,
+	setService *application.SetService,
+	classService *application.ClassService,
+) *CardUpdateHandler {
 	return &CardUpdateHandler{
-		api:         api,
-		cardService: cardService,
-		setService:  setService,
+		api:          api,
+		cardService:  cardService,
+		setService:   setService,
+		classService: classService,
 	}
 }
 
@@ -43,6 +50,13 @@ func (c *CardUpdateHandler) SetupHandler() {
 			if err != nil {
 				log.Printf("Error occurred in POST /cards/update: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating sets")
+				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
+			}
+
+			err = c.classService.Update()
+			if err != nil {
+				log.Printf("Error occurred in POST /cards/update: %v", err)
+				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating classes")
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 

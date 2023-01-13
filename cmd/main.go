@@ -30,11 +30,13 @@ func main() {
 	cardRepository := repositories.NewCardRepository(database.Db)
 	cardMetaRepository := repositories.NewUpdateMetaRepository(database.Db)
 	setRepository := repositories.NewSetRepository(database.Db)
+	classRepository := repositories.NewClassRepository(database.Db)
 
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 	setService := application.NewSetService(setRepository, hsClient)
+	classService := application.NewClassService(classRepository, hsClient)
 
-	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, cardService, setService)
+	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, cardService, setService, classService)
 
 	restServer.StartServer()
 
