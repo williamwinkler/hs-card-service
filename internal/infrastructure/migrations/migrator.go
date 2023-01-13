@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const DATABASE = "hs-card-service"
+const DATABASE = "hs-card"
 const CARDS_COLLECTION = "cards"
 const CARDS_UPDATE_META_COLLECTION = "update-meta"
 const CARDS_SETS_COLLECTION = "sets"
