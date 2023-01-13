@@ -55,3 +55,7 @@ func (c *CardRepository) DeleteOne(card domain.Card) error {
 func (c *CardRepository) DeleteAll() error {
 	return nil
 }
+
+func (c *CardRepository) CountWithFilter(filter bson.M) (int64, error) {
+	return 0, nil
+}
