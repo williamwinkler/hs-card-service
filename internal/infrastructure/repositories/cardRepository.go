@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
@@ -55,6 +56,76 @@ func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]d
 	}
 
 	return decodeToCards(cursor)
+}
+
+func (c *CardRepository) FindWithAggregate() {
+	pipeline := []bson.M{
+		{
+			"$lookup": bson.M{
+				"from":         "sets",
+				"localField":   "cardsetid",
+				"foreignField": "id",
+				"as":           "set",
+			},
+		},
+		{
+			"$lookup": bson.M{
+				"from":         "classes",
+				"localField":   "classid",
+				"foreignField": "id",
+				"as":           "class",
+			},
+		},
+		{
+			"$lookup": bson.M{
+				"from":         "classes",
+				"localField":   "classid",
+				"foreignField": "id",
+				"as":           "class",
+			},
+		},
+		{"$unwind": "$keywordids"},
+		{
+			"$lookup": bson.M{
+				"from":         "keywords",
+				"localField":   "keywordids",
+				"foreignField": "id",
+				"as":           "keywords_names",
+			},
+		},
+		{"$match": bson.M{"keywords_names": bson.M{"$ne": []interface{}{}}}},
+		{
+			"$project": bson.M{
+				"name":                1,
+				"keywords_names.name": 1,
+				"set": bson.M{
+					"$arrayElemAt": []interface{}{"$set.name", 0},
+				},
+				"class": bson.M{
+					"$arrayElemAt": []interface{}{"$class.name", 0},
+				},
+			},
+		},
+	}
+
+	cursor, err := c.cards.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		log.Fatalf("error in aggregate: %v", err)
+	}
+
+	i := 0
+	for cursor.Next(context.TODO()) {
+		if i > 0 {
+			break
+		}
+		var result bson.M
+		err := cursor.Decode(&result)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(result)
+		i++
+	}
 }
 
 func (c *CardRepository) UpdateOne(card domain.Card) error {

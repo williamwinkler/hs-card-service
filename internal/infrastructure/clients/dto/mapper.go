@@ -2,9 +2,9 @@ package dto
 
 import "github.com/williamwinkler/hs-card-service/internal/domain"
 
-func MapToCards(cardResp CardsDto) []domain.Card {
+func MapToCards(cardsDto CardsDto) []domain.Card {
 	var cards []domain.Card
-	for _, p := range cardResp.Cards {
+	for _, p := range cardsDto.Cards {
 		if p.CopyOfCardID != 0 {
 			continue // if CopyOfCard is not 0, it's an unwanted outdated version
 		}
@@ -37,9 +37,9 @@ func MapToCards(cardResp CardsDto) []domain.Card {
 	return cards
 }
 
-func MapToSets(setsResp SetsDto) []domain.Set {
+func MapToSets(setsDto SetsDto) []domain.Set {
 	var sets []domain.Set
-	for _, r := range setsResp {
+	for _, r := range setsDto {
 		var s domain.Set
 		s.ID = r.ID
 		s.Name = r.Name
@@ -56,9 +56,9 @@ func MapToSets(setsResp SetsDto) []domain.Set {
 	return sets
 }
 
-func MapToClasses(classesResp ClassesDto) []domain.Class {
+func MapToClasses(classesDto ClassesDto) []domain.Class {
 	var classes []domain.Class
-	for _, r := range classesResp {
+	for _, r := range classesDto {
 		var s domain.Class
 		s.Slug = r.Slug
 		s.ID = r.ID
@@ -72,9 +72,24 @@ func MapToClasses(classesResp ClassesDto) []domain.Class {
 	return classes
 }
 
-func MapToKeywords(keywordsResp KeywordsDto) []domain.Keyword {
+func MapToRariteis(raritiesDto RaritiesDto) []domain.Rarity {
+	var rarities []domain.Rarity
+	for _, r := range raritiesDto {
+		var s domain.Rarity
+		s.Slug = r.Slug
+		s.ID = r.ID
+		s.CraftingCost = r.CraftingCost
+		s.DustValue = r.DustValue
+		s.Name = r.Name
+
+		rarities = append(rarities, s)
+	}
+	return rarities
+}
+
+func MapToKeywords(keywordsDto KeywordsDto) []domain.Keyword {
 	var keywords []domain.Keyword
-	for _, r := range keywordsResp {
+	for _, r := range keywordsDto {
 		var s domain.Keyword
 		s.ID = r.ID
 		s.Slug = r.Slug
