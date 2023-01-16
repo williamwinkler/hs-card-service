@@ -78,10 +78,10 @@ func (c *CardRepository) FindWithAggregate() {
 		},
 		{
 			"$lookup": bson.M{
-				"from":         "classes",
-				"localField":   "classid",
+				"from":         "rarities",
+				"localField":   "rarityid",
 				"foreignField": "id",
-				"as":           "class",
+				"as":           "rarity",
 			},
 		},
 		{"$unwind": "$keywordids"},
@@ -103,6 +103,9 @@ func (c *CardRepository) FindWithAggregate() {
 				},
 				"class": bson.M{
 					"$arrayElemAt": []interface{}{"$class.name", 0},
+				},
+				"rarity": bson.M{
+					"$arrayElemAt": []interface{}{"$rarity.name", 0},
 				},
 			},
 		},

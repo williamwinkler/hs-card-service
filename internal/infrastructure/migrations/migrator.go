@@ -16,7 +16,7 @@ const CARDS_COLLECTION = "cards"
 const CARDS_UPDATE_META_COLLECTION = "update-meta"
 const CARDS_SETS_COLLECTION = "sets"
 const CARDS_CLASSES_COLLECTION = "classes"
-const CARDS_RARITY_COLLECTION = "rarity"
+const CARDS_RARITY_COLLECTION = "rarities"
 const CARDS_KEYWORDS_COLLECTION = "keywords"
 
 type Database struct {

@@ -20,6 +20,7 @@ type RestServer struct {
 	cardService    *application.CardService
 	setService     *application.SetService
 	classService   *application.ClassService
+	rarityService  *application.RarityService
 	keywordService *application.KeywordService
 }
 
@@ -29,7 +30,9 @@ func NewRestServer(
 	cardService *application.CardService,
 	setService *application.SetService,
 	classService *application.ClassService,
+	rarityService *application.RarityService,
 	keywordService *application.KeywordService,
+
 ) *RestServer {
 	return &RestServer{
 		cardService:    cardService,
@@ -37,6 +40,7 @@ func NewRestServer(
 		updateMetaRepo: updateMetaRepo,
 		setService:     setService,
 		classService:   classService,
+		rarityService:  rarityService,
 		keywordService: keywordService,
 	}
 }
@@ -61,7 +65,7 @@ func (s *RestServer) StartServer() {
 	// inizalize handlers
 	handlers := []Handler{
 		handlers.NewInfoHandler(api, s.cardRepo, s.updateMetaRepo),
-		handlers.NewCardUpdateHandler(api, s.cardService, s.setService, s.classService, s.keywordService),
+		handlers.NewCardUpdateHandler(api, s.cardService, s.setService, s.classService, s.rarityService, s.keywordService),
 		handlers.NewCardHandler(api, s.cardService),
 	}
 	inizializeHandlers(handlers)
