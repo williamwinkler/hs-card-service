@@ -59,60 +59,35 @@ func init() {
     },
     "/cards": {
       "get": {
+        "description": "Returns cards as they are stored",
         "tags": [
           "cards"
         ],
-        "summary": "Get cards with or without query",
+        "summary": "Returns cards",
         "parameters": [
           {
-            "minLength": 1,
-            "type": "string",
-            "name": "name",
-            "in": "query"
+            "$ref": "#/parameters/cardNameParam"
           },
           {
-            "type": "integer",
-            "name": "manaCost",
-            "in": "query"
+            "$ref": "#/parameters/manaCostParam"
           },
           {
-            "type": "integer",
-            "name": "health",
-            "in": "query"
+            "$ref": "#/parameters/healthParam"
           },
           {
-            "type": "integer",
-            "name": "attack",
-            "in": "query"
+            "$ref": "#/parameters/attackParam"
           },
           {
-            "maximum": 14,
-            "minimum": 1,
-            "type": "integer",
-            "name": "class",
-            "in": "query"
+            "$ref": "#/parameters/classParam"
           },
           {
-            "maximum": 5,
-            "minimum": 1,
-            "type": "integer",
-            "name": "rarity",
-            "in": "query"
+            "$ref": "#/parameters/rarityParam"
           },
           {
-            "minimum": 1,
-            "type": "integer",
-            "default": 1,
-            "name": "page",
-            "in": "query"
+            "$ref": "#/parameters/pageParam"
           },
           {
-            "maximum": 100,
-            "minimum": 1,
-            "type": "integer",
-            "default": 20,
-            "name": "limit",
-            "in": "query"
+            "$ref": "#/parameters/limitParam"
           }
         ],
         "responses": {
@@ -131,12 +106,62 @@ func init() {
         }
       }
     },
+    "/richcards": {
+      "get": {
+        "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
+        "tags": [
+          "cards"
+        ],
+        "summary": "Returns rich cards",
+        "parameters": [
+          {
+            "$ref": "#/parameters/cardNameParam"
+          },
+          {
+            "$ref": "#/parameters/manaCostParam"
+          },
+          {
+            "$ref": "#/parameters/healthParam"
+          },
+          {
+            "$ref": "#/parameters/attackParam"
+          },
+          {
+            "$ref": "#/parameters/classParam"
+          },
+          {
+            "$ref": "#/parameters/rarityParam"
+          },
+          {
+            "$ref": "#/parameters/pageParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "schema": {
+              "$ref": "#/definitions/richCards"
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/update": {
       "post": {
         "description": "Checks for updates to cards",
         "tags": [
           "update"
         ],
+        "summary": "Checks for updates to Hearthstone",
         "responses": {
           "200": {
             "description": "OK"
@@ -203,6 +228,12 @@ func init() {
         "imageGold": {
           "description": "Links to a png-image of the golden version of the card",
           "type": "string"
+        },
+        "keywordIds": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         },
         "manaCost": {
           "type": "integer",
@@ -289,6 +320,154 @@ func init() {
           "format": "date-time"
         }
       }
+    },
+    "richCard": {
+      "type": "object",
+      "properties": {
+        "artistName": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "attack": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "cardSet": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "cardType": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "class": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "collectible": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "duals": {
+          "$ref": "#/definitions/duals"
+        },
+        "flavorText": {
+          "type": "string"
+        },
+        "health": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "This is the ID from blizzards API",
+          "type": "integer"
+        },
+        "image": {
+          "description": "Links to a png-image of the card",
+          "type": "string"
+        },
+        "imageGold": {
+          "description": "Links to a png-image of the golden version of the card",
+          "type": "string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manaCost": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "name": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "rarity": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "richCards": {
+      "type": "object",
+      "properties": {
+        "cardCount": {
+          "type": "integer"
+        },
+        "cards": {
+          "description": "if there a no cards, the array is null",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/richCard"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageCount": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "attackParam": {
+      "type": "integer",
+      "name": "attack",
+      "in": "query"
+    },
+    "cardNameParam": {
+      "minLength": 1,
+      "type": "string",
+      "name": "name",
+      "in": "query"
+    },
+    "classParam": {
+      "maximum": 14,
+      "minimum": 1,
+      "type": "integer",
+      "name": "class",
+      "in": "query"
+    },
+    "healthParam": {
+      "type": "integer",
+      "name": "health",
+      "in": "query"
+    },
+    "limitParam": {
+      "maximum": 100,
+      "minimum": 1,
+      "type": "integer",
+      "default": 20,
+      "name": "limit",
+      "in": "query"
+    },
+    "manaCostParam": {
+      "type": "integer",
+      "name": "manaCost",
+      "in": "query"
+    },
+    "pageParam": {
+      "minimum": 1,
+      "type": "integer",
+      "default": 1,
+      "name": "page",
+      "in": "query"
+    },
+    "rarityParam": {
+      "maximum": 5,
+      "minimum": 1,
+      "type": "integer",
+      "name": "rarity",
+      "in": "query"
     }
   }
 }`))
@@ -334,10 +513,11 @@ func init() {
     },
     "/cards": {
       "get": {
+        "description": "Returns cards as they are stored",
         "tags": [
           "cards"
         ],
-        "summary": "Get cards with or without query",
+        "summary": "Returns cards",
         "parameters": [
           {
             "minLength": 1,
@@ -409,12 +589,91 @@ func init() {
         }
       }
     },
+    "/richcards": {
+      "get": {
+        "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
+        "tags": [
+          "cards"
+        ],
+        "summary": "Returns rich cards",
+        "parameters": [
+          {
+            "minLength": 1,
+            "type": "string",
+            "name": "name",
+            "in": "query"
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "name": "manaCost",
+            "in": "query"
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "name": "health",
+            "in": "query"
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "name": "attack",
+            "in": "query"
+          },
+          {
+            "maximum": 14,
+            "minimum": 1,
+            "type": "integer",
+            "name": "class",
+            "in": "query"
+          },
+          {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer",
+            "name": "rarity",
+            "in": "query"
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "default": 1,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "default": 20,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "schema": {
+              "$ref": "#/definitions/richCards"
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/update": {
       "post": {
         "description": "Checks for updates to cards",
         "tags": [
           "update"
         ],
+        "summary": "Checks for updates to Hearthstone",
         "responses": {
           "200": {
             "description": "OK"
@@ -481,6 +740,12 @@ func init() {
         "imageGold": {
           "description": "Links to a png-image of the golden version of the card",
           "type": "string"
+        },
+        "keywordIds": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         },
         "manaCost": {
           "type": "integer",
@@ -567,6 +832,157 @@ func init() {
           "format": "date-time"
         }
       }
+    },
+    "richCard": {
+      "type": "object",
+      "properties": {
+        "artistName": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "attack": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "cardSet": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "cardType": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "class": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "collectible": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "duals": {
+          "$ref": "#/definitions/duals"
+        },
+        "flavorText": {
+          "type": "string"
+        },
+        "health": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "This is the ID from blizzards API",
+          "type": "integer"
+        },
+        "image": {
+          "description": "Links to a png-image of the card",
+          "type": "string"
+        },
+        "imageGold": {
+          "description": "Links to a png-image of the golden version of the card",
+          "type": "string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manaCost": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "name": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "integer",
+          "x-omitempty": false
+        },
+        "rarity": {
+          "type": "string",
+          "x-omitempty": false
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "richCards": {
+      "type": "object",
+      "properties": {
+        "cardCount": {
+          "type": "integer"
+        },
+        "cards": {
+          "description": "if there a no cards, the array is null",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/richCard"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "pageCount": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "attackParam": {
+      "minimum": 0,
+      "type": "integer",
+      "name": "attack",
+      "in": "query"
+    },
+    "cardNameParam": {
+      "minLength": 1,
+      "type": "string",
+      "name": "name",
+      "in": "query"
+    },
+    "classParam": {
+      "maximum": 14,
+      "minimum": 1,
+      "type": "integer",
+      "name": "class",
+      "in": "query"
+    },
+    "healthParam": {
+      "minimum": 0,
+      "type": "integer",
+      "name": "health",
+      "in": "query"
+    },
+    "limitParam": {
+      "maximum": 100,
+      "minimum": 1,
+      "type": "integer",
+      "default": 20,
+      "name": "limit",
+      "in": "query"
+    },
+    "manaCostParam": {
+      "minimum": 0,
+      "type": "integer",
+      "name": "manaCost",
+      "in": "query"
+    },
+    "pageParam": {
+      "minimum": 1,
+      "type": "integer",
+      "default": 1,
+      "name": "page",
+      "in": "query"
+    },
+    "rarityParam": {
+      "maximum": 5,
+      "minimum": 1,
+      "type": "integer",
+      "name": "rarity",
+      "in": "query"
     }
   }
 }`))

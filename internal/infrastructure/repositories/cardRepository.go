@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
@@ -58,7 +57,7 @@ func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]d
 	return decodeToCards(cursor)
 }
 
-func (c *CardRepository) FindWithAggregate(filter bson.M, page int, limit int) ([]domain.Card, error) {
+func (c *CardRepository) FindRichWithFilter(filter bson.M, page int, limit int) ([]domain.RichCard, error) {
 	pipeline := []bson.M{
 		{
 			"$match": filter,
@@ -114,13 +113,25 @@ func (c *CardRepository) FindWithAggregate(filter bson.M, page int, limit int) (
 		},
 		{
 			"$group": bson.M{
-				"_id":      "$_id",
-				"name":     bson.M{"$first": "$name"},
-				"set":      bson.M{"$first": "$set"},
-				"class":    bson.M{"$first": "$class"},
-				"rarity":   bson.M{"$first": "$rarity"},
-				"type":     bson.M{"$first": "$type"},
-				"keywords": bson.M{"$push": "$keywords.name"},
+				"_id":          "$_id",
+				"artistname":   bson.M{"$first": "$artistname"},
+				"attack":       bson.M{"$first": "$attack"},
+				"set":          bson.M{"$first": "$set"},
+				"type":         bson.M{"$first": "$type"},
+				"class":        bson.M{"$first": "$class"},
+				"collectiable": bson.M{"$first": "$collectiable"},
+				"duals":        bson.M{"$first": "$duals"},
+				"flavortext":   bson.M{"$first": "$flavortext"},
+				"health":       bson.M{"$first": "$health"},
+				"id":           bson.M{"$first": "$id"},
+				"image":        bson.M{"$first": "$image"},
+				"imagegold":    bson.M{"$first": "$imagegold"},
+				"keywords":     bson.M{"$push": "$keywords.name"},
+				"manacost":     bson.M{"$first": "$manacost"},
+				"name":         bson.M{"$first": "$name"},
+				"parentid":     bson.M{"$first": "$parentid"},
+				"rarity":       bson.M{"$first": "$rarity"},
+				"text":         bson.M{"$first": "$text"},
 			},
 		},
 		{
@@ -134,20 +145,32 @@ func (c *CardRepository) FindWithAggregate(filter bson.M, page int, limit int) (
 		},
 		{
 			"$project": bson.M{
-				"name":     1,
-				"keywords": 1,
-				"set": bson.M{
+				"artistname": 1,
+				"attack":     1,
+				"cardType": bson.M{
+					"$arrayElemAt": []interface{}{"$type.name", 0},
+				},
+				"cardSet": bson.M{
 					"$arrayElemAt": []interface{}{"$set.name", 0},
 				},
 				"class": bson.M{
 					"$arrayElemAt": []interface{}{"$class.name", 0},
 				},
+				"collectible": 1,
+				"duals":       1,
+				"flavortext":  1,
+				"health":      1,
+				"id":          1,
+				"image":       1,
+				"imagegold":   1,
+				"keywords":    1,
+				"manacost":    1,
+				"name":        1,
+				"parentid":    1,
 				"rarity": bson.M{
 					"$arrayElemAt": []interface{}{"$rarity.name", 0},
 				},
-				"type": bson.M{
-					"$arrayElemAt": []interface{}{"$type.name", 0},
-				},
+				"text": 1,
 			},
 		},
 	}
@@ -157,16 +180,17 @@ func (c *CardRepository) FindWithAggregate(filter bson.M, page int, limit int) (
 		log.Fatalf("error in aggregate: %v", err)
 	}
 
+	var richCards []domain.RichCard
 	for cursor.Next(context.TODO()) {
-		var result bson.M
-		err := cursor.Decode(&result)
+		var richCard domain.RichCard
+		err := cursor.Decode(&richCard)
 		if err != nil {
-			log.Fatal(err)
+			return []domain.RichCard{}, err
 		}
-		fmt.Println(result)
+		richCards = append(richCards, richCard)
 	}
 
-	return []domain.Card{}, nil
+	return richCards, nil
 }
 
 func (c *CardRepository) UpdateOne(card domain.Card) error {

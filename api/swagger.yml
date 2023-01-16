@@ -27,7 +27,9 @@ paths:
                         $ref: "#/definitions/error"
     /update:
         post:
+            summary: Checks for updates to Hearthstone
             description: Checks for updates to cards
+
             tags:
                 - update
             responses:
@@ -41,47 +43,19 @@ paths:
                         $ref: "#/definitions/error"
     /cards:
         get:
-            summary: Get cards with or without query
+            summary: Returns cards
+            description: Returns cards as they are stored
             tags:
-                - cards
+                - cards 
             parameters:
-                -   name: name
-                    in: query
-                    type: string
-                    minLength: 1 
-                -   name: manaCost
-                    in: query
-                    type: integer
-                    minimum: 0
-                -   name: health
-                    in: query
-                    type: integer
-                    minimum: 0
-                -   name: attack
-                    in: query
-                    type: integer
-                    minimum: 0
-                -   name: class
-                    in: query
-                    type: integer    
-                    minimum: 1
-                    maximum: 14
-                -   name: rarity
-                    in: query
-                    type: integer
-                    minimum: 1
-                    maximum: 5
-                -   name: page
-                    in: query
-                    type: integer
-                    default: 1
-                    minimum: 1
-                -   name: limit
-                    in: query
-                    type: integer
-                    minimum: 1
-                    default: 20
-                    maximum: 100
+                - $ref: "#/parameters/cardNameParam"
+                - $ref: "#/parameters/manaCostParam"
+                - $ref: "#/parameters/healthParam"
+                - $ref: "#/parameters/attackParam"
+                - $ref: "#/parameters/classParam"
+                - $ref: "#/parameters/rarityParam"
+                - $ref: "#/parameters/pageParam"
+                - $ref: "#/parameters/limitParam"
             responses:
                 200:
                     description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
@@ -91,7 +65,79 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
-    
+
+
+    /richcards:
+        get:
+            summary: Returns rich cards
+            description: Rich cards contains names instead of ids of fx CardType "Minion", "Spell", "Secret" etc
+            tags:
+                - cards
+            parameters:
+                - $ref: "#/parameters/cardNameParam"
+                - $ref: "#/parameters/manaCostParam"
+                - $ref: "#/parameters/healthParam"
+                - $ref: "#/parameters/attackParam"
+                - $ref: "#/parameters/classParam"
+                - $ref: "#/parameters/rarityParam"
+                - $ref: "#/parameters/pageParam"
+                - $ref: "#/parameters/limitParam"
+            responses:
+                200:
+                    description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
+                    schema:
+                        $ref: "#/definitions/richCards"
+                500:
+                    description: Something went wrong internally
+                    schema:
+                        $ref: "#/definitions/error"
+parameters:
+    cardNameParam:
+        name: name
+        in: query
+        type: string
+        minLength: 1 
+    manaCostParam:
+        name: manaCost
+        in: query
+        type: integer
+        minimum: 0
+    healthParam:
+        name: health
+        in: query
+        type: integer
+        minimum: 0
+    attackParam:
+        name: attack
+        in: query
+        type: integer
+        minimum: 0
+    classParam:
+        name: class
+        in: query
+        type: integer    
+        minimum: 1
+        maximum: 14
+    rarityParam:
+        name: rarity
+        in: query
+        type: integer
+        minimum: 1
+        maximum: 5
+    pageParam:
+        name: page
+        in: query
+        type: integer
+        default: 1
+        minimum: 1
+    limitParam:
+        name: limit
+        in: query
+        type: integer
+        minimum: 1
+        default: 20
+        maximum: 100
+
 
 definitions:
     info:
@@ -159,6 +205,78 @@ definitions:
                 type: string
             text:
                 type: string
+            keywordIds:
+                type: array
+                items:
+                    type: integer
+            image:
+                type: string
+                description: Links to a png-image of the card
+            imageGold:
+                type: string
+                description: Links to a png-image of the golden version of the card
+            flavorText: 
+                type: string
+            parentId:
+                type: integer
+                x-omitempty: false
+            duals:
+                $ref: "#/definitions/duals"
+    richCards:
+        type: object
+        properties: 
+            page:
+                type: integer
+            pageCount:
+                type: integer
+            cardCount:
+                type: integer
+            cards:
+                type: array
+                description: if there a no cards, the array is null
+                items:
+                    $ref: "#/definitions/richCard"
+    richCard:
+        type: object
+        properties:
+            id:
+                type: integer
+                description: This is the ID from blizzards API
+            collectible:
+                type: integer
+                x-omitempty: false
+            class:
+                type: string
+                x-omitempty: false
+            cardType:
+                type: string
+                x-omitempty: false
+            cardSet:
+                type: string
+                x-omitempty: false
+            rarity:
+                type: string
+                x-omitempty: false
+            artistName:
+                type: string
+                x-omitempty: false
+            health:
+                type: integer
+                x-omitempty: false
+            attack:
+                type: integer
+                x-omitempty: false
+            manaCost:
+                type: integer
+                x-omitempty: false
+            name:
+                type: string
+            text:
+                type: string
+            keywords:
+                type: array
+                items:
+                    type: string
             image:
                 type: string
                 description: Links to a png-image of the card

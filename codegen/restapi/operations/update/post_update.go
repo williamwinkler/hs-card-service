@@ -32,6 +32,8 @@ func NewPostUpdate(ctx *middleware.Context, handler PostUpdateHandler) *PostUpda
 /*
 	PostUpdate swagger:route POST /update update postUpdate
 
+# Checks for updates to Hearthstone
+
 Checks for updates to cards
 */
 type PostUpdate struct {

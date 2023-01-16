@@ -38,7 +38,7 @@ func (c *Card) Equals(card2 Card) bool {
 		c.ClassID == card2.ClassID &&
 		reflect.DeepEqual(c.MultiClassIds, card2.MultiClassIds) &&
 		c.CardTypeID == card2.CardTypeID &&
-		c.CardSetID == card2.CardSetID &&
+		c.CardSetID == card2.CardTypeID &&
 		c.RarityID == card2.RarityID &&
 		c.ArtistName == card2.ArtistName &&
 		c.Health == card2.Health &&

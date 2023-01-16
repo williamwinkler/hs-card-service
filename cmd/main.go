@@ -36,7 +36,7 @@ func main() {
 	typeRepository := repositories.NewTypeRepository(database.Db)
 	keywordRepository := repositories.NewKeywordRepository(database.Db)
 
-	cardRepository.FindWithAggregate(bson.M{}, 1, 5)
+	cardRepository.FindRichWithFilter(bson.M{}, 1, 5)
 
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 	setService := application.NewSetService(setRepository, hsClient)

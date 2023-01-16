@@ -52,6 +52,9 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 		CardsGetCardsHandler: cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		}),
+		CardsGetRichcardsHandler: cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		}),
 		UpdatePostUpdateHandler: update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
 		}),
@@ -95,6 +98,8 @@ type HearthstoneCardServiceAPI struct {
 	InfoGetHandler info.GetHandler
 	// CardsGetCardsHandler sets the operation handler for the get cards operation
 	CardsGetCardsHandler cards.GetCardsHandler
+	// CardsGetRichcardsHandler sets the operation handler for the get richcards operation
+	CardsGetRichcardsHandler cards.GetRichcardsHandler
 	// UpdatePostUpdateHandler sets the operation handler for the post update operation
 	UpdatePostUpdateHandler update.PostUpdateHandler
 
@@ -179,6 +184,9 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 	}
 	if o.CardsGetCardsHandler == nil {
 		unregistered = append(unregistered, "cards.GetCardsHandler")
+	}
+	if o.CardsGetRichcardsHandler == nil {
+		unregistered = append(unregistered, "cards.GetRichcardsHandler")
 	}
 	if o.UpdatePostUpdateHandler == nil {
 		unregistered = append(unregistered, "update.PostUpdateHandler")
@@ -279,6 +287,10 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/cards"] = cards.NewGetCards(o.context, o.CardsGetCardsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/richcards"] = cards.NewGetRichcards(o.context, o.CardsGetRichcardsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

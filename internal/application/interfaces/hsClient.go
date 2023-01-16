@@ -1,6 +1,8 @@
 package interfaces
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 type HsClient interface {
 	GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error)

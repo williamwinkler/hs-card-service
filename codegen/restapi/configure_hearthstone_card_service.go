@@ -50,6 +50,11 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		})
 	}
+	if api.CardsGetRichcardsHandler == nil {
+		api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		})
+	}
 	if api.UpdatePostUpdateHandler == nil {
 		api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")

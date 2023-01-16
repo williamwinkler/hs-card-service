@@ -13,10 +13,10 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Card card
+// RichCard rich card
 //
-// swagger:model card
-type Card struct {
+// swagger:model richCard
+type RichCard struct {
 
 	// artist name
 	ArtistName string `json:"artistName"`
@@ -24,14 +24,14 @@ type Card struct {
 	// attack
 	Attack int64 `json:"attack"`
 
-	// card set Id
-	CardSetID int64 `json:"cardSetId"`
+	// card set
+	CardSet string `json:"cardSet"`
 
-	// card type Id
-	CardTypeID int64 `json:"cardTypeId"`
+	// card type
+	CardType string `json:"cardType"`
 
-	// class Id
-	ClassID int64 `json:"classId"`
+	// class
+	Class string `json:"class"`
 
 	// collectible
 	Collectible int64 `json:"collectible"`
@@ -54,8 +54,8 @@ type Card struct {
 	// Links to a png-image of the golden version of the card
 	ImageGold string `json:"imageGold,omitempty"`
 
-	// keyword ids
-	KeywordIds []int64 `json:"keywordIds"`
+	// keywords
+	Keywords []string `json:"keywords"`
 
 	// mana cost
 	ManaCost int64 `json:"manaCost"`
@@ -66,15 +66,15 @@ type Card struct {
 	// parent Id
 	ParentID int64 `json:"parentId"`
 
-	// rarity Id
-	RarityID int64 `json:"rarityId"`
+	// rarity
+	Rarity string `json:"rarity"`
 
 	// text
 	Text string `json:"text,omitempty"`
 }
 
-// Validate validates this card
-func (m *Card) Validate(formats strfmt.Registry) error {
+// Validate validates this rich card
+func (m *RichCard) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDuals(formats); err != nil {
@@ -87,7 +87,7 @@ func (m *Card) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Card) validateDuals(formats strfmt.Registry) error {
+func (m *RichCard) validateDuals(formats strfmt.Registry) error {
 	if swag.IsZero(m.Duals) { // not required
 		return nil
 	}
@@ -106,8 +106,8 @@ func (m *Card) validateDuals(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this card based on the context it is used
-func (m *Card) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this rich card based on the context it is used
+func (m *RichCard) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateDuals(ctx, formats); err != nil {
@@ -120,7 +120,7 @@ func (m *Card) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 	return nil
 }
 
-func (m *Card) contextValidateDuals(ctx context.Context, formats strfmt.Registry) error {
+func (m *RichCard) contextValidateDuals(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Duals != nil {
 		if err := m.Duals.ContextValidate(ctx, formats); err != nil {
@@ -137,7 +137,7 @@ func (m *Card) contextValidateDuals(ctx context.Context, formats strfmt.Registry
 }
 
 // MarshalBinary interface implementation
-func (m *Card) MarshalBinary() ([]byte, error) {
+func (m *RichCard) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -145,8 +145,8 @@ func (m *Card) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Card) UnmarshalBinary(b []byte) error {
-	var res Card
+func (m *RichCard) UnmarshalBinary(b []byte) error {
+	var res RichCard
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

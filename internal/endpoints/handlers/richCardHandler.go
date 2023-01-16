@@ -14,21 +14,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type CardHandler struct {
+type RichCardHandler struct {
 	api         *operations.HearthstoneCardServiceAPI
 	cardService *application.CardService
 }
 
-func NewCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *application.CardService) *CardHandler {
-	return &CardHandler{
+func NewRichCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *application.CardService) *RichCardHandler {
+	return &RichCardHandler{
 		api:         api,
 		cardService: cardService,
 	}
 }
 
-func (c *CardHandler) SetupHandler() {
-	c.api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(
-		func(params cards.GetCardsParams) middleware.Responder {
+func (c *RichCardHandler) SetupHandler() {
+	c.api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(
+		func(params cards.GetRichcardsParams) middleware.Responder {
 
 			filter := bson.M{}
 			if params.Name != nil {
@@ -50,37 +50,37 @@ func (c *CardHandler) SetupHandler() {
 				filter["rarityid"] = params.Rarity
 			}
 
-			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
+			foundCards, count, err := c.cardService.GetRichCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting cards")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
+				errorMessage := utils.CreateErrorMessage(500, "Somthing went wrong with getting rich cards")
+				return cards.NewGetRichcardsInternalServerError().WithPayload(errorMessage)
 			}
 
-			mappedCards := mapCardsToExternal(foundCards)
+			mappedCards := mapRichCardsToExternal(foundCards)
 			pageCount := math.Ceil(float64(count) / float64(*params.Limit))
 
 			log.Printf("Handled %s request (%d)", params.HTTPRequest.URL, len(mappedCards))
-			response := models.Cards{
+			response := models.RichCards{
 				Page:      *params.Page,
 				PageCount: int64(pageCount),
 				CardCount: int64(count),
 				Cards:     mappedCards,
 			}
-			return cards.NewGetCardsOK().WithPayload(&response)
+			return cards.NewGetRichcardsOK().WithPayload(&response)
 		},
 	)
 }
 
-func mapCardsToExternal(cards []domain.Card) []*models.Card {
-	var mappedCards []*models.Card
+func mapRichCardsToExternal(cards []domain.RichCard) []*models.RichCard {
+	var mappedCards []*models.RichCard
 	for _, card := range cards {
-		var c models.Card
+		var c models.RichCard
 		c.ID = int64(card.ID)
 		c.ArtistName = card.ArtistName
 		c.Attack = int64(card.Attack)
-		c.CardSetID = int64(card.CardSetID)
-		c.CardTypeID = int64(card.CardTypeID)
-		c.ClassID = int64(card.ClassID)
+		c.CardSet = card.CardSet
+		c.CardType = card.CardType
+		c.Class = card.Class
 		c.Collectible = int64(card.Collectible)
 		c.FlavorText = card.FlavorText
 		c.Health = int64(card.Health)
@@ -89,18 +89,13 @@ func mapCardsToExternal(cards []domain.Card) []*models.Card {
 		c.ManaCost = int64(card.ManaCost)
 		c.Name = card.Name
 		c.ParentID = int64(card.ParentID)
-		c.RarityID = int64(card.RarityID)
+		c.Rarity = card.Rarity
 		c.Text = card.Text
+		c.Keywords = card.Keywords
 		c.Duals = &models.Duals{
 			Constructed: card.Duels.Constructed,
 			Relevant:    card.Duels.Relevant,
 		}
-
-		var keywordIds []int64
-		for _, id := range keywordIds {
-			keywordIds = append(keywordIds, int64(id))
-		}
-		c.KeywordIds = keywordIds
 
 		mappedCards = append(mappedCards, &c)
 	}

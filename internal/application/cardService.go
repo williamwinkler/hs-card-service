@@ -4,7 +4,6 @@ import (
 	"log"
 	"sort"
 
-	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,29 +23,8 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 	}
 }
 
-func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, int64, error) {
-	filter := bson.M{}
-
-	if params.Name != nil {
-		filter["name"] = params.Name
-	}
-	if params.ManaCost != nil {
-		filter["manacost"] = params.ManaCost
-	}
-	if params.Health != nil {
-		filter["health"] = params.Health
-	}
-	if params.Attack != nil {
-		filter["attack"] = params.Attack
-	}
-	if params.Class != nil {
-		filter["classid"] = params.Class
-	}
-	if params.Rarity != nil {
-		filter["rarityid"] = params.Rarity
-	}
-
-	cards, err := c.cardRepo.FindWithFilter(filter, int(*params.Page), int(*params.Limit))
+func (c *CardService) GetCards(filter bson.M, page int, limit int) ([]domain.Card, int64, error) {
+	cards, err := c.cardRepo.FindWithFilter(filter, page, limit)
 	if err != nil {
 		return []domain.Card{}, 0, err
 	}
@@ -57,6 +35,20 @@ func (c *CardService) GetCards(params cards.GetCardsParams) ([]domain.Card, int6
 	}
 
 	return cards, count, nil
+}
+
+func (c *CardService) GetRichCards(filter bson.M, page int, limit int) ([]domain.RichCard, int64, error) {
+	richCards, err := c.cardRepo.FindRichWithFilter(filter, page, limit)
+	if err != nil {
+		return []domain.RichCard{}, 0, err
+	}
+
+	count, err := c.cardRepo.CountWithFilter(filter)
+	if err != nil {
+		return []domain.RichCard{}, 0, err
+	}
+
+	return richCards, count, nil
 }
 
 func (c *CardService) Update() error {

@@ -42,6 +42,10 @@ func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]d
 	return []domain.Card{}, nil
 }
 
+func (c *CardRepository) FindRichWithFilter(filter bson.M, page int, limit int) ([]domain.RichCard, error) {
+	return []domain.RichCard{}, nil
+}
+
 func (c *CardRepository) UpdateOne(card domain.Card) error {
 	c.Cards[card.ID] = card
 	return nil

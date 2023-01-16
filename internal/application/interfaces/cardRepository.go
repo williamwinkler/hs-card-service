@@ -6,10 +6,11 @@ import (
 )
 
 type CardRepository interface {
-	InsertOne(card domain.Card) error
-	InsertMany(cards []domain.Card) error
 	FindAll() ([]domain.Card, error)
 	FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error)
+	FindRichWithFilter(filter bson.M, page int, limit int) ([]domain.RichCard, error)
+	InsertOne(card domain.Card) error
+	InsertMany(cards []domain.Card) error
 	UpdateOne(domain.Card) error
 	DeleteOne(domain.Card) error
 	DeleteAll() error

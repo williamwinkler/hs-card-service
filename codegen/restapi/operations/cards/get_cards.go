@@ -32,7 +32,9 @@ func NewGetCards(ctx *middleware.Context, handler GetCardsHandler) *GetCards {
 /*
 	GetCards swagger:route GET /cards cards getCards
 
-Get cards with or without query
+# Returns cards
+
+Returns cards as they are stored
 */
 type GetCards struct {
 	Context *middleware.Context

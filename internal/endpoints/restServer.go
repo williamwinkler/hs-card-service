@@ -70,6 +70,7 @@ func (s *RestServer) StartServer() {
 		handlers.NewInfoHandler(api, s.cardRepo, s.updateMetaRepo),
 		handlers.NewCardUpdateHandler(api, s.cardService, s.setService, s.classService, s.rarityService, s.typeService, s.keywordService),
 		handlers.NewCardHandler(api, s.cardService),
+		handlers.NewRichCardHandler(api, s.cardService),
 	}
 	inizializeHandlers(handlers)
 
