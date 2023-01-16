@@ -17,6 +17,7 @@ const CARDS_UPDATE_META_COLLECTION = "update-meta"
 const CARDS_SETS_COLLECTION = "sets"
 const CARDS_CLASSES_COLLECTION = "classes"
 const CARDS_RARITY_COLLECTION = "rarities"
+const CARDS_TYPES_COLLECTION = "types"
 const CARDS_KEYWORDS_COLLECTION = "keywords"
 
 type Database struct {
@@ -55,6 +56,10 @@ func SetupDatabase() (*Database, error) {
 		return &Database{}, err
 	}
 	err = createCollection(db, CARDS_RARITY_COLLECTION)
+	if err != nil {
+		return &Database{}, err
+	}
+	err = createCollection(db, CARDS_TYPES_COLLECTION)
 	if err != nil {
 		return &Database{}, err
 	}

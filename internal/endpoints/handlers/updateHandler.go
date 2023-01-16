@@ -18,6 +18,7 @@ type CardUpdateHandler struct {
 	setService     *application.SetService
 	classService   *application.ClassService
 	rarityService  *application.RarityService
+	typeService    *application.TypeService
 	keywordService *application.KeywordService
 }
 
@@ -27,6 +28,7 @@ func NewCardUpdateHandler(
 	setService *application.SetService,
 	classService *application.ClassService,
 	rarityService *application.RarityService,
+	typeService *application.TypeService,
 	keywordsService *application.KeywordService,
 ) *CardUpdateHandler {
 	return &CardUpdateHandler{
@@ -35,6 +37,7 @@ func NewCardUpdateHandler(
 		setService:     setService,
 		classService:   classService,
 		rarityService:  rarityService,
+		typeService:    typeService,
 		keywordService: keywordsService,
 	}
 }
@@ -70,6 +73,13 @@ func (c *CardUpdateHandler) SetupHandler() {
 			if err != nil {
 				log.Printf("Error occurred in POST /cards/update: %v", err)
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating rarities")
+				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
+			}
+
+			err = c.typeService.Update()
+			if err != nil {
+				log.Printf("Error occurred in POST /cards/update: %v", err)
+				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating types")
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 

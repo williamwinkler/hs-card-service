@@ -3,4 +3,5 @@ mockery --dir=internal/application/interfaces --output=internal/tests/mocks --ou
 mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=setRepository.go --name=SetRepository  
 mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=classRepository.go --name=ClassRepository
 mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=rarityRepository.go --name=RarityRepository  
-mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=keywordRepository.go --name=KeywordRepository  
+mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=typeRepository.go --name=TypeRepository  
+mockery --dir=internal/application/interfaces --output=internal/tests/mocks --outpkg=mocks --filename=keywordRepository.go --name=KeywordRepository

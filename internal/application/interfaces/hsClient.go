@@ -8,5 +8,6 @@ type HsClient interface {
 	GetSets() ([]domain.Set, error)
 	GetClasses() ([]domain.Class, error)
 	GetRarities() ([]domain.Rarity, error)
+	GetTypes() ([]domain.Type, error)
 	GetKeywords() ([]domain.Keyword, error)
 }

@@ -170,6 +170,31 @@ func (hc *HsClient) GetRarities() ([]domain.Rarity, error) {
 	return rarities, nil
 }
 
+func (hc *HsClient) GetTypes() ([]domain.Type, error) {
+	url := "https://us.api.blizzard.com/hearthstone/metadata/types?locale=en_US"
+
+	response, err := hc.executeGetRequest(url)
+	if err != nil {
+		return []domain.Type{}, err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []domain.Type{}, err
+	}
+
+	var typesDto dto.TypesDto
+	err = json.Unmarshal(body, &typesDto)
+	if err != nil {
+		return []domain.Type{}, err
+	}
+
+	types := dto.MapToTypes(typesDto)
+
+	return types, nil
+}
+
 func (hc *HsClient) GetKeywords() ([]domain.Keyword, error) {
 	url := "https://us.api.blizzard.com/hearthstone/metadata/keywords?locale=en_US"
 

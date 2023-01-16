@@ -58,8 +58,11 @@ func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]d
 	return decodeToCards(cursor)
 }
 
-func (c *CardRepository) FindWithAggregate() {
+func (c *CardRepository) FindWithAggregate(filter bson.M, page int, limit int) ([]domain.Card, error) {
 	pipeline := []bson.M{
+		{
+			"$match": filter,
+		},
 		{
 			"$lookup": bson.M{
 				"from":         "sets",
@@ -84,20 +87,55 @@ func (c *CardRepository) FindWithAggregate() {
 				"as":           "rarity",
 			},
 		},
-		{"$unwind": "$keywordids"},
+		{
+			"$lookup": bson.M{
+				"from":         "types",
+				"localField":   "cardtypeid",
+				"foreignField": "id",
+				"as":           "type",
+			},
+		},
+		{
+			"$unwind": "$keywordids",
+		},
 		{
 			"$lookup": bson.M{
 				"from":         "keywords",
 				"localField":   "keywordids",
 				"foreignField": "id",
-				"as":           "keywords_names",
+				"as":           "keywords",
 			},
 		},
-		{"$match": bson.M{"keywords_names": bson.M{"$ne": []interface{}{}}}},
+		{
+			"$match": bson.M{"keywords": bson.M{"$ne": []interface{}{}}},
+		},
+		{
+			"$unwind": "$keywords",
+		},
+		{
+			"$group": bson.M{
+				"_id":      "$_id",
+				"name":     bson.M{"$first": "$name"},
+				"set":      bson.M{"$first": "$set"},
+				"class":    bson.M{"$first": "$class"},
+				"rarity":   bson.M{"$first": "$rarity"},
+				"type":     bson.M{"$first": "$type"},
+				"keywords": bson.M{"$push": "$keywords.name"},
+			},
+		},
+		{
+			"$sort": bson.M{"manacost": 1},
+		},
+		{
+			"$skip": int64(limit * (page - 1)),
+		},
+		{
+			"$limit": int64(limit),
+		},
 		{
 			"$project": bson.M{
-				"name":                1,
-				"keywords_names.name": 1,
+				"name":     1,
+				"keywords": 1,
 				"set": bson.M{
 					"$arrayElemAt": []interface{}{"$set.name", 0},
 				},
@@ -106,6 +144,9 @@ func (c *CardRepository) FindWithAggregate() {
 				},
 				"rarity": bson.M{
 					"$arrayElemAt": []interface{}{"$rarity.name", 0},
+				},
+				"type": bson.M{
+					"$arrayElemAt": []interface{}{"$type.name", 0},
 				},
 			},
 		},
@@ -116,19 +157,16 @@ func (c *CardRepository) FindWithAggregate() {
 		log.Fatalf("error in aggregate: %v", err)
 	}
 
-	i := 0
 	for cursor.Next(context.TODO()) {
-		if i > 2 {
-			break
-		}
 		var result bson.M
 		err := cursor.Decode(&result)
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(result)
-		i++
 	}
+
+	return []domain.Card{}, nil
 }
 
 func (c *CardRepository) UpdateOne(card domain.Card) error {
@@ -143,15 +181,8 @@ func (c *CardRepository) DeleteOne(domain.Card) error {
 }
 
 func (c *CardRepository) DeleteAll() error {
-	result, err := c.cards.DeleteMany(context.Background(), bson.M{}, nil)
-	if err != nil {
-		return err
-	}
-	if result.DeletedCount == 0 {
-		return fmt.Errorf("zero documents were deleted")
-	}
-
-	return nil
+	_, err := c.cards.DeleteMany(context.Background(), bson.M{}, nil)
+	return err
 }
 
 func (c *CardRepository) Count() (int64, error) {

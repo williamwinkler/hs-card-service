@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 func MapToCards(cardsDto CardsDto) []domain.Card {
 	var cards []domain.Card
@@ -85,6 +87,20 @@ func MapToRariteis(raritiesDto RaritiesDto) []domain.Rarity {
 		rarities = append(rarities, s)
 	}
 	return rarities
+}
+
+func MapToTypes(typesDto TypesDto) []domain.Type {
+	var types []domain.Type
+	for _, r := range typesDto {
+		var s domain.Type
+		s.Slug = r.Slug
+		s.ID = r.ID
+		s.Name = r.Name
+		s.GameModes = r.GameModes
+
+		types = append(types, s)
+	}
+	return types
 }
 
 func MapToKeywords(keywordsDto KeywordsDto) []domain.Keyword {
