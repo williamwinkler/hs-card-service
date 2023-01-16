@@ -118,7 +118,7 @@ func (c *CardRepository) FindWithAggregate() {
 
 	i := 0
 	for cursor.Next(context.TODO()) {
-		if i > 0 {
+		if i > 2 {
 			break
 		}
 		var result bson.M

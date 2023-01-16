@@ -33,7 +33,7 @@ func (c *CardHandler) SetupHandler() {
 				return cards.NewGetCardsInternalServerError()
 			}
 
-			mappedCards := mapDomainCardsToExternal(foundCards)
+			mappedCards := mapCardsToExternal(foundCards)
 			pageCount := math.Ceil(float64(count) / float64(*gcp.Limit))
 
 			log.Printf("Handled %s request (%d)", gcp.HTTPRequest.URL, len(mappedCards))
@@ -48,7 +48,7 @@ func (c *CardHandler) SetupHandler() {
 	)
 }
 
-func mapDomainCardsToExternal(cards []domain.Card) []*models.Card {
+func mapCardsToExternal(cards []domain.Card) []*models.Card {
 	var mappedCards []*models.Card
 	for _, card := range cards {
 		var c models.Card
