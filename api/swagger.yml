@@ -19,7 +19,6 @@ paths:
                 200:
                     description: Get current status of amount of cards and last update
                     schema:
-                        type: object
                         $ref: "#/definitions/info"
                 500:
                     description: Something went wrong
