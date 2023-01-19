@@ -31,6 +31,10 @@ func init() {
   "info": {
     "description": "Serves Hearthstone cards",
     "title": "Hearthstone Card Service",
+    "contact": {
+      "name": "William Winkler",
+      "email": "williambwinkler@gmail.com"
+    },
     "version": "1.0.0"
   },
   "paths": {
@@ -44,7 +48,6 @@ func init() {
           "200": {
             "description": "Get current status of amount of cards and last update",
             "schema": {
-              "type": "object",
               "$ref": "#/definitions/info"
             }
           },
@@ -259,20 +262,24 @@ func init() {
       "type": "object",
       "properties": {
         "cardCount": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cards": {
           "description": "if there a no cards, the array is null",
           "type": "array",
           "items": {
+            "x-omitempty": false,
             "$ref": "#/definitions/card"
           }
         },
         "page": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "pageCount": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -407,7 +414,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/richCard"
-          }
+          },
+          "example": null
         },
         "page": {
           "type": "integer"
@@ -485,6 +493,10 @@ func init() {
   "info": {
     "description": "Serves Hearthstone cards",
     "title": "Hearthstone Card Service",
+    "contact": {
+      "name": "William Winkler",
+      "email": "williambwinkler@gmail.com"
+    },
     "version": "1.0.0"
   },
   "paths": {
@@ -498,7 +510,6 @@ func init() {
           "200": {
             "description": "Get current status of amount of cards and last update",
             "schema": {
-              "type": "object",
               "$ref": "#/definitions/info"
             }
           },
@@ -771,20 +782,24 @@ func init() {
       "type": "object",
       "properties": {
         "cardCount": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "cards": {
           "description": "if there a no cards, the array is null",
           "type": "array",
           "items": {
+            "x-omitempty": false,
             "$ref": "#/definitions/card"
           }
         },
         "page": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         },
         "pageCount": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -919,7 +934,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/richCard"
-          }
+          },
+          "example": []
         },
         "page": {
           "type": "integer"

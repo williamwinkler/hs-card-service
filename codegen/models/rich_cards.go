@@ -23,6 +23,7 @@ type RichCards struct {
 	CardCount int64 `json:"cardCount,omitempty"`
 
 	// if there a no cards, the array is null
+	// Example: []
 	Cards []*RichCard `json:"cards"`
 
 	// page

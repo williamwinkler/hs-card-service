@@ -20,16 +20,16 @@ import (
 type Cards struct {
 
 	// card count
-	CardCount int64 `json:"cardCount,omitempty"`
+	CardCount int64 `json:"cardCount"`
 
 	// if there a no cards, the array is null
 	Cards []*Card `json:"cards"`
 
 	// page
-	Page int64 `json:"page,omitempty"`
+	Page int64 `json:"page"`
 
 	// page count
-	PageCount int64 `json:"pageCount,omitempty"`
+	PageCount int64 `json:"pageCount"`
 }
 
 // Validate validates this cards

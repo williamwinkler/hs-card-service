@@ -8,6 +8,7 @@
 //	Host: localhost
 //	BasePath: /
 //	Version: 1.0.0
+//	Contact: William Winkler<williambwinkler@gmail.com>
 //
 //	Consumes:
 //	  - application/json

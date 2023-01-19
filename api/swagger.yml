@@ -1,5 +1,8 @@
 swagger: "2.0"
 info:
+    contact:
+      name: William Winkler
+      email: williambwinkler@gmail.com
     description: Serves Hearthstone cards
     title: Hearthstone Card Service
     version: 1.0.0
@@ -65,8 +68,6 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
-
-
     /richcards:
         get:
             summary: Returns rich cards
@@ -159,14 +160,18 @@ definitions:
         properties: 
             page:
                 type: integer
+                x-omitempty: false
             pageCount:
                 type: integer
+                x-omitempty: false
             cardCount:
                 type: integer
+                x-omitempty: false
             cards:
                 type: array
                 description: if there a no cards, the array is null
                 items:
+                    x-omitempty: false
                     $ref: "#/definitions/card"
     card:
         type: object
@@ -234,6 +239,7 @@ definitions:
             cards:
                 type: array
                 description: if there a no cards, the array is null
+                example: []
                 items:
                     $ref: "#/definitions/richCard"
     richCard:

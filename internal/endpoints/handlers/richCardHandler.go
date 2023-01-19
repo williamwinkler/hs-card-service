@@ -32,7 +32,7 @@ func (c *RichCardHandler) SetupHandler() {
 
 			filter := bson.M{}
 			if params.Name != nil {
-				filter["name"] = params.Name
+				filter["name"] = bson.M{"$regex": ".*" + *params.Name + ".*", "$options": "i"}
 			}
 			if params.ManaCost != nil {
 				filter["manacost"] = params.ManaCost
