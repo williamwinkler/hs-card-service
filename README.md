@@ -2,7 +2,7 @@
 Serves cards from Blizzards card game [Hearthstone](https://hearthstone.blizzard.com/en-us).
 
 The very purpose of this program was to personally get well acquainted with Swagger codegen, Clean Architecture and MongoDb. <br>
-The program gets its data from [Blizzards Hearthstone API](https://develop.battle.net/documentation/hearthstone/game-data-apis) and store this in a mongoDB database.
+The program gets its data from [Blizzards Hearthstone API](https://develop.battle.net/documentation/hearthstone/game-data-apis) and stores it in a mongoDB database.
 
 ## API
 The API is defined in `./api/swagger.yml` which is used to generate the server located in `./codegen.` <br>
