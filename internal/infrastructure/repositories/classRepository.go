@@ -34,3 +34,26 @@ func (c *ClassRepository) DeleteAll() error {
 	_, err := c.classes.DeleteMany(context.TODO(), bson.M{}, nil)
 	return err
 }
+
+func (c *ClassRepository) FindAll() ([]domain.Class, error) {
+	cursor, err := c.classes.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return []domain.Class{}, err
+	}
+
+	return decodeToClasses(cursor)
+}
+
+func decodeToClasses(cursor *mongo.Cursor) ([]domain.Class, error) {
+	var classes []domain.Class
+	for cursor.Next(context.TODO()) {
+		var class domain.Class
+		err := cursor.Decode(&class)
+		if err != nil {
+			return []domain.Class{}, err
+		}
+		classes = append(classes, class)
+	}
+
+	return classes, nil
+}

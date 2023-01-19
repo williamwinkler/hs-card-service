@@ -50,6 +50,7 @@ func main() {
 		cardMetaRepository,
 		setRepository,
 		typeRepository,
+		classRepository,
 		cardService,
 		setService,
 		classService,
