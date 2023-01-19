@@ -34,3 +34,26 @@ func (c *TypeRepository) DeleteAll() error {
 	_, err := c.types.DeleteMany(context.TODO(), bson.M{}, nil)
 	return err
 }
+
+func (c *TypeRepository) FindAll() ([]domain.Type, error) {
+	cursor, err := c.types.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return []domain.Type{}, err
+	}
+
+	return decodeToTypes(cursor)
+}
+
+func decodeToTypes(cursor *mongo.Cursor) ([]domain.Type, error) {
+	var sets []domain.Type
+	for cursor.Next(context.TODO()) {
+		var set domain.Type
+		err := cursor.Decode(&set)
+		if err != nil {
+			return []domain.Type{}, err
+		}
+		sets = append(sets, set)
+	}
+
+	return sets, nil
+}

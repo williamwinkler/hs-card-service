@@ -9,7 +9,6 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
@@ -28,6 +27,7 @@ func main() {
 		log.Fatalf("Failed to start HsClient: %v", err)
 	}
 
+	// setup repositories
 	cardRepository := repositories.NewCardRepository(database.Db)
 	cardMetaRepository := repositories.NewUpdateMetaRepository(database.Db)
 	setRepository := repositories.NewSetRepository(database.Db)
@@ -36,8 +36,7 @@ func main() {
 	typeRepository := repositories.NewTypeRepository(database.Db)
 	keywordRepository := repositories.NewKeywordRepository(database.Db)
 
-	cardRepository.FindRichWithFilter(bson.M{}, 1, 5)
-
+	// setup services
 	cardService := application.NewCardService(hsClient, cardRepository, cardMetaRepository)
 	setService := application.NewSetService(setRepository, hsClient)
 	classService := application.NewClassService(classRepository, hsClient)
@@ -45,8 +44,19 @@ func main() {
 	typeService := application.NewTypeService(typeRepository, hsClient)
 	keywordService := application.NewKeywordService(keywordRepository, hsClient)
 
-	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, setRepository, cardService, setService, classService, rarityService, typeService, keywordService)
-
+	// setup server
+	restServer := endpoints.NewRestServer(
+		cardRepository,
+		cardMetaRepository,
+		setRepository,
+		typeRepository,
+		cardService,
+		setService,
+		classService,
+		rarityService,
+		typeService,
+		keywordService,
+	)
 	restServer.StartServer()
 
 	log.Println("Program Ended")

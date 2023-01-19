@@ -17,7 +17,7 @@ type SetsHandler struct {
 	setRepo *repositories.SetRepository
 }
 
-func NewSetHandler(api *operations.HearthstoneCardServiceAPI, setRepo *repositories.SetRepository) *SetsHandler {
+func NewSetsHandler(api *operations.HearthstoneCardServiceAPI, setRepo *repositories.SetRepository) *SetsHandler {
 	return &SetsHandler{
 		api:     api,
 		setRepo: setRepo,
