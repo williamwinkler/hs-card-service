@@ -30,7 +30,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Serves Hearthstone cards",
-    "title": "Hearthstone Card Service",
+    "title": "Hearthstone Card Service API",
     "contact": {
       "name": "William Winkler",
       "email": "williambwinkler@gmail.com"
@@ -687,7 +687,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Serves Hearthstone cards",
-    "title": "Hearthstone Card Service",
+    "title": "Hearthstone Card Service API",
     "contact": {
       "name": "William Winkler",
       "email": "williambwinkler@gmail.com"

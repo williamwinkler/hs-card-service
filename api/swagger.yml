@@ -4,7 +4,7 @@ info:
       name: William Winkler
       email: williambwinkler@gmail.com
     description: Serves Hearthstone cards
-    title: Hearthstone Card Service
+    title: Hearthstone Card Service API
     version: 1.0.0
 schemes:
     - http
