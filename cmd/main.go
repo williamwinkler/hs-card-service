@@ -51,6 +51,8 @@ func main() {
 		setRepository,
 		typeRepository,
 		classRepository,
+		rarityRepository,
+		keywordRepository,
 		cardService,
 		setService,
 		classService,

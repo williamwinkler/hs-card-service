@@ -34,3 +34,26 @@ func (c *KeywordRepository) DeleteAll() error {
 	_, err := c.keywords.DeleteMany(context.TODO(), bson.M{}, nil)
 	return err
 }
+
+func (c *KeywordRepository) FindAll() ([]domain.Keyword, error) {
+	cursor, err := c.keywords.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return []domain.Keyword{}, err
+	}
+
+	return decodeToKeywords(cursor)
+}
+
+func decodeToKeywords(cursor *mongo.Cursor) ([]domain.Keyword, error) {
+	var keywords []domain.Keyword
+	for cursor.Next(context.TODO()) {
+		var keyword domain.Keyword
+		err := cursor.Decode(&keyword)
+		if err != nil {
+			return []domain.Keyword{}, err
+		}
+		keywords = append(keywords, keyword)
+	}
+
+	return keywords, nil
+}

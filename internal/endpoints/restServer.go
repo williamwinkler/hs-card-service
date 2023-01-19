@@ -20,6 +20,8 @@ type RestServer struct {
 	setRepo        *repositories.SetRepository
 	typeRepo       *repositories.TypeRepository
 	classRepo      *repositories.ClassRepository
+	rarityRepo     *repositories.RarityRepository
+	keywordRepo    *repositories.KeywordRepository
 	cardService    *application.CardService
 	setService     *application.SetService
 	classService   *application.ClassService
@@ -34,6 +36,8 @@ func NewRestServer(
 	setRepo *repositories.SetRepository,
 	typeRepo *repositories.TypeRepository,
 	classRepo *repositories.ClassRepository,
+	rarityRepo *repositories.RarityRepository,
+	keywordRepo *repositories.KeywordRepository,
 	cardService *application.CardService,
 	setService *application.SetService,
 	classService *application.ClassService,
@@ -48,6 +52,8 @@ func NewRestServer(
 		setRepo:        setRepo,
 		typeRepo:       typeRepo,
 		classRepo:      classRepo,
+		rarityRepo:     rarityRepo,
+		keywordRepo:    keywordRepo,
 		updateMetaRepo: updateMetaRepo,
 		setService:     setService,
 		classService:   classService,
@@ -83,6 +89,8 @@ func (s *RestServer) StartServer() {
 		handlers.NewSetsHandler(api, s.setRepo),
 		handlers.NewTypesHandler(api, s.typeRepo),
 		handlers.NewClassesHandler(api, s.classRepo),
+		handlers.NewRaritiesHandler(api, s.rarityRepo),
+		handlers.NewKeywordsHandler(api, s.keywordRepo),
 	}
 	inizializeHandlers(handlers)
 
