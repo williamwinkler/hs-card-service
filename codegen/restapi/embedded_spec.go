@@ -38,35 +38,12 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/": {
-      "get": {
-        "tags": [
-          "info"
-        ],
-        "summary": "Get information about the service",
-        "responses": {
-          "200": {
-            "description": "Get current status of amount of cards and last update",
-            "schema": {
-              "$ref": "#/definitions/info"
-            }
-          },
-          "500": {
-            "description": "Something went wrong",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
     "/cards": {
       "get": {
         "description": "Returns cards as they are stored",
         "tags": [
           "cards"
         ],
-        "summary": "Returns cards",
         "parameters": [
           {
             "$ref": "#/parameters/cardNameParam"
@@ -109,13 +86,109 @@ func init() {
         }
       }
     },
+    "/classes": {
+      "get": {
+        "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
+        "tags": [
+          "classes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all classes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/classes"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "description": "Get information about the service",
+        "tags": [
+          "info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get current status of amount of cards and last update",
+            "schema": {
+              "$ref": "#/definitions/info"
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/keywords": {
+      "get": {
+        "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
+        "tags": [
+          "keywords"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all keywords",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/keywords"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/rarities": {
+      "get": {
+        "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
+        "tags": [
+          "rarities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all rarities",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/rarities"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/richcards": {
       "get": {
         "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
         "tags": [
           "cards"
         ],
-        "summary": "Returns rich cards",
         "parameters": [
           {
             "$ref": "#/parameters/cardNameParam"
@@ -158,13 +231,62 @@ func init() {
         }
       }
     },
+    "/sets": {
+      "get": {
+        "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
+        "tags": [
+          "sets"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all sets",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/sets"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/types": {
+      "get": {
+        "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
+        "tags": [
+          "types"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all types",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/types"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/update": {
       "post": {
-        "description": "Checks for updates to cards",
+        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
         "tags": [
           "update"
         ],
-        "summary": "Checks for updates to Hearthstone",
         "responses": {
           "200": {
             "description": "OK"
@@ -283,6 +405,17 @@ func init() {
         }
       }
     },
+    "classes": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "duals": {
       "type": "object",
       "properties": {
@@ -325,6 +458,43 @@ func init() {
           "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "keywords": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "rarities": {
+      "type": "object",
+      "properties": {
+        "craftingcost": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "dustvalue": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
@@ -424,6 +594,31 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "sets": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "types": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
     }
   },
   "parameters": {
@@ -500,35 +695,12 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/": {
-      "get": {
-        "tags": [
-          "info"
-        ],
-        "summary": "Get information about the service",
-        "responses": {
-          "200": {
-            "description": "Get current status of amount of cards and last update",
-            "schema": {
-              "$ref": "#/definitions/info"
-            }
-          },
-          "500": {
-            "description": "Something went wrong",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
     "/cards": {
       "get": {
         "description": "Returns cards as they are stored",
         "tags": [
           "cards"
         ],
-        "summary": "Returns cards",
         "parameters": [
           {
             "minLength": 1,
@@ -600,13 +772,109 @@ func init() {
         }
       }
     },
+    "/classes": {
+      "get": {
+        "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
+        "tags": [
+          "classes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all classes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/classes"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "description": "Get information about the service",
+        "tags": [
+          "info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get current status of amount of cards and last update",
+            "schema": {
+              "$ref": "#/definitions/info"
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/keywords": {
+      "get": {
+        "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
+        "tags": [
+          "keywords"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all keywords",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/keywords"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/rarities": {
+      "get": {
+        "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
+        "tags": [
+          "rarities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all rarities",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/rarities"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/richcards": {
       "get": {
         "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
         "tags": [
           "cards"
         ],
-        "summary": "Returns rich cards",
         "parameters": [
           {
             "minLength": 1,
@@ -678,13 +946,62 @@ func init() {
         }
       }
     },
+    "/sets": {
+      "get": {
+        "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
+        "tags": [
+          "sets"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all sets",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/sets"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/types": {
+      "get": {
+        "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
+        "tags": [
+          "types"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all types",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/types"
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong internally",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/update": {
       "post": {
-        "description": "Checks for updates to cards",
+        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
         "tags": [
           "update"
         ],
-        "summary": "Checks for updates to Hearthstone",
         "responses": {
           "200": {
             "description": "OK"
@@ -803,6 +1120,17 @@ func init() {
         }
       }
     },
+    "classes": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "duals": {
       "type": "object",
       "properties": {
@@ -845,6 +1173,43 @@ func init() {
           "description": "formatted as RFC 3339",
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "keywords": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "rarities": {
+      "type": "object",
+      "properties": {
+        "craftingcost": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "dustvalue": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
@@ -942,6 +1307,31 @@ func init() {
         },
         "pageCount": {
           "type": "integer"
+        }
+      }
+    },
+    "sets": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "types": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
         }
       }
     }

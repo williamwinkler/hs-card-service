@@ -12,7 +12,12 @@ import (
 
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/classes"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/keywords"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/rarities"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/types"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 )
 
@@ -40,19 +45,44 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.InfoGetHandler == nil {
-		api.InfoGetHandler = info.GetHandlerFunc(func(params info.GetParams) middleware.Responder {
-			return middleware.NotImplemented("operation info.Get has not yet been implemented")
-		})
-	}
 	if api.CardsGetCardsHandler == nil {
 		api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		})
 	}
+	if api.ClassesGetClassesHandler == nil {
+		api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(func(params classes.GetClassesParams) middleware.Responder {
+			return middleware.NotImplemented("operation classes.GetClasses has not yet been implemented")
+		})
+	}
+	if api.InfoGetInfoHandler == nil {
+		api.InfoGetInfoHandler = info.GetInfoHandlerFunc(func(params info.GetInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation info.GetInfo has not yet been implemented")
+		})
+	}
+	if api.KeywordsGetKeywordsHandler == nil {
+		api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(func(params keywords.GetKeywordsParams) middleware.Responder {
+			return middleware.NotImplemented("operation keywords.GetKeywords has not yet been implemented")
+		})
+	}
+	if api.RaritiesGetRaritiesHandler == nil {
+		api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
+		})
+	}
 	if api.CardsGetRichcardsHandler == nil {
 		api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		})
+	}
+	if api.SetsGetSetsHandler == nil {
+		api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
+			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
+		})
+	}
+	if api.TypesGetTypesHandler == nil {
+		api.TypesGetTypesHandler = types.GetTypesHandlerFunc(func(params types.GetTypesParams) middleware.Responder {
+			return middleware.NotImplemented("operation types.GetTypes has not yet been implemented")
 		})
 	}
 	if api.UpdatePostUpdateHandler == nil {

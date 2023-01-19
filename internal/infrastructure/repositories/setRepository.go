@@ -34,3 +34,26 @@ func (c *SetRepository) DeleteAll() error {
 	_, err := c.sets.DeleteMany(context.TODO(), bson.M{}, nil)
 	return err
 }
+
+func (c *SetRepository) FindAll() ([]domain.Set, error) {
+	cursor, err := c.sets.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return []domain.Set{}, err
+	}
+
+	return decodeToSets(cursor)
+}
+
+func decodeToSets(cursor *mongo.Cursor) ([]domain.Set, error) {
+	var sets []domain.Set
+	for cursor.Next(context.TODO()) {
+		var set domain.Set
+		err := cursor.Decode(&set)
+		if err != nil {
+			return []domain.Set{}, err
+		}
+		sets = append(sets, set)
+	}
+
+	return sets, nil
+}

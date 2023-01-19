@@ -20,7 +20,12 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/classes"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/keywords"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/rarities"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
+	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/types"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 )
 
@@ -46,14 +51,29 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 
 		JSONProducer: runtime.JSONProducer(),
 
-		InfoGetHandler: info.GetHandlerFunc(func(params info.GetParams) middleware.Responder {
-			return middleware.NotImplemented("operation info.Get has not yet been implemented")
-		}),
 		CardsGetCardsHandler: cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		}),
+		ClassesGetClassesHandler: classes.GetClassesHandlerFunc(func(params classes.GetClassesParams) middleware.Responder {
+			return middleware.NotImplemented("operation classes.GetClasses has not yet been implemented")
+		}),
+		InfoGetInfoHandler: info.GetInfoHandlerFunc(func(params info.GetInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation info.GetInfo has not yet been implemented")
+		}),
+		KeywordsGetKeywordsHandler: keywords.GetKeywordsHandlerFunc(func(params keywords.GetKeywordsParams) middleware.Responder {
+			return middleware.NotImplemented("operation keywords.GetKeywords has not yet been implemented")
+		}),
+		RaritiesGetRaritiesHandler: rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
+		}),
 		CardsGetRichcardsHandler: cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		}),
+		SetsGetSetsHandler: sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
+			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
+		}),
+		TypesGetTypesHandler: types.GetTypesHandlerFunc(func(params types.GetTypesParams) middleware.Responder {
+			return middleware.NotImplemented("operation types.GetTypes has not yet been implemented")
 		}),
 		UpdatePostUpdateHandler: update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
@@ -94,12 +114,22 @@ type HearthstoneCardServiceAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// InfoGetHandler sets the operation handler for the get operation
-	InfoGetHandler info.GetHandler
 	// CardsGetCardsHandler sets the operation handler for the get cards operation
 	CardsGetCardsHandler cards.GetCardsHandler
+	// ClassesGetClassesHandler sets the operation handler for the get classes operation
+	ClassesGetClassesHandler classes.GetClassesHandler
+	// InfoGetInfoHandler sets the operation handler for the get info operation
+	InfoGetInfoHandler info.GetInfoHandler
+	// KeywordsGetKeywordsHandler sets the operation handler for the get keywords operation
+	KeywordsGetKeywordsHandler keywords.GetKeywordsHandler
+	// RaritiesGetRaritiesHandler sets the operation handler for the get rarities operation
+	RaritiesGetRaritiesHandler rarities.GetRaritiesHandler
 	// CardsGetRichcardsHandler sets the operation handler for the get richcards operation
 	CardsGetRichcardsHandler cards.GetRichcardsHandler
+	// SetsGetSetsHandler sets the operation handler for the get sets operation
+	SetsGetSetsHandler sets.GetSetsHandler
+	// TypesGetTypesHandler sets the operation handler for the get types operation
+	TypesGetTypesHandler types.GetTypesHandler
 	// UpdatePostUpdateHandler sets the operation handler for the post update operation
 	UpdatePostUpdateHandler update.PostUpdateHandler
 
@@ -179,14 +209,29 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.InfoGetHandler == nil {
-		unregistered = append(unregistered, "info.GetHandler")
-	}
 	if o.CardsGetCardsHandler == nil {
 		unregistered = append(unregistered, "cards.GetCardsHandler")
 	}
+	if o.ClassesGetClassesHandler == nil {
+		unregistered = append(unregistered, "classes.GetClassesHandler")
+	}
+	if o.InfoGetInfoHandler == nil {
+		unregistered = append(unregistered, "info.GetInfoHandler")
+	}
+	if o.KeywordsGetKeywordsHandler == nil {
+		unregistered = append(unregistered, "keywords.GetKeywordsHandler")
+	}
+	if o.RaritiesGetRaritiesHandler == nil {
+		unregistered = append(unregistered, "rarities.GetRaritiesHandler")
+	}
 	if o.CardsGetRichcardsHandler == nil {
 		unregistered = append(unregistered, "cards.GetRichcardsHandler")
+	}
+	if o.SetsGetSetsHandler == nil {
+		unregistered = append(unregistered, "sets.GetSetsHandler")
+	}
+	if o.TypesGetTypesHandler == nil {
+		unregistered = append(unregistered, "types.GetTypesHandler")
 	}
 	if o.UpdatePostUpdateHandler == nil {
 		unregistered = append(unregistered, "update.PostUpdateHandler")
@@ -282,15 +327,35 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"][""] = info.NewGet(o.context, o.InfoGetHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/cards"] = cards.NewGetCards(o.context, o.CardsGetCardsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/classes"] = classes.NewGetClasses(o.context, o.ClassesGetClassesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/info"] = info.NewGetInfo(o.context, o.InfoGetInfoHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/keywords"] = keywords.NewGetKeywords(o.context, o.KeywordsGetKeywordsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rarities"] = rarities.NewGetRarities(o.context, o.RaritiesGetRaritiesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/richcards"] = cards.NewGetRichcards(o.context, o.CardsGetRichcardsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/sets"] = sets.NewGetSets(o.context, o.SetsGetSetsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/types"] = types.NewGetTypes(o.context, o.TypesGetTypesHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

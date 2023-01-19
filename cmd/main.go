@@ -45,7 +45,7 @@ func main() {
 	typeService := application.NewTypeService(typeRepository, hsClient)
 	keywordService := application.NewKeywordService(keywordRepository, hsClient)
 
-	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, cardService, setService, classService, rarityService, typeService, keywordService)
+	restServer := endpoints.NewRestServer(cardRepository, cardMetaRepository, setRepository, cardService, setService, classService, rarityService, typeService, keywordService)
 
 	restServer.StartServer()
 

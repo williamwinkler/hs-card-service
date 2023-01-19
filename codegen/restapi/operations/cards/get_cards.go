@@ -32,8 +32,6 @@ func NewGetCards(ctx *middleware.Context, handler GetCardsHandler) *GetCards {
 /*
 	GetCards swagger:route GET /cards cards getCards
 
-# Returns cards
-
 Returns cards as they are stored
 */
 type GetCards struct {

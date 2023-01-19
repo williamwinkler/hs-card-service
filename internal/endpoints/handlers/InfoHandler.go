@@ -30,22 +30,22 @@ func NewInfoHandler(api *operations.HearthstoneCardServiceAPI, cardRepo *reposit
 }
 
 func (i *InfoHandler) SetupHandler() {
-	i.api.InfoGetHandler = info.GetHandlerFunc(
-		func(gp info.GetParams) middleware.Responder {
+	i.api.InfoGetInfoHandler = info.GetInfoHandlerFunc(
+		func(gp info.GetInfoParams) middleware.Responder {
 			defer log.Printf("Handled %s request", gp.HTTPRequest.URL)
 
 			count, err := i.cardRepo.Count()
 			if err != nil {
 				log.Printf("Error occurred in GET /info: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				return info.NewGetInternalServerError().WithPayload(errorMessage)
+				return info.NewGetInfoInternalServerError().WithPayload(errorMessage)
 			}
 
 			newestUpdate, err := i.updateMetaRepo.FindNewest()
 			if err != nil {
 				log.Printf("Error occurred in GET /info: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				return info.NewGetInternalServerError().WithPayload(errorMessage)
+				return info.NewGetInfoInternalServerError().WithPayload(errorMessage)
 			}
 
 			infoResponse := models.Info{
@@ -53,8 +53,7 @@ func (i *InfoHandler) SetupHandler() {
 				LastUpdate:      strfmt.DateTime(newestUpdate.Updated),
 				SystemStartTime: strfmt.DateTime(systemStartTime),
 			}
-			return info.NewGetOK().WithPayload(&infoResponse)
+			return info.NewGetInfoOK().WithPayload(&infoResponse)
 		},
 	)
-
 }

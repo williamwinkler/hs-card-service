@@ -32,8 +32,6 @@ func NewGetRichcards(ctx *middleware.Context, handler GetRichcardsHandler) *GetR
 /*
 	GetRichcards swagger:route GET /richcards cards getRichcards
 
-# Returns rich cards
-
 Rich cards contains names instead of ids of fx CardType "Minion", "Spell", "Secret" etc
 */
 type GetRichcards struct {

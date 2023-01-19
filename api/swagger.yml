@@ -13,9 +13,9 @@ consumes:
 produces:
     - application/json
 paths:
-    /:
+    /info:
         get:
-            summary: Get information about the service
+            description: Get information about the service
             tags:
                 - info
             parameters: []
@@ -30,8 +30,7 @@ paths:
                         $ref: "#/definitions/error"
     /update:
         post:
-            summary: Checks for updates to Hearthstone
-            description: Checks for updates to cards
+            description: Checks for updates to Hearthstone, if there are any, they are applied to the database
             parameters: []
             tags:
                 - update
@@ -46,7 +45,6 @@ paths:
                         $ref: "#/definitions/error"
     /cards:
         get:
-            summary: Returns cards
             description: Returns cards as they are stored
             tags:
                 - cards 
@@ -70,7 +68,6 @@ paths:
                         $ref: "#/definitions/error"
     /richcards:
         get:
-            summary: Returns rich cards
             description: Rich cards contains names instead of ids of fx CardType "Minion", "Spell", "Secret" etc
             tags:
                 - cards
@@ -92,6 +89,92 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
+    /sets:
+        get:
+            description: Cards can belong to different sets or expansions. This serves all sets and their info.
+            tags:
+                - sets
+            parameters: []
+            responses:
+              200:
+                description: Returns all sets
+                schema:
+                    type: array
+                    items:
+                        $ref: "#/definitions/sets"
+              500:
+                description: Something went wrong internally
+                schema:
+                    $ref: "#/definitions/error"
+    /types:
+        get:
+            description: Serves the different types cards can be. Fx "Minion" or "Spell"
+            tags:
+                - types
+            parameters: []
+            responses:
+              200:
+                description: Returns all types
+                schema:
+                    type: array
+                    items:
+                        $ref: "#/definitions/types"
+              500:
+                description: Something went wrong internally
+                schema:
+                    $ref: "#/definitions/error"
+    /classes:
+        get:
+            description: Serves the different classes cards can have. Fx "Warlock" or "Neutral"
+            tags:
+                - classes
+            parameters: []
+            responses:
+              200:
+                description: Returns all classes
+                schema:
+                    type: array
+                    items:
+                        $ref: "#/definitions/classes"
+              500:
+                description: Something went wrong internally
+                schema:
+                    $ref: "#/definitions/error"
+    /rarities:
+        get:
+            description: Serves the different rarities a card can have. Fx "Common" or "Legendary"
+            tags:
+                - rarities
+            parameters: []
+            responses:
+              200:
+                description: Returns all rarities
+                schema:
+                    type: array
+                    items:
+                        $ref: "#/definitions/rarities"
+              500:
+                description: Something went wrong internally
+                schema:
+                    $ref: "#/definitions/error"
+    /keywords:
+        get:
+            description: Serves the different keywords cards can have. Fx "Taunt" or "Quest"
+            tags:
+                - keywords
+            parameters: []
+            responses:
+              200:
+                description: Returns all keywords
+                schema:
+                    type: array
+                    items:
+                        $ref: "#/definitions/keywords"
+              500:
+                description: Something went wrong internally
+                schema:
+                    $ref: "#/definitions/error"
+
 parameters:
     cardNameParam:
         name: name
@@ -303,6 +386,53 @@ definitions:
                 type: boolean
             constructed: 
                 type: boolean
+    sets:
+        type: object
+        properties: 
+            id:
+                type: integer
+            name:
+                type: string
+            type:
+                type: string
+    types:
+        type: object
+        properties: 
+            id:
+                type: integer
+            name:
+                type: string
+    classes:
+        type: object
+        properties: 
+            id:
+                type: integer
+            name:
+                type: string
+    rarities:
+        type: object
+        properties: 
+            id:
+                type: integer
+            name:
+                type: string
+            craftingcost:
+                type: array
+                items: 
+                    type: integer
+            dustvalue:
+                type: array
+                items: 
+                    type: integer
+    keywords:
+        type: object
+        properties: 
+            id:
+                type: integer
+            name:
+                type: string
+            text:
+                type: string
     error:
         type: object
         required:
