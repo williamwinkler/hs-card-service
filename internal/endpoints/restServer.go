@@ -73,8 +73,10 @@ func (s *RestServer) StartServer() {
 	// create new service API
 	api := operations.NewHearthstoneCardServiceAPI(swaggerSpec)
 	server := restapi.NewServer(api)
+	server.TLSCertificate = "cert.pem"
+	server.TLSCertificateKey = "key.pem"
+	//server.EnabledListeners = []string{"https"}
 	defer server.Shutdown()
-	// server.ConfigureAPI()
 
 	// parse flags
 	flag.Parse()
@@ -95,8 +97,8 @@ func (s *RestServer) StartServer() {
 	inizializeHandlers(handlers)
 
 	// serve API
-	if err := server.Serve(); err != nil {
-		log.Fatalln(err)
+	if err = server.Serve(); err != nil {
+		log.Fatalf("server error: %v", err)
 	}
 }
 
