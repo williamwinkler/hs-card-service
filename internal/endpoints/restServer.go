@@ -3,6 +3,8 @@ package endpoints
 import (
 	"flag"
 	"log"
+	"net/http"
+	"strconv"
 
 	"github.com/go-openapi/loads"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi"
@@ -75,7 +77,7 @@ func (s *RestServer) StartServer() {
 	server := restapi.NewServer(api)
 	server.TLSCertificate = "cert.pem"
 	server.TLSCertificateKey = "key.pem"
-	//server.EnabledListeners = []string{"https"}
+
 	defer server.Shutdown()
 
 	// parse flags
@@ -97,8 +99,8 @@ func (s *RestServer) StartServer() {
 	inizializeHandlers(handlers)
 
 	// serve API
-	if err = server.Serve(); err != nil {
-		log.Fatalf("server error: %v", err)
+	if err := http.ListenAndServeTLS(":"+strconv.Itoa(server.Port), "./cert.pem", "./key.pem", server.GetHandler()); err != nil {
+		log.Fatalf("Error starting HTTPS server: %v", err)
 	}
 }
 
