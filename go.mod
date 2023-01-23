@@ -12,6 +12,7 @@ require (
 	github.com/go-openapi/validate v0.22.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/joho/godotenv v1.4.0
+	github.com/rs/cors v1.8.3
 	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.11.1
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd

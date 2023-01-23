@@ -12,7 +12,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
-var portFlag = flag.Int("port", 3000, "Port to run this service on")
+var portFlag = flag.Int("port", 3030, "Port to run this service on")
 
 type RestServer struct {
 	cardRepo       *repositories.CardRepository
@@ -94,7 +94,9 @@ func (s *RestServer) StartServer() {
 	}
 	inizializeHandlers(handlers)
 
-	// serve API
+	server.ConfigureAPI()
+
+	//serve API
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
 	}
