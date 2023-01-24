@@ -23,6 +23,7 @@ type GetRichcardsURL struct {
 	Name     *string
 	Page     *int64
 	Rarity   *int64
+	Type     *int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -117,6 +118,14 @@ func (o *GetRichcardsURL) Build() (*url.URL, error) {
 	}
 	if rarityQ != "" {
 		qs.Set("rarity", rarityQ)
+	}
+
+	var typeVarQ string
+	if o.Type != nil {
+		typeVarQ = swag.FormatInt64(*o.Type)
+	}
+	if typeVarQ != "" {
+		qs.Set("type", typeVarQ)
 	}
 
 	_result.RawQuery = qs.Encode()

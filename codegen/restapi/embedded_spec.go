@@ -64,6 +64,9 @@ func init() {
             "$ref": "#/parameters/rarityParam"
           },
           {
+            "$ref": "#/parameters/typeParam"
+          },
+          {
             "$ref": "#/parameters/pageParam"
           },
           {
@@ -207,6 +210,9 @@ func init() {
           },
           {
             "$ref": "#/parameters/rarityParam"
+          },
+          {
+            "$ref": "#/parameters/typeParam"
           },
           {
             "$ref": "#/parameters/pageParam"
@@ -671,6 +677,11 @@ func init() {
       "type": "integer",
       "name": "rarity",
       "in": "query"
+    },
+    "typeParam": {
+      "type": "integer",
+      "name": "type",
+      "in": "query"
     }
   }
 }`))
@@ -738,6 +749,11 @@ func init() {
             "minimum": 1,
             "type": "integer",
             "name": "rarity",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "type",
             "in": "query"
           },
           {
@@ -912,6 +928,11 @@ func init() {
             "minimum": 1,
             "type": "integer",
             "name": "rarity",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "type",
             "in": "query"
           },
           {
@@ -1388,6 +1409,11 @@ func init() {
       "minimum": 1,
       "type": "integer",
       "name": "rarity",
+      "in": "query"
+    },
+    "typeParam": {
+      "type": "integer",
+      "name": "type",
       "in": "query"
     }
   }

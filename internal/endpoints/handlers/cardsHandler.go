@@ -49,6 +49,9 @@ func (c *CardHandler) SetupHandler() {
 			if params.Rarity != nil {
 				filter["rarityid"] = params.Rarity
 			}
+			if params.Type != nil {
+				filter["cardtypeid"] = params.Type
+			}
 
 			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {

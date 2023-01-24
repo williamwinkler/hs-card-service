@@ -89,6 +89,10 @@ type GetCardsParams struct {
 	  In: query
 	*/
 	Rarity *int64
+	/*
+	  In: query
+	*/
+	Type *int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -139,6 +143,11 @@ func (o *GetCardsParams) BindRequest(r *http.Request, route *middleware.MatchedR
 
 	qRarity, qhkRarity, _ := qs.GetOK("rarity")
 	if err := o.bindRarity(qRarity, qhkRarity, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qType, qhkType, _ := qs.GetOK("type")
+	if err := o.bindType(qType, qhkType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -448,6 +457,29 @@ func (o *GetCardsParams) validateRarity(formats strfmt.Registry) error {
 	if err := validate.MaximumInt("rarity", "query", *o.Rarity, 5, false); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindType binds and validates parameter Type from query.
+func (o *GetCardsParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("type", "query", "int64", raw)
+	}
+	o.Type = &value
 
 	return nil
 }
