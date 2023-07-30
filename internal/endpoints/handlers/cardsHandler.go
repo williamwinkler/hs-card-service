@@ -35,7 +35,12 @@ func (c *CardHandler) SetupHandler() {
 				filter["name"] = bson.M{"$regex": ".*" + *params.Name + ".*", "$options": "i"}
 			}
 			if params.ManaCost != nil {
-				filter["manacost"] = params.ManaCost
+				// if manacost is 99 -> fetch cards with manacost greater than 7
+				if *params.ManaCost == 99 {
+					filter["manacost"] = bson.M{"$gte": 7}
+				} else {
+					filter["manacost"] = params.ManaCost
+				}
 			}
 			if params.Health != nil {
 				filter["health"] = params.Health

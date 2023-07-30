@@ -73,6 +73,7 @@ type GetCardsParams struct {
 	*/
 	Limit *int64
 	/*
+	  Maximum: 99
 	  Minimum: 0
 	  In: query
 	*/
@@ -393,6 +394,10 @@ func (o *GetCardsParams) bindManaCost(rawData []string, hasKey bool, formats str
 func (o *GetCardsParams) validateManaCost(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("manaCost", "query", *o.ManaCost, 0, false); err != nil {
+		return err
+	}
+
+	if err := validate.MaximumInt("manaCost", "query", *o.ManaCost, 99, false); err != nil {
 		return err
 	}
 

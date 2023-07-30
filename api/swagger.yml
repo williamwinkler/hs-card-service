@@ -190,6 +190,7 @@ parameters:
         in: query
         type: integer
         minimum: 0
+        maximum: 99
     healthParam:
         name: health
         in: query

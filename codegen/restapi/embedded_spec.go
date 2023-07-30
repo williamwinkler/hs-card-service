@@ -674,6 +674,7 @@ func init() {
       "in": "query"
     },
     "manaCostParam": {
+      "maximum": 99,
       "type": "integer",
       "name": "manaCost",
       "in": "query"
@@ -739,6 +740,7 @@ func init() {
             "in": "query"
           },
           {
+            "maximum": 99,
             "minimum": 0,
             "type": "integer",
             "name": "manaCost",
@@ -931,6 +933,7 @@ func init() {
             "in": "query"
           },
           {
+            "maximum": 99,
             "minimum": 0,
             "type": "integer",
             "name": "manaCost",
@@ -1432,6 +1435,7 @@ func init() {
       "in": "query"
     },
     "manaCostParam": {
+      "maximum": 99,
       "minimum": 0,
       "type": "integer",
       "name": "manaCost",
