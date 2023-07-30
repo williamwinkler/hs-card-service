@@ -1,72 +1,46 @@
-package application
+package application_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/tests/mocks"
+	"github.com/williamwinkler/hs-card-service/internal/tests/mocks" // Update this import path based on your project structure
 )
 
-// TODO: enable this test once UpdateCards is handling updates to cards appropriately
-func _Test_UpdateCards(t *testing.T) {
-	// Arrange
-	newCards := []domain.Card{
-		{
-			ID:   1,
-			Name: "card_a",
-		},
-		{
-			ID:   2,
-			Name: "card_b_UPDATED",
-		},
-		{
-			ID:   4,
-			Name: "card_d",
-		},
-		{
-			ID:   5,
-			Name: "card_e",
-		},
-	}
-	newCardsMap := make(map[int]domain.Card)
-	for _, card := range newCards {
-		newCardsMap[card.ID] = card
+func Test_GetCards(t *testing.T) {
+	// Mocked card data
+	mockCards := []domain.Card{
+		{ID: 1, Name: "Card 1"},
+		{ID: 2, Name: "Card 2"},
 	}
 
-	oldCards := []domain.Card{
-		{
-			ID:   1,
-			Name: "card_a",
-		},
-		{
-			ID:   2,
-			Name: "card_b",
-		},
-		{
-			ID:   3,
-			Name: "card_c",
-		},
+	// Create the manually created card repository
+	cardRepoMock := &mocks.CardRepository{
+		Cards: make(map[int]domain.Card),
 	}
 
-	assert := assert.New(t)
-	cardRepo := mocks.NewCardRepository()
-	hsClient := mocks.HsClient{}
-	cardMetaRepo := mocks.UpdateMetaRepository{}
-	cardService := application.NewCardService(&hsClient, &cardRepo, &cardMetaRepo)
-	cardRepo.InsertMany(oldCards)
-	hsClient.On("GetAllCards").Return(newCards, nil)
-	cardMetaRepo.On("InsertOne", mock.AnythingOfType("domain.CardMeta")).Return(nil)
-
-	// Act
-	err := cardService.Update()
-	assert.Nil(err)
-
-	// Assert
-	cards, _ := cardRepo.FindAll()
-	for _, card := range cards {
-		assert.Equal(newCardsMap[card.ID], card)
+	// Insert mockCards into the repository
+	for _, card := range mockCards {
+		cardRepoMock.Cards[card.ID] = card
 	}
+
+	// Create the CardService with the manually created card repository
+	cardService := application.NewCardService(nil, cardRepoMock, nil)
+
+	// Test the GetCards method
+	cards, _, err := cardService.GetCards(nil, 1, 100)
+	assert.NoError(t, err)
+	assert.Equal(t, len(mockCards), len(cards))
+	for i, card := range cards {
+		assert.Equal(t, mockCards[i].ID, card.ID)
+		assert.Equal(t, mockCards[i].Name, card.Name)
+	}
+
+	// Assert that the repository was not modified
+	actualCards, err := cardRepoMock.FindAll()
+
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, mockCards, actualCards)
 }

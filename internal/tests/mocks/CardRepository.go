@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	"fmt"
+
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -39,7 +41,10 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 }
 
 func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
-	return []domain.Card{}, nil
+	if filter != nil {
+		return []domain.Card{}, fmt.Errorf("Mock does not support filter")
+	}
+	return c.FindAll()
 }
 
 func (c *CardRepository) FindRichWithFilter(filter bson.M, page int, limit int) ([]domain.RichCard, error) {
