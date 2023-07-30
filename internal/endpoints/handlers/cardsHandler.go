@@ -52,10 +52,17 @@ func (c *CardHandler) SetupHandler() {
 			if params.Type != nil {
 				filter["cardtypeid"] = params.Type
 			}
+			if params.Set != nil {
+				filter["cardsetid"] = params.Set
+			}
+			if params.Keywords != nil && len(params.Keywords) > 0 {
+				filter["keywordids"] = bson.M{"$all": params.Keywords}
+			}
 
 			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting cards")
+				log.Printf("Error occured in GetCardsHandlerFunc: %v", err)
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 
@@ -100,7 +107,7 @@ func mapCardsToExternal(cards []domain.Card) []*models.Card {
 		}
 
 		var keywordIds []int64
-		for _, id := range keywordIds {
+		for _, id := range card.KeywordIds {
 			keywordIds = append(keywordIds, int64(id))
 		}
 		c.KeywordIds = keywordIds
