@@ -27,7 +27,6 @@ type Database struct {
 
 // TODO make sure that a db and collections are created
 // use the mongoDB Go Driver to do so. No need to care about migrations at this point
-
 func SetupDatabase() (*Database, error) {
 	// Connect to client
 	client, err := getClient()
@@ -39,33 +38,21 @@ func SetupDatabase() (*Database, error) {
 	createDatabase(client, DATABASE)
 	db := client.Database(DATABASE)
 
-	err = createCollection(db, CARDS_COLLECTION)
-	if err != nil {
-		return &Database{}, err
+	collections := []string{
+		CARDS_COLLECTION,
+		CARDS_UPDATE_META_COLLECTION,
+		CARDS_SETS_COLLECTION,
+		CARDS_CLASSES_COLLECTION,
+		CARDS_RARITY_COLLECTION,
+		CARDS_TYPES_COLLECTION,
+		CARDS_KEYWORDS_COLLECTION,
 	}
-	err = createCollection(db, CARDS_UPDATE_META_COLLECTION)
-	if err != nil {
-		return &Database{}, err
-	}
-	err = createCollection(db, CARDS_SETS_COLLECTION)
-	if err != nil {
-		return &Database{}, err
-	}
-	err = createCollection(db, CARDS_CLASSES_COLLECTION)
-	if err != nil {
-		return &Database{}, err
-	}
-	err = createCollection(db, CARDS_RARITY_COLLECTION)
-	if err != nil {
-		return &Database{}, err
-	}
-	err = createCollection(db, CARDS_TYPES_COLLECTION)
-	if err != nil {
-		return &Database{}, err
-	}
-	err = createCollection(db, CARDS_KEYWORDS_COLLECTION)
-	if err != nil {
-		return &Database{}, err
+
+	for _, collection := range collections {
+		err = createCollection(db, collection)
+		if err != nil {
+			return &Database{}, err
+		}
 	}
 
 	return &Database{
