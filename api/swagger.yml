@@ -56,6 +56,8 @@ paths:
                 - $ref: "#/parameters/classParam"
                 - $ref: "#/parameters/rarityParam"
                 - $ref: "#/parameters/typeParam"
+                - $ref: "#/parameters/keywordsParam"
+                - $ref: "#/parameters/setParam"
                 - $ref: "#/parameters/pageParam"
                 - $ref: "#/parameters/limitParam"
             responses:
@@ -212,6 +214,16 @@ parameters:
         maximum: 5
     typeParam:
         name: type
+        in: query
+        type: integer
+    keywordsParam:
+        name: keywords
+        in: query
+        type: array
+        items:
+            type: integer
+    setParam:
+        name: set
         in: query
         type: integer
     pageParam:

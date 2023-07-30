@@ -67,6 +67,12 @@ func init() {
             "$ref": "#/parameters/typeParam"
           },
           {
+            "$ref": "#/parameters/keywordsParam"
+          },
+          {
+            "$ref": "#/parameters/setParam"
+          },
+          {
             "$ref": "#/parameters/pageParam"
           },
           {
@@ -651,6 +657,14 @@ func init() {
       "name": "health",
       "in": "query"
     },
+    "keywordsParam": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "name": "keywords",
+      "in": "query"
+    },
     "limitParam": {
       "maximum": 100,
       "minimum": 1,
@@ -676,6 +690,11 @@ func init() {
       "minimum": 1,
       "type": "integer",
       "name": "rarity",
+      "in": "query"
+    },
+    "setParam": {
+      "type": "integer",
+      "name": "set",
       "in": "query"
     },
     "typeParam": {
@@ -754,6 +773,19 @@ func init() {
           {
             "type": "integer",
             "name": "type",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "name": "keywords",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "set",
             "in": "query"
           },
           {
@@ -1383,6 +1415,14 @@ func init() {
       "name": "health",
       "in": "query"
     },
+    "keywordsParam": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "name": "keywords",
+      "in": "query"
+    },
     "limitParam": {
       "maximum": 100,
       "minimum": 1,
@@ -1409,6 +1449,11 @@ func init() {
       "minimum": 1,
       "type": "integer",
       "name": "rarity",
+      "in": "query"
+    },
+    "setParam": {
+      "type": "integer",
+      "name": "set",
       "in": "query"
     },
     "typeParam": {

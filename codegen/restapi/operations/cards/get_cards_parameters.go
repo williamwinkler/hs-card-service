@@ -6,6 +6,7 @@ package cards
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -61,6 +62,10 @@ type GetCardsParams struct {
 	*/
 	Health *int64
 	/*
+	  In: query
+	*/
+	Keywords []int64
+	/*
 	  Maximum: 100
 	  Minimum: 1
 	  In: query
@@ -89,6 +94,10 @@ type GetCardsParams struct {
 	  In: query
 	*/
 	Rarity *int64
+	/*
+	  In: query
+	*/
+	Set *int64
 	/*
 	  In: query
 	*/
@@ -121,6 +130,11 @@ func (o *GetCardsParams) BindRequest(r *http.Request, route *middleware.MatchedR
 		res = append(res, err)
 	}
 
+	qKeywords, qhkKeywords, _ := qs.GetOK("keywords")
+	if err := o.bindKeywords(qKeywords, qhkKeywords, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qLimit, qhkLimit, _ := qs.GetOK("limit")
 	if err := o.bindLimit(qLimit, qhkLimit, route.Formats); err != nil {
 		res = append(res, err)
@@ -143,6 +157,11 @@ func (o *GetCardsParams) BindRequest(r *http.Request, route *middleware.MatchedR
 
 	qRarity, qhkRarity, _ := qs.GetOK("rarity")
 	if err := o.bindRarity(qRarity, qhkRarity, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSet, qhkSet, _ := qs.GetOK("set")
+	if err := o.bindSet(qSet, qhkSet, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -267,6 +286,36 @@ func (o *GetCardsParams) validateHealth(formats strfmt.Registry) error {
 	if err := validate.MinimumInt("health", "query", *o.Health, 0, false); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindKeywords binds and validates array parameter Keywords from query.
+//
+// Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
+func (o *GetCardsParams) bindKeywords(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var qvKeywords string
+	if len(rawData) > 0 {
+		qvKeywords = rawData[len(rawData)-1]
+	}
+
+	// CollectionFormat:
+	keywordsIC := swag.SplitByFormat(qvKeywords, "")
+	if len(keywordsIC) == 0 {
+		return nil
+	}
+
+	var keywordsIR []int64
+	for i, keywordsIV := range keywordsIC {
+		keywordsI, err := swag.ConvertInt64(keywordsIV)
+		if err != nil {
+			return errors.InvalidType(fmt.Sprintf("%s.%v", "keywords", i), "query", "int64", keywordsI)
+		}
+
+		keywordsIR = append(keywordsIR, keywordsI)
+	}
+
+	o.Keywords = keywordsIR
 
 	return nil
 }
@@ -457,6 +506,29 @@ func (o *GetCardsParams) validateRarity(formats strfmt.Registry) error {
 	if err := validate.MaximumInt("rarity", "query", *o.Rarity, 5, false); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindSet binds and validates parameter Set from query.
+func (o *GetCardsParams) bindSet(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("set", "query", "int64", raw)
+	}
+	o.Set = &value
 
 	return nil
 }

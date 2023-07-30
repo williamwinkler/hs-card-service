@@ -18,11 +18,13 @@ type GetCardsURL struct {
 	Attack   *int64
 	Class    *int64
 	Health   *int64
+	Keywords []int64
 	Limit    *int64
 	ManaCost *int64
 	Name     *string
 	Page     *int64
 	Rarity   *int64
+	Set      *int64
 	Type     *int64
 
 	_basePath string
@@ -80,6 +82,23 @@ func (o *GetCardsURL) Build() (*url.URL, error) {
 		qs.Set("health", healthQ)
 	}
 
+	var keywordsIR []string
+	for _, keywordsI := range o.Keywords {
+		keywordsIS := swag.FormatInt64(keywordsI)
+		if keywordsIS != "" {
+			keywordsIR = append(keywordsIR, keywordsIS)
+		}
+	}
+
+	keywords := swag.JoinByFormat(keywordsIR, "")
+
+	if len(keywords) > 0 {
+		qsv := keywords[0]
+		if qsv != "" {
+			qs.Set("keywords", qsv)
+		}
+	}
+
 	var limitQ string
 	if o.Limit != nil {
 		limitQ = swag.FormatInt64(*o.Limit)
@@ -118,6 +137,14 @@ func (o *GetCardsURL) Build() (*url.URL, error) {
 	}
 	if rarityQ != "" {
 		qs.Set("rarity", rarityQ)
+	}
+
+	var setQ string
+	if o.Set != nil {
+		setQ = swag.FormatInt64(*o.Set)
+	}
+	if setQ != "" {
+		qs.Set("set", setQ)
 	}
 
 	var typeVarQ string
