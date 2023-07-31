@@ -34,5 +34,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t willyboy2/hs-card-service:${{ github.sha }} .
-          docker push willyboy2/hs-card-service:${{ github.sha }}
+          docker build -t willyboy2/hs-card-service:latest .
+          docker push willyboy2/hs-card-service:latest
