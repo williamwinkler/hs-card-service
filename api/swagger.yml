@@ -47,7 +47,7 @@ paths:
         get:
             description: Returns cards as they are stored
             tags:
-                - cards 
+                - cards
             parameters:
                 - $ref: "#/parameters/cardNameParam"
                 - $ref: "#/parameters/manaCostParam"
@@ -82,6 +82,8 @@ paths:
                 - $ref: "#/parameters/classParam"
                 - $ref: "#/parameters/rarityParam"
                 - $ref: "#/parameters/typeParam"
+                - $ref: "#/parameters/keywordsParam"
+                - $ref: "#/parameters/setParam"
                 - $ref: "#/parameters/pageParam"
                 - $ref: "#/parameters/limitParam"
             responses:
@@ -184,7 +186,7 @@ parameters:
         name: name
         in: query
         type: string
-        minLength: 1 
+        minLength: 1
     manaCostParam:
         name: manaCost
         in: query
@@ -204,7 +206,7 @@ parameters:
     classParam:
         name: class
         in: query
-        type: integer    
+        type: integer
         minimum: 1
         maximum: 14
     rarityParam:
@@ -259,7 +261,7 @@ definitions:
                 description: formatted as RFC 3339
     cards:
         type: object
-        properties: 
+        properties:
             page:
                 type: integer
                 x-omitempty: false
@@ -322,7 +324,7 @@ definitions:
             imageGold:
                 type: string
                 description: Links to a png-image of the golden version of the card
-            flavorText: 
+            flavorText:
                 type: string
             parentId:
                 type: integer
@@ -331,7 +333,7 @@ definitions:
                 $ref: "#/definitions/duals"
     richCards:
         type: object
-        properties: 
+        properties:
             page:
                 type: integer
             pageCount:
@@ -391,23 +393,23 @@ definitions:
             imageGold:
                 type: string
                 description: Links to a png-image of the golden version of the card
-            flavorText: 
+            flavorText:
                 type: string
             parentId:
                 type: integer
                 x-omitempty: false
             duals:
                 $ref: "#/definitions/duals"
-    duals: 
+    duals:
         type: object
         properties:
-            relevant: 
+            relevant:
                 type: boolean
-            constructed: 
+            constructed:
                 type: boolean
     sets:
         type: object
-        properties: 
+        properties:
             id:
                 type: integer
             name:
@@ -416,36 +418,36 @@ definitions:
                 type: string
     types:
         type: object
-        properties: 
+        properties:
             id:
                 type: integer
             name:
                 type: string
     classes:
         type: object
-        properties: 
+        properties:
             id:
                 type: integer
             name:
                 type: string
     rarities:
         type: object
-        properties: 
+        properties:
             id:
                 type: integer
             name:
                 type: string
             craftingcost:
                 type: array
-                items: 
+                items:
                     type: integer
             dustvalue:
                 type: array
-                items: 
+                items:
                     type: integer
     keywords:
         type: object
-        properties: 
+        properties:
             id:
                 type: integer
             name:
@@ -462,7 +464,3 @@ definitions:
                 description: HTTPS reponse 400+
             message:
                 type: string
-            
-
-
-            

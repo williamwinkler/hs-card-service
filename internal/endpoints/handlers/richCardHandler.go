@@ -35,7 +35,12 @@ func (c *RichCardHandler) SetupHandler() {
 				filter["name"] = bson.M{"$regex": ".*" + *params.Name + ".*", "$options": "i"}
 			}
 			if params.ManaCost != nil {
-				filter["manacost"] = params.ManaCost
+				// if manacost is 99 -> fetch cards with manacost greater than 7
+				if *params.ManaCost == 99 {
+					filter["manacost"] = bson.M{"$gte": 7}
+				} else {
+					filter["manacost"] = params.ManaCost
+				}
 			}
 			if params.Health != nil {
 				filter["health"] = params.Health
@@ -48,6 +53,15 @@ func (c *RichCardHandler) SetupHandler() {
 			}
 			if params.Rarity != nil {
 				filter["rarityid"] = params.Rarity
+			}
+			if params.Type != nil {
+				filter["cardtypeid"] = params.Type
+			}
+			if params.Set != nil {
+				filter["cardsetid"] = params.Set
+			}
+			if params.Keywords != nil && len(params.Keywords) > 0 {
+				filter["keywordids"] = bson.M{"$all": params.Keywords}
 			}
 
 			foundCards, count, err := c.cardService.GetRichCards(filter, int(*params.Page), int(*params.Limit))

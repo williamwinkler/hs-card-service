@@ -221,6 +221,12 @@ func init() {
             "$ref": "#/parameters/typeParam"
           },
           {
+            "$ref": "#/parameters/keywordsParam"
+          },
+          {
+            "$ref": "#/parameters/setParam"
+          },
+          {
             "$ref": "#/parameters/pageParam"
           },
           {
@@ -968,6 +974,19 @@ func init() {
           {
             "type": "integer",
             "name": "type",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "name": "keywords",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "set",
             "in": "query"
           },
           {
