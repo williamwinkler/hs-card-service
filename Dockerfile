@@ -1,4 +1,4 @@
-# Start from a lightweight base image with Go support for x86
+# Start from a lightweight base image with Go support
 FROM golang:1.19.4-alpine as builder
 
 # Set the working directory inside the container
@@ -9,12 +9,12 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the rest of the source code into the container
-COPY . .
+COPY ./ ./  
 
-# Build the Go binary inside the container for x86
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /hs-card-service
+# Build the Go binary inside the container
+RUN CGO_ENABLED=0 GOOS=linux go build -o /hs-card-service ./cmd
 
-# Use a minimal base image to create the final image for x86
+# Use a minimal base image to create the final image
 FROM alpine:latest
 
 # Set the working directory inside the container
