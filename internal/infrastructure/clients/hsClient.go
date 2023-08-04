@@ -73,6 +73,9 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 
 	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
 
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
+
 	response, err := hc.executeGetRequest(url)
 	if err != nil {
 		return []domain.Card{}, err
@@ -104,6 +107,9 @@ func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	}
 	defer response.Body.Close()
 
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
+
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Set{}, err
@@ -128,6 +134,9 @@ func (hc *HsClient) GetClasses() ([]domain.Class, error) {
 		return []domain.Class{}, err
 	}
 	defer response.Body.Close()
+
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -154,6 +163,9 @@ func (hc *HsClient) GetRarities() ([]domain.Rarity, error) {
 	}
 	defer response.Body.Close()
 
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
+
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Rarity{}, err
@@ -164,6 +176,9 @@ func (hc *HsClient) GetRarities() ([]domain.Rarity, error) {
 	if err != nil {
 		return []domain.Rarity{}, err
 	}
+
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
 
 	rarities := dto.MapToRariteis(raritiesDto)
 
@@ -184,6 +199,9 @@ func (hc *HsClient) GetTypes() ([]domain.Type, error) {
 		return []domain.Type{}, err
 	}
 
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
+
 	var typesDto dto.TypesDto
 	err = json.Unmarshal(body, &typesDto)
 	if err != nil {
@@ -203,6 +221,9 @@ func (hc *HsClient) GetKeywords() ([]domain.Keyword, error) {
 		return []domain.Keyword{}, err
 	}
 	defer response.Body.Close()
+
+	log.Println(url)
+	time.Sleep(200 * time.Millisecond)
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {

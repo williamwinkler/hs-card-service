@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"log"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
-	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 	"github.com/williamwinkler/hs-card-service/internal/application"
-	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 )
 
 type CardUpdateHandler struct {
@@ -45,52 +44,36 @@ func NewCardUpdateHandler(
 func (c *CardUpdateHandler) SetupHandler() {
 	c.api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(
 		func(pup update.PostUpdateParams) middleware.Responder {
-			log.Println("Handling request POST /cards/update...")
-			defer log.Printf("Handled %s request", pup.HTTPRequest.URL)
 
-			err := c.cardService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating cards")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
-
-			err = c.setService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating sets")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
-
-			err = c.classService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating classes")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
-
-			err = c.rarityService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating rarities")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
-
-			err = c.typeService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating types")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
-
-			err = c.keywordService.Update()
-			if err != nil {
-				log.Printf("Error occurred in POST /cards/update: %v", err)
-				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with updating keywords")
-				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
-			}
+			go c.UpdateWithRetries(3, 1000*time.Millisecond)
 
 			return update.NewPostUpdateOK()
 		},
 	)
+}
+
+func (c *CardUpdateHandler) UpdateWithRetries(maxRetries int, retryDelay time.Duration) {
+	log.Println("Handling request POST /cards/update...")
+	defer log.Printf("Handled /update request")
+
+	retryFunc := func(updateFunc func() error, serviceName string) {
+		retries := 0
+		for retries < maxRetries {
+			err := updateFunc()
+			if err == nil {
+				return // Success, exit the retry loop
+			}
+			log.Printf("Error occurred in POST /cards/update (%s): %v", serviceName, err)
+			retries++
+			time.Sleep(retryDelay)
+		}
+		log.Printf("Maximum retries reached for %s. Giving up.", serviceName)
+	}
+
+	retryFunc(c.cardService.Update, "card")
+	retryFunc(c.setService.Update, "set")
+	retryFunc(c.classService.Update, "class")
+	retryFunc(c.rarityService.Update, "rarity")
+	retryFunc(c.typeService.Update, "type")
+	retryFunc(c.keywordService.Update, "keyword")
 }
