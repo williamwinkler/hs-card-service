@@ -39,10 +39,6 @@ paths:
                     description: OK
                 401:
                     description: Unauthorized request
-                500:
-                    description: Something went wrong internally
-                    schema:
-                        $ref: "#/definitions/error"
     /cards:
         get:
             description: Returns cards as they are stored

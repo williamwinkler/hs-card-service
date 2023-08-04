@@ -311,12 +311,6 @@ func init() {
           },
           "401": {
             "description": "Unauthorized request"
-          },
-          "500": {
-            "description": "Something went wrong internally",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
           }
         }
       }
@@ -1083,12 +1077,6 @@ func init() {
           },
           "401": {
             "description": "Unauthorized request"
-          },
-          "500": {
-            "description": "Something went wrong internally",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
           }
         }
       }
