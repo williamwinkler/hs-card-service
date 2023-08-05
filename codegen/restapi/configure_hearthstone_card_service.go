@@ -17,7 +17,6 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/classes"
-	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/keywords"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/rarities"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
@@ -49,48 +48,60 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.CardsGetCardsHandler == nil {
-		api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
+	// Add basic authentication to the API
+	api.BasicAuthAuth = func(username, password string) (interface{}, error) {
+		// Implement your authentication logic here.
+		// For basic auth, you may check if the provided username and password are valid.
+		// If valid, return some identification object (e.g., user ID) and nil error.
+		// If not valid, return nil and an error.
+		// You can also store user credentials in a database or use any other authentication mechanism.
+		// For simplicity, I'll just check for a hardcoded username and password.
+		validUsername := "your_username"
+		validPassword := "your_password"
+		if username == validUsername && password == validPassword {
+			return username, nil
+		}
+		return nil, errors.New(401, "Unauthorized")
+	}
+
+	if api.CardsGetV1CardsHandler == nil {
+		api.CardsGetV1CardsHandler = cards.GetV1CardsHandlerFunc(func(params cards.GetV1CardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetV1Cards has not yet been implemented")
 		})
 	}
-	if api.ClassesGetClassesHandler == nil {
-		api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(func(params classes.GetClassesParams) middleware.Responder {
-			return middleware.NotImplemented("operation classes.GetClasses has not yet been implemented")
+	if api.ClassesGetV1ClassesHandler == nil {
+		api.ClassesGetV1ClassesHandler = classes.GetV1ClassesHandlerFunc(func(params classes.GetV1ClassesParams) middleware.Responder {
+			return middleware.NotImplemented("operation classes.GetV1Classes has not yet been implemented")
 		})
 	}
-	if api.InfoGetInfoHandler == nil {
-		api.InfoGetInfoHandler = info.GetInfoHandlerFunc(func(params info.GetInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation info.GetInfo has not yet been implemented")
+
+	if api.KeywordsGetV1KeywordsHandler == nil {
+		api.KeywordsGetV1KeywordsHandler = keywords.GetV1KeywordsHandlerFunc(func(params keywords.GetV1KeywordsParams) middleware.Responder {
+			return middleware.NotImplemented("operation keywords.GetV1Keywords has not yet been implemented")
 		})
 	}
-	if api.KeywordsGetKeywordsHandler == nil {
-		api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(func(params keywords.GetKeywordsParams) middleware.Responder {
-			return middleware.NotImplemented("operation keywords.GetKeywords has not yet been implemented")
+	if api.RaritiesGetV1RaritiesHandler == nil {
+		api.RaritiesGetV1RaritiesHandler = rarities.GetV1RaritiesHandlerFunc(func(params rarities.GetV1RaritiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation rarities.GetV1Rarities has not yet been implemented")
 		})
 	}
-	if api.RaritiesGetRaritiesHandler == nil {
-		api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
-			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
+	if api.CardsGetV1RichcardsHandler == nil {
+		api.CardsGetV1RichcardsHandler = cards.GetV1RichcardsHandlerFunc(func(params cards.GetV1RichcardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetV1Richcards has not yet been implemented")
 		})
 	}
-	if api.CardsGetRichcardsHandler == nil {
-		api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+	if api.SetsGetV1SetsHandler == nil {
+		api.SetsGetV1SetsHandler = sets.GetV1SetsHandlerFunc(func(params sets.GetV1SetsParams) middleware.Responder {
+			return middleware.NotImplemented("operation sets.GetV1Sets has not yet been implemented")
 		})
 	}
-	if api.SetsGetSetsHandler == nil {
-		api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
-			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
-		})
-	}
-	if api.TypesGetTypesHandler == nil {
-		api.TypesGetTypesHandler = types.GetTypesHandlerFunc(func(params types.GetTypesParams) middleware.Responder {
-			return middleware.NotImplemented("operation types.GetTypes has not yet been implemented")
+	if api.TypesGetV1TypesHandler == nil {
+		api.TypesGetV1TypesHandler = types.GetV1TypesHandlerFunc(func(params types.GetV1TypesParams) middleware.Responder {
+			return middleware.NotImplemented("operation types.GetV1Types has not yet been implemented")
 		})
 	}
 	if api.UpdatePostUpdateHandler == nil {
-		api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
+		api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(func(params update.PostUpdateParams, i interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
 		})
 	}

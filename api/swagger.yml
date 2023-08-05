@@ -12,26 +12,18 @@ consumes:
     - application/json
 produces:
     - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+basePath: /api
 paths:
-    /info:
-        get:
-            description: Get information about the service
-            tags:
-                - info
-            parameters: []
-            responses:
-                200:
-                    description: Get current status of amount of cards and last update
-                    schema:
-                        $ref: "#/definitions/info"
-                500:
-                    description: Something went wrong
-                    schema:
-                        $ref: "#/definitions/error"
+
     /update:
         post:
             description: Checks for updates to Hearthstone, if there are any, they are applied to the database
             parameters: []
+            security:
+                - basicAuth: []
             tags:
                 - update
             responses:
@@ -39,7 +31,7 @@ paths:
                     description: OK
                 401:
                     description: Unauthorized request
-    /cards:
+    /v1/cards:
         get:
             description: Returns cards as they are stored
             tags:
@@ -65,7 +57,7 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
-    /richcards:
+    /v1/richcards:
         get:
             description: Rich cards contains names instead of ids of fx CardType "Minion", "Spell", "Secret" etc
             tags:
@@ -91,7 +83,7 @@ paths:
                     description: Something went wrong internally
                     schema:
                         $ref: "#/definitions/error"
-    /sets:
+    /v1/sets:
         get:
             description: Cards can belong to different sets or expansions. This serves all sets and their info.
             tags:
@@ -108,7 +100,7 @@ paths:
                 description: Something went wrong internally
                 schema:
                     $ref: "#/definitions/error"
-    /types:
+    /v1/types:
         get:
             description: Serves the different types cards can be. Fx "Minion" or "Spell"
             tags:
@@ -125,7 +117,7 @@ paths:
                 description: Something went wrong internally
                 schema:
                     $ref: "#/definitions/error"
-    /classes:
+    /v1/classes:
         get:
             description: Serves the different classes cards can have. Fx "Warlock" or "Neutral"
             tags:
@@ -142,7 +134,7 @@ paths:
                 description: Something went wrong internally
                 schema:
                     $ref: "#/definitions/error"
-    /rarities:
+    /v1/rarities:
         get:
             description: Serves the different rarities a card can have. Fx "Common" or "Legendary"
             tags:
@@ -159,7 +151,7 @@ paths:
                 description: Something went wrong internally
                 schema:
                     $ref: "#/definitions/error"
-    /keywords:
+    /v1/keywords:
         get:
             description: Serves the different keywords cards can have. Fx "Taunt" or "Quest"
             tags:

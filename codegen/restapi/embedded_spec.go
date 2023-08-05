@@ -37,8 +37,30 @@ func init() {
     },
     "version": "1.0.0"
   },
+  "basePath": "/api",
   "paths": {
-    "/cards": {
+    "/update": {
+      "post": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
+        "tags": [
+          "update"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/v1/cards": {
       "get": {
         "description": "Returns cards as they are stored",
         "tags": [
@@ -95,7 +117,7 @@ func init() {
         }
       }
     },
-    "/classes": {
+    "/v1/classes": {
       "get": {
         "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
         "tags": [
@@ -120,29 +142,7 @@ func init() {
         }
       }
     },
-    "/info": {
-      "get": {
-        "description": "Get information about the service",
-        "tags": [
-          "info"
-        ],
-        "responses": {
-          "200": {
-            "description": "Get current status of amount of cards and last update",
-            "schema": {
-              "$ref": "#/definitions/info"
-            }
-          },
-          "500": {
-            "description": "Something went wrong",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/keywords": {
+    "/v1/keywords": {
       "get": {
         "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
         "tags": [
@@ -167,7 +167,7 @@ func init() {
         }
       }
     },
-    "/rarities": {
+    "/v1/rarities": {
       "get": {
         "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
         "tags": [
@@ -192,7 +192,7 @@ func init() {
         }
       }
     },
-    "/richcards": {
+    "/v1/richcards": {
       "get": {
         "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
         "tags": [
@@ -249,7 +249,7 @@ func init() {
         }
       }
     },
-    "/sets": {
+    "/v1/sets": {
       "get": {
         "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
         "tags": [
@@ -274,7 +274,7 @@ func init() {
         }
       }
     },
-    "/types": {
+    "/v1/types": {
       "get": {
         "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
         "tags": [
@@ -295,22 +295,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
-          }
-        }
-      }
-    },
-    "/update": {
-      "post": {
-        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
-        "tags": [
-          "update"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized request"
           }
         }
       }
@@ -703,6 +687,11 @@ func init() {
       "name": "type",
       "in": "query"
     }
+  },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
   }
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
@@ -725,8 +714,30 @@ func init() {
     },
     "version": "1.0.0"
   },
+  "basePath": "/api",
   "paths": {
-    "/cards": {
+    "/update": {
+      "post": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
+        "tags": [
+          "update"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/v1/cards": {
       "get": {
         "description": "Returns cards as they are stored",
         "tags": [
@@ -822,7 +833,7 @@ func init() {
         }
       }
     },
-    "/classes": {
+    "/v1/classes": {
       "get": {
         "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
         "tags": [
@@ -847,29 +858,7 @@ func init() {
         }
       }
     },
-    "/info": {
-      "get": {
-        "description": "Get information about the service",
-        "tags": [
-          "info"
-        ],
-        "responses": {
-          "200": {
-            "description": "Get current status of amount of cards and last update",
-            "schema": {
-              "$ref": "#/definitions/info"
-            }
-          },
-          "500": {
-            "description": "Something went wrong",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      }
-    },
-    "/keywords": {
+    "/v1/keywords": {
       "get": {
         "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
         "tags": [
@@ -894,7 +883,7 @@ func init() {
         }
       }
     },
-    "/rarities": {
+    "/v1/rarities": {
       "get": {
         "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
         "tags": [
@@ -919,7 +908,7 @@ func init() {
         }
       }
     },
-    "/richcards": {
+    "/v1/richcards": {
       "get": {
         "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
         "tags": [
@@ -1015,7 +1004,7 @@ func init() {
         }
       }
     },
-    "/sets": {
+    "/v1/sets": {
       "get": {
         "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
         "tags": [
@@ -1040,7 +1029,7 @@ func init() {
         }
       }
     },
-    "/types": {
+    "/v1/types": {
       "get": {
         "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
         "tags": [
@@ -1061,22 +1050,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/error"
             }
-          }
-        }
-      }
-    },
-    "/update": {
-      "post": {
-        "description": "Checks for updates to Hearthstone, if there are any, they are applied to the database",
-        "tags": [
-          "update"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized request"
           }
         }
       }
@@ -1471,6 +1444,11 @@ func init() {
       "type": "integer",
       "name": "type",
       "in": "query"
+    }
+  },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
     }
   }
 }`))

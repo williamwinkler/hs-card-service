@@ -25,20 +25,20 @@ func NewRaritiesHandler(api *operations.HearthstoneCardServiceAPI, rarityRepo *r
 }
 
 func (i *RaritiesHandler) SetupHandler() {
-	i.api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(
-		func(req rarities.GetRaritiesParams) middleware.Responder {
+	i.api.RaritiesGetV1RaritiesHandler = rarities.GetV1RaritiesHandlerFunc(
+		func(req rarities.GetV1RaritiesParams) middleware.Responder {
 			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
 
 			cardRarities, err := i.rarityRepo.FindAll()
 			if err != nil {
 				log.Printf("Error occurred in GET /Rarities: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				rarities.NewGetRaritiesInternalServerError().WithPayload(errorMessage)
+				rarities.NewGetV1RaritiesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardRarities := mapRaritiesToExternal(cardRarities)
 
-			return rarities.NewGetRaritiesOK().WithPayload(mappedCardRarities)
+			return rarities.NewGetV1RaritiesOK().WithPayload(mappedCardRarities)
 		},
 	)
 }

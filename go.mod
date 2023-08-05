@@ -3,6 +3,7 @@ module github.com/williamwinkler/hs-card-service
 go 1.19
 
 require (
+	github.com/didip/tollbooth v4.0.2+incompatible
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.2
 	github.com/go-openapi/runtime v0.25.0
@@ -21,7 +22,6 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/didip/tollbooth v4.0.2+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect

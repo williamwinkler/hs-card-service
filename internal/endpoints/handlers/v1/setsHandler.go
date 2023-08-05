@@ -25,20 +25,20 @@ func NewSetsHandler(api *operations.HearthstoneCardServiceAPI, setRepo *reposito
 }
 
 func (i *SetsHandler) SetupHandler() {
-	i.api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(
-		func(req sets.GetSetsParams) middleware.Responder {
+	i.api.SetsGetV1SetsHandler = sets.GetV1SetsHandlerFunc(
+		func(req sets.GetV1SetsParams) middleware.Responder {
 			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
 
 			cardSets, err := i.setRepo.FindAll()
 			if err != nil {
 				log.Printf("Error occurred in GET /sets: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				sets.NewGetSetsInternalServerError().WithPayload(errorMessage)
+				sets.NewGetV1SetsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardSets := mapSetsToExternal(cardSets)
 
-			return sets.NewGetSetsOK().WithPayload(mappedCardSets)
+			return sets.NewGetV1SetsOK().WithPayload(mappedCardSets)
 		},
 	)
 }

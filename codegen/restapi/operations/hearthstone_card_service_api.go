@@ -21,7 +21,6 @@ import (
 
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/cards"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/classes"
-	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/info"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/keywords"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/rarities"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
@@ -51,33 +50,37 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 
 		JSONProducer: runtime.JSONProducer(),
 
-		CardsGetCardsHandler: cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
+		CardsGetV1CardsHandler: cards.GetV1CardsHandlerFunc(func(params cards.GetV1CardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetV1Cards has not yet been implemented")
 		}),
-		ClassesGetClassesHandler: classes.GetClassesHandlerFunc(func(params classes.GetClassesParams) middleware.Responder {
-			return middleware.NotImplemented("operation classes.GetClasses has not yet been implemented")
+		ClassesGetV1ClassesHandler: classes.GetV1ClassesHandlerFunc(func(params classes.GetV1ClassesParams) middleware.Responder {
+			return middleware.NotImplemented("operation classes.GetV1Classes has not yet been implemented")
 		}),
-		InfoGetInfoHandler: info.GetInfoHandlerFunc(func(params info.GetInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation info.GetInfo has not yet been implemented")
+		KeywordsGetV1KeywordsHandler: keywords.GetV1KeywordsHandlerFunc(func(params keywords.GetV1KeywordsParams) middleware.Responder {
+			return middleware.NotImplemented("operation keywords.GetV1Keywords has not yet been implemented")
 		}),
-		KeywordsGetKeywordsHandler: keywords.GetKeywordsHandlerFunc(func(params keywords.GetKeywordsParams) middleware.Responder {
-			return middleware.NotImplemented("operation keywords.GetKeywords has not yet been implemented")
+		RaritiesGetV1RaritiesHandler: rarities.GetV1RaritiesHandlerFunc(func(params rarities.GetV1RaritiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation rarities.GetV1Rarities has not yet been implemented")
 		}),
-		RaritiesGetRaritiesHandler: rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
-			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
+		CardsGetV1RichcardsHandler: cards.GetV1RichcardsHandlerFunc(func(params cards.GetV1RichcardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetV1Richcards has not yet been implemented")
 		}),
-		CardsGetRichcardsHandler: cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		SetsGetV1SetsHandler: sets.GetV1SetsHandlerFunc(func(params sets.GetV1SetsParams) middleware.Responder {
+			return middleware.NotImplemented("operation sets.GetV1Sets has not yet been implemented")
 		}),
-		SetsGetSetsHandler: sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
-			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
+		TypesGetV1TypesHandler: types.GetV1TypesHandlerFunc(func(params types.GetV1TypesParams) middleware.Responder {
+			return middleware.NotImplemented("operation types.GetV1Types has not yet been implemented")
 		}),
-		TypesGetTypesHandler: types.GetTypesHandlerFunc(func(params types.GetTypesParams) middleware.Responder {
-			return middleware.NotImplemented("operation types.GetTypes has not yet been implemented")
-		}),
-		UpdatePostUpdateHandler: update.PostUpdateHandlerFunc(func(params update.PostUpdateParams) middleware.Responder {
+		UpdatePostUpdateHandler: update.PostUpdateHandlerFunc(func(params update.PostUpdateParams, principal interface{}) middleware.Responder {
 			return middleware.NotImplemented("operation update.PostUpdate has not yet been implemented")
 		}),
+
+		// Applies when the Authorization header is set with the Basic scheme
+		BasicAuthAuth: func(user string, pass string) (interface{}, error) {
+			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
+		},
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -114,22 +117,27 @@ type HearthstoneCardServiceAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// CardsGetCardsHandler sets the operation handler for the get cards operation
-	CardsGetCardsHandler cards.GetCardsHandler
-	// ClassesGetClassesHandler sets the operation handler for the get classes operation
-	ClassesGetClassesHandler classes.GetClassesHandler
-	// InfoGetInfoHandler sets the operation handler for the get info operation
-	InfoGetInfoHandler info.GetInfoHandler
-	// KeywordsGetKeywordsHandler sets the operation handler for the get keywords operation
-	KeywordsGetKeywordsHandler keywords.GetKeywordsHandler
-	// RaritiesGetRaritiesHandler sets the operation handler for the get rarities operation
-	RaritiesGetRaritiesHandler rarities.GetRaritiesHandler
-	// CardsGetRichcardsHandler sets the operation handler for the get richcards operation
-	CardsGetRichcardsHandler cards.GetRichcardsHandler
-	// SetsGetSetsHandler sets the operation handler for the get sets operation
-	SetsGetSetsHandler sets.GetSetsHandler
-	// TypesGetTypesHandler sets the operation handler for the get types operation
-	TypesGetTypesHandler types.GetTypesHandler
+	// BasicAuthAuth registers a function that takes username and password and returns a principal
+	// it performs authentication with basic auth
+	BasicAuthAuth func(string, string) (interface{}, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
+
+	// CardsGetV1CardsHandler sets the operation handler for the get v1 cards operation
+	CardsGetV1CardsHandler cards.GetV1CardsHandler
+	// ClassesGetV1ClassesHandler sets the operation handler for the get v1 classes operation
+	ClassesGetV1ClassesHandler classes.GetV1ClassesHandler
+	// KeywordsGetV1KeywordsHandler sets the operation handler for the get v1 keywords operation
+	KeywordsGetV1KeywordsHandler keywords.GetV1KeywordsHandler
+	// RaritiesGetV1RaritiesHandler sets the operation handler for the get v1 rarities operation
+	RaritiesGetV1RaritiesHandler rarities.GetV1RaritiesHandler
+	// CardsGetV1RichcardsHandler sets the operation handler for the get v1 richcards operation
+	CardsGetV1RichcardsHandler cards.GetV1RichcardsHandler
+	// SetsGetV1SetsHandler sets the operation handler for the get v1 sets operation
+	SetsGetV1SetsHandler sets.GetV1SetsHandler
+	// TypesGetV1TypesHandler sets the operation handler for the get v1 types operation
+	TypesGetV1TypesHandler types.GetV1TypesHandler
 	// UpdatePostUpdateHandler sets the operation handler for the post update operation
 	UpdatePostUpdateHandler update.PostUpdateHandler
 
@@ -209,29 +217,30 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.CardsGetCardsHandler == nil {
-		unregistered = append(unregistered, "cards.GetCardsHandler")
+	if o.BasicAuthAuth == nil {
+		unregistered = append(unregistered, "BasicAuthAuth")
 	}
-	if o.ClassesGetClassesHandler == nil {
-		unregistered = append(unregistered, "classes.GetClassesHandler")
+
+	if o.CardsGetV1CardsHandler == nil {
+		unregistered = append(unregistered, "cards.GetV1CardsHandler")
 	}
-	if o.InfoGetInfoHandler == nil {
-		unregistered = append(unregistered, "info.GetInfoHandler")
+	if o.ClassesGetV1ClassesHandler == nil {
+		unregistered = append(unregistered, "classes.GetV1ClassesHandler")
 	}
-	if o.KeywordsGetKeywordsHandler == nil {
-		unregistered = append(unregistered, "keywords.GetKeywordsHandler")
+	if o.KeywordsGetV1KeywordsHandler == nil {
+		unregistered = append(unregistered, "keywords.GetV1KeywordsHandler")
 	}
-	if o.RaritiesGetRaritiesHandler == nil {
-		unregistered = append(unregistered, "rarities.GetRaritiesHandler")
+	if o.RaritiesGetV1RaritiesHandler == nil {
+		unregistered = append(unregistered, "rarities.GetV1RaritiesHandler")
 	}
-	if o.CardsGetRichcardsHandler == nil {
-		unregistered = append(unregistered, "cards.GetRichcardsHandler")
+	if o.CardsGetV1RichcardsHandler == nil {
+		unregistered = append(unregistered, "cards.GetV1RichcardsHandler")
 	}
-	if o.SetsGetSetsHandler == nil {
-		unregistered = append(unregistered, "sets.GetSetsHandler")
+	if o.SetsGetV1SetsHandler == nil {
+		unregistered = append(unregistered, "sets.GetV1SetsHandler")
 	}
-	if o.TypesGetTypesHandler == nil {
-		unregistered = append(unregistered, "types.GetTypesHandler")
+	if o.TypesGetV1TypesHandler == nil {
+		unregistered = append(unregistered, "types.GetV1TypesHandler")
 	}
 	if o.UpdatePostUpdateHandler == nil {
 		unregistered = append(unregistered, "update.PostUpdateHandler")
@@ -251,12 +260,20 @@ func (o *HearthstoneCardServiceAPI) ServeErrorFor(operationID string) func(http.
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *HearthstoneCardServiceAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+		case "basicAuth":
+			result[name] = o.BasicAuthenticator(o.BasicAuthAuth)
+
+		}
+	}
+	return result
 }
 
 // Authorizer returns the registered authorizer
 func (o *HearthstoneCardServiceAPI) Authorizer() runtime.Authorizer {
-	return nil
+	return o.APIAuthorizer
 }
 
 // ConsumersFor gets the consumers for the specified media types.
@@ -327,35 +344,31 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/cards"] = cards.NewGetCards(o.context, o.CardsGetCardsHandler)
+	o.handlers["GET"]["/v1/cards"] = cards.NewGetV1Cards(o.context, o.CardsGetV1CardsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/classes"] = classes.NewGetClasses(o.context, o.ClassesGetClassesHandler)
+	o.handlers["GET"]["/v1/classes"] = classes.NewGetV1Classes(o.context, o.ClassesGetV1ClassesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/info"] = info.NewGetInfo(o.context, o.InfoGetInfoHandler)
+	o.handlers["GET"]["/v1/keywords"] = keywords.NewGetV1Keywords(o.context, o.KeywordsGetV1KeywordsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/keywords"] = keywords.NewGetKeywords(o.context, o.KeywordsGetKeywordsHandler)
+	o.handlers["GET"]["/v1/rarities"] = rarities.NewGetV1Rarities(o.context, o.RaritiesGetV1RaritiesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/rarities"] = rarities.NewGetRarities(o.context, o.RaritiesGetRaritiesHandler)
+	o.handlers["GET"]["/v1/richcards"] = cards.NewGetV1Richcards(o.context, o.CardsGetV1RichcardsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/richcards"] = cards.NewGetRichcards(o.context, o.CardsGetRichcardsHandler)
+	o.handlers["GET"]["/v1/sets"] = sets.NewGetV1Sets(o.context, o.SetsGetV1SetsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/sets"] = sets.NewGetSets(o.context, o.SetsGetSetsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/types"] = types.NewGetTypes(o.context, o.TypesGetTypesHandler)
+	o.handlers["GET"]["/v1/types"] = types.NewGetV1Types(o.context, o.TypesGetV1TypesHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

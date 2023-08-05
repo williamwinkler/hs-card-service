@@ -43,13 +43,12 @@ func NewCardUpdateHandler(
 
 func (c *CardUpdateHandler) SetupHandler() {
 	c.api.UpdatePostUpdateHandler = update.PostUpdateHandlerFunc(
-		func(pup update.PostUpdateParams) middleware.Responder {
+		func(pup update.PostUpdateParams, i interface{}) middleware.Responder {
 
 			go c.UpdateWithRetries(3, 1000*time.Millisecond)
 
 			return update.NewPostUpdateOK()
-		},
-	)
+		})
 }
 
 func (c *CardUpdateHandler) UpdateWithRetries(maxRetries int, retryDelay time.Duration) {
