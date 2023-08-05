@@ -5,6 +5,7 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/didip/tollbooth"
@@ -50,14 +51,8 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 
 	// Add basic authentication to the API
 	api.BasicAuthAuth = func(username, password string) (interface{}, error) {
-		// Implement your authentication logic here.
-		// For basic auth, you may check if the provided username and password are valid.
-		// If valid, return some identification object (e.g., user ID) and nil error.
-		// If not valid, return nil and an error.
-		// You can also store user credentials in a database or use any other authentication mechanism.
-		// For simplicity, I'll just check for a hardcoded username and password.
-		validUsername := "your_username"
-		validPassword := "your_password"
+		validUsername := os.Getenv("BASIC_AUTH_USERNAME")
+		validPassword := os.Getenv("BASIC_AUTH_PASSWORD")
 		if username == validUsername && password == validPassword {
 			return username, nil
 		}

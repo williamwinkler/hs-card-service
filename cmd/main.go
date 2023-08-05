@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/williamwinkler/hs-card-service/internal/application"
@@ -15,6 +16,13 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Found no .env file")
+	}
+
+	validUsername := os.Getenv("BASIC_AUTH_USERNAME")
+	validPassword := os.Getenv("BASIC_AUTH_PASSWORD")
+
+	if validUsername == "" || validPassword == "" {
+		log.Fatal("BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD is missing in the environment variables.")
 	}
 
 	database, err := migrations.SetupDatabase()
