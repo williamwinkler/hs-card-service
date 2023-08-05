@@ -5,7 +5,10 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
+	"time"
 
+	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth/limiter"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -114,7 +117,12 @@ func configureServer(s *http.Server, scheme, addr string) {
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
 // The middleware executes after routing but before authentication, binding and validation.
 func setupMiddlewares(handler http.Handler) http.Handler {
-	return handler
+
+	lmt := tollbooth.NewLimiter(15, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
+	lmt.SetIPLookups([]string{"X-Forwarded-For", "RemoteAddr", "X-Real-IP"})
+	lmt.SetMessage("You have reached maximum request limit.")
+
+	return tollbooth.LimitFuncHandler(lmt, handler.ServeHTTP)
 }
 
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
