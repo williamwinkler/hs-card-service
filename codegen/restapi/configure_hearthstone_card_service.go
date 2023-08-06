@@ -41,7 +41,7 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 	// Example:
 	// api.Logger = log.Printf
 
-	api.UseSwaggerUI()
+	// api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
 	// api.UseRedoc()
 
@@ -135,17 +135,6 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if the request is for the "/docs" endpoint.
-		if r.URL.Path == "/docs" {
-			redocOpts := middleware.RedocOpts{
-				SpecURL: "/api/v1" + "/swagger.json",
-			}
-
-			// Serve the Redoc documentation and return.
-			middleware.Redoc(redocOpts, handler).ServeHTTP(w, r)
-			return
-		}
-
 		// Apply the CORS middleware for other endpoints.
 		c := cors.New(cors.Options{AllowedOrigins: []string{"http://localhost:3000", "https://hscards.duckdns.org"}})
 		c.Handler(handler).ServeHTTP(w, r)
