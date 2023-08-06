@@ -25,20 +25,20 @@ func NewClassesHandler(api *operations.HearthstoneCardServiceAPI, classRepo *rep
 }
 
 func (i *ClassesHandler) SetupHandler() {
-	i.api.ClassesGetV1ClassesHandler = classes.GetV1ClassesHandlerFunc(
-		func(req classes.GetV1ClassesParams) middleware.Responder {
+	i.api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(
+		func(req classes.GetClassesParams) middleware.Responder {
 			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
 
 			cardClasses, err := i.classRepo.FindAll()
 			if err != nil {
 				log.Printf("Error occurred in GET /classes: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				classes.NewGetV1ClassesInternalServerError().WithPayload(errorMessage)
+				classes.NewGetClassesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardClasses := mapClassesToExternal(cardClasses)
 
-			return classes.NewGetV1ClassesOK().WithPayload(mappedCardClasses)
+			return classes.NewGetClassesOK().WithPayload(mappedCardClasses)
 		},
 	)
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers"
-	v1 "github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/v1"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
@@ -84,13 +83,13 @@ func (s *RestServer) StartServer() {
 	// inizalize handlers
 	handlers := []Handler{
 		handlers.NewCardUpdateHandler(api, s.cardService, s.setService, s.classService, s.rarityService, s.typeService, s.keywordService),
-		v1.NewCardHandler(api, s.cardService),
-		v1.NewRichCardHandler(api, s.cardService),
-		v1.NewSetsHandler(api, s.setRepo),
-		v1.NewTypesHandler(api, s.typeRepo),
-		v1.NewClassesHandler(api, s.classRepo),
-		v1.NewRaritiesHandler(api, s.rarityRepo),
-		v1.NewKeywordsHandler(api, s.keywordRepo),
+		handlers.NewCardHandler(api, s.cardService),
+		handlers.NewRichCardHandler(api, s.cardService),
+		handlers.NewSetsHandler(api, s.setRepo),
+		handlers.NewTypesHandler(api, s.typeRepo),
+		handlers.NewClassesHandler(api, s.classRepo),
+		handlers.NewRaritiesHandler(api, s.rarityRepo),
+		handlers.NewKeywordsHandler(api, s.keywordRepo),
 	}
 	inizializeHandlers(handlers)
 

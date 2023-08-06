@@ -25,20 +25,20 @@ func NewKeywordsHandler(api *operations.HearthstoneCardServiceAPI, keywordRepo *
 }
 
 func (i *KeywordsHandler) SetupHandler() {
-	i.api.KeywordsGetV1KeywordsHandler = keywords.GetV1KeywordsHandlerFunc(
-		func(req keywords.GetV1KeywordsParams) middleware.Responder {
+	i.api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(
+		func(req keywords.GetKeywordsParams) middleware.Responder {
 			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
 
 			cardKeywords, err := i.keywordRepo.FindAll()
 			if err != nil {
 				log.Printf("Error occurred in GET /keywords: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				keywords.NewGetV1KeywordsInternalServerError().WithPayload(errorMessage)
+				keywords.NewGetKeywordsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardKeywords := mapKeywordsToExternal(cardKeywords)
 
-			return keywords.NewGetV1KeywordsOK().WithPayload(mappedCardKeywords)
+			return keywords.NewGetKeywordsOK().WithPayload(mappedCardKeywords)
 		},
 	)
 }

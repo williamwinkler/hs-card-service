@@ -25,20 +25,20 @@ func NewTypesHandler(api *operations.HearthstoneCardServiceAPI, typeRepo *reposi
 }
 
 func (i *TypesHandler) SetupHandler() {
-	i.api.TypesGetV1TypesHandler = types.GetV1TypesHandlerFunc(
-		func(req types.GetV1TypesParams) middleware.Responder {
+	i.api.TypesGetTypesHandler = types.GetTypesHandlerFunc(
+		func(req types.GetTypesParams) middleware.Responder {
 			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
 
 			cardTypes, err := i.typeRepo.FindAll()
 			if err != nil {
 				log.Printf("Error occurred in GET /Types: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				types.NewGetV1TypesInternalServerError().WithPayload(errorMessage)
+				types.NewGetTypesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardTypes := mapTypesToExternal(cardTypes)
 
-			return types.NewGetV1TypesOK().WithPayload(mappedCardTypes)
+			return types.NewGetTypesOK().WithPayload(mappedCardTypes)
 		},
 	)
 }

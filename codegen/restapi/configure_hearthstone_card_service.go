@@ -59,40 +59,40 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 		return nil, errors.New(401, "Unauthorized")
 	}
 
-	if api.CardsGetV1CardsHandler == nil {
-		api.CardsGetV1CardsHandler = cards.GetV1CardsHandlerFunc(func(params cards.GetV1CardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetV1Cards has not yet been implemented")
+	if api.CardsGetCardsHandler == nil {
+		api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(func(params cards.GetCardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetCards has not yet been implemented")
 		})
 	}
-	if api.ClassesGetV1ClassesHandler == nil {
-		api.ClassesGetV1ClassesHandler = classes.GetV1ClassesHandlerFunc(func(params classes.GetV1ClassesParams) middleware.Responder {
-			return middleware.NotImplemented("operation classes.GetV1Classes has not yet been implemented")
+	if api.ClassesGetClassesHandler == nil {
+		api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(func(params classes.GetClassesParams) middleware.Responder {
+			return middleware.NotImplemented("operation classes.GetClasses has not yet been implemented")
 		})
 	}
 
-	if api.KeywordsGetV1KeywordsHandler == nil {
-		api.KeywordsGetV1KeywordsHandler = keywords.GetV1KeywordsHandlerFunc(func(params keywords.GetV1KeywordsParams) middleware.Responder {
-			return middleware.NotImplemented("operation keywords.GetV1Keywords has not yet been implemented")
+	if api.KeywordsGetKeywordsHandler == nil {
+		api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(func(params keywords.GetKeywordsParams) middleware.Responder {
+			return middleware.NotImplemented("operation keywords.GetKeywords has not yet been implemented")
 		})
 	}
-	if api.RaritiesGetV1RaritiesHandler == nil {
-		api.RaritiesGetV1RaritiesHandler = rarities.GetV1RaritiesHandlerFunc(func(params rarities.GetV1RaritiesParams) middleware.Responder {
-			return middleware.NotImplemented("operation rarities.GetV1Rarities has not yet been implemented")
+	if api.RaritiesGetRaritiesHandler == nil {
+		api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
+			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
 		})
 	}
-	if api.CardsGetV1RichcardsHandler == nil {
-		api.CardsGetV1RichcardsHandler = cards.GetV1RichcardsHandlerFunc(func(params cards.GetV1RichcardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetV1Richcards has not yet been implemented")
+	if api.CardsGetRichcardsHandler == nil {
+		api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
 		})
 	}
-	if api.SetsGetV1SetsHandler == nil {
-		api.SetsGetV1SetsHandler = sets.GetV1SetsHandlerFunc(func(params sets.GetV1SetsParams) middleware.Responder {
-			return middleware.NotImplemented("operation sets.GetV1Sets has not yet been implemented")
+	if api.SetsGetSetsHandler == nil {
+		api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
+			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
 		})
 	}
-	if api.TypesGetV1TypesHandler == nil {
-		api.TypesGetV1TypesHandler = types.GetV1TypesHandlerFunc(func(params types.GetV1TypesParams) middleware.Responder {
-			return middleware.NotImplemented("operation types.GetV1Types has not yet been implemented")
+	if api.TypesGetTypesHandler == nil {
+		api.TypesGetTypesHandler = types.GetTypesHandlerFunc(func(params types.GetTypesParams) middleware.Responder {
+			return middleware.NotImplemented("operation types.GetTypes has not yet been implemented")
 		})
 	}
 	if api.UpdatePostUpdateHandler == nil {
@@ -134,6 +134,20 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	c := cors.New(cors.Options{AllowedOrigins: []string{"http://localhost:3000"}})
-	return c.Handler(handler)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request is for the "/docs" endpoint.
+		if r.URL.Path == "/docs" {
+			redocOpts := middleware.RedocOpts{
+				SpecURL: "/api/v1" + "/swagger.json",
+			}
+
+			// Serve the Redoc documentation and return.
+			middleware.Redoc(redocOpts, handler).ServeHTTP(w, r)
+			return
+		}
+
+		// Apply the CORS middleware for other endpoints.
+		c := cors.New(cors.Options{AllowedOrigins: []string{"http://localhost:3000", "https://hscards.duckdns.org"}})
+		c.Handler(handler).ServeHTTP(w, r)
+	})
 }

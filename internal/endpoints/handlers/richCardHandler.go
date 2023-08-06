@@ -27,8 +27,8 @@ func NewRichCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *
 }
 
 func (c *RichCardHandler) SetupHandler() {
-	c.api.CardsGetV1RichcardsHandler = cards.GetV1RichcardsHandlerFunc(
-		func(params cards.GetV1RichcardsParams) middleware.Responder {
+	c.api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(
+		func(params cards.GetRichcardsParams) middleware.Responder {
 
 			filter := bson.M{}
 			if params.Name != nil {
@@ -67,7 +67,7 @@ func (c *RichCardHandler) SetupHandler() {
 			foundCards, count, err := c.cardService.GetRichCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Somthing went wrong with getting rich cards")
-				return cards.NewGetV1RichcardsInternalServerError().WithPayload(errorMessage)
+				return cards.NewGetRichcardsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCards := mapRichCardsToExternal(foundCards)
@@ -80,7 +80,7 @@ func (c *RichCardHandler) SetupHandler() {
 				CardCount: int64(count),
 				Cards:     mappedCards,
 			}
-			return cards.NewGetV1RichcardsOK().WithPayload(&response)
+			return cards.NewGetRichcardsOK().WithPayload(&response)
 		},
 	)
 }

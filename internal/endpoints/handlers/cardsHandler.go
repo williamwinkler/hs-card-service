@@ -27,8 +27,8 @@ func NewCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *appl
 }
 
 func (c *CardHandler) SetupHandler() {
-	c.api.CardsGetV1CardsHandler = cards.GetV1CardsHandlerFunc(
-		func(params cards.GetV1CardsParams) middleware.Responder {
+	c.api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(
+		func(params cards.GetCardsParams) middleware.Responder {
 
 			filter := bson.M{}
 			if params.Name != nil {
