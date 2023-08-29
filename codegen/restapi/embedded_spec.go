@@ -683,7 +683,10 @@ func init() {
       "in": "query"
     },
     "typeParam": {
-      "type": "integer",
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
       "name": "type",
       "in": "query"
     }
@@ -763,7 +766,10 @@ func init() {
             "in": "query"
           },
           {
-            "type": "integer",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
             "name": "type",
             "in": "query"
           },
@@ -934,7 +940,10 @@ func init() {
             "in": "query"
           },
           {
-            "type": "integer",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
             "name": "type",
             "in": "query"
           },
@@ -1441,7 +1450,10 @@ func init() {
       "in": "query"
     },
     "typeParam": {
-      "type": "integer",
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
       "name": "type",
       "in": "query"
     }

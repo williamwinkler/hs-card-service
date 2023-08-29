@@ -61,8 +61,8 @@ func (c *CardHandler) SetupHandler() {
 			if params.Rarity != nil {
 				filter["rarityid"] = params.Rarity
 			}
-			if params.Type != nil {
-				filter["cardtypeid"] = params.Type
+			if params.Type != nil && len(params.Type) > 0 {
+				filter["cardtypeid"] = bson.M{"$in": params.Type}
 			}
 			if params.Set != nil {
 				filter["cardsetid"] = params.Set

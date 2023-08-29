@@ -206,7 +206,9 @@ parameters:
     typeParam:
         name: type
         in: query
-        type: integer
+        type: array
+        items:
+            type: integer
     keywordsParam:
         name: keywords
         in: query

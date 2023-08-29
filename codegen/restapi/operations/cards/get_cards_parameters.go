@@ -102,7 +102,7 @@ type GetCardsParams struct {
 	/*
 	  In: query
 	*/
-	Type *int64
+	Type []int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -538,25 +538,32 @@ func (o *GetCardsParams) bindSet(rawData []string, hasKey bool, formats strfmt.R
 	return nil
 }
 
-// bindType binds and validates parameter Type from query.
+// bindType binds and validates array parameter Type from query.
+//
+// Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *GetCardsParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
+	var qvType string
 	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
+		qvType = rawData[len(rawData)-1]
 	}
 
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
+	// CollectionFormat:
+	typeIC := swag.SplitByFormat(qvType, "")
+	if len(typeIC) == 0 {
 		return nil
 	}
 
-	value, err := swag.ConvertInt64(raw)
-	if err != nil {
-		return errors.InvalidType("type", "query", "int64", raw)
+	var typeIR []int64
+	for i, typeIV := range typeIC {
+		typeI, err := swag.ConvertInt64(typeIV)
+		if err != nil {
+			return errors.InvalidType(fmt.Sprintf("%s.%v", "type", i), "query", "int64", typeI)
+		}
+
+		typeIR = append(typeIR, typeI)
 	}
-	o.Type = &value
+
+	o.Type = typeIR
 
 	return nil
 }

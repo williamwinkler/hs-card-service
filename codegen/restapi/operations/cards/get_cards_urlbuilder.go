@@ -25,7 +25,7 @@ type GetCardsURL struct {
 	Page     *int64
 	Rarity   *int64
 	Set      *int64
-	Type     *int64
+	Type     []int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -150,12 +150,21 @@ func (o *GetCardsURL) Build() (*url.URL, error) {
 		qs.Set("set", setQ)
 	}
 
-	var typeVarQ string
-	if o.Type != nil {
-		typeVarQ = swag.FormatInt64(*o.Type)
+	var typeIR []string
+	for _, typeI := range o.Type {
+		typeIS := swag.FormatInt64(typeI)
+		if typeIS != "" {
+			typeIR = append(typeIR, typeIS)
+		}
 	}
-	if typeVarQ != "" {
-		qs.Set("type", typeVarQ)
+
+	typeVar := swag.JoinByFormat(typeIR, "")
+
+	if len(typeVar) > 0 {
+		qsv := typeVar[0]
+		if qsv != "" {
+			qs.Set("type", qsv)
+		}
 	}
 
 	_result.RawQuery = qs.Encode()
