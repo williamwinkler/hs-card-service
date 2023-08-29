@@ -48,7 +48,11 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 }
 
 func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
-	options := options.Find().SetSort(bson.M{"manacost": 1}).SetLimit(int64(limit)).SetSkip(int64(limit * (page - 1)))
+	options := options.Find().SetSort(bson.D{
+		{Key: "manacost", Value: 1}, // Ascending order for manacost
+		{Key: "name", Value: 1},     // Ascending order for name
+	}).SetLimit(int64(limit)).SetSkip(int64((page - 1) * limit))
+
 	cursor, err := c.cards.Find(context.TODO(), filter, options)
 	if err != nil {
 		return []domain.Card{}, err
