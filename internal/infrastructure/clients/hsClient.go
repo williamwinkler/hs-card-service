@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -82,7 +82,7 @@ func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Car
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -110,7 +110,7 @@ func (hc *HsClient) GetSets() ([]domain.Set, error) {
 	log.Println(url)
 	time.Sleep(200 * time.Millisecond)
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Set{}, err
 	}
@@ -138,7 +138,7 @@ func (hc *HsClient) GetClasses() ([]domain.Class, error) {
 	log.Println(url)
 	time.Sleep(200 * time.Millisecond)
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Class{}, err
 	}
@@ -166,7 +166,7 @@ func (hc *HsClient) GetRarities() ([]domain.Rarity, error) {
 	log.Println(url)
 	time.Sleep(200 * time.Millisecond)
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Rarity{}, err
 	}
@@ -194,7 +194,7 @@ func (hc *HsClient) GetTypes() ([]domain.Type, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Type{}, err
 	}
@@ -225,7 +225,7 @@ func (hc *HsClient) GetKeywords() ([]domain.Keyword, error) {
 	log.Println(url)
 	time.Sleep(200 * time.Millisecond)
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []domain.Keyword{}, err
 	}
@@ -249,7 +249,7 @@ func (hc *HsClient) executeGetRequest(url string) (*http.Response, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return &http.Response{}, fmt.Errorf("failed to create new GET-request for /cards")
+		return &http.Response{}, fmt.Errorf("failed to create new GET-request for url: %s", url)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
@@ -299,7 +299,7 @@ func fetchToken() (token, error) {
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return token{}, err
 	}
