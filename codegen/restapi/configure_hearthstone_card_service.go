@@ -136,7 +136,7 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Apply the CORS middleware for other endpoints.
-		c := cors.New(cors.Options{AllowedOrigins: []string{"http://localhost:3000", "https://hscards.duckdns.org"}})
+		c := cors.New(cors.Options{AllowedOrigins: []string{"*"}})
 		c.Handler(handler).ServeHTTP(w, r)
 	})
 }
