@@ -40,7 +40,8 @@ func NewHsClient() (*HsClient, error) {
 }
 
 func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
-	var cardsList []domain.Card
+	cardMap := make(map[string]domain.Card)
+
 	page := 1
 	for {
 		// log.Printf("Getting cards with page %d limit %d", page, PAGE_SIZE)
@@ -53,9 +54,15 @@ func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
 		}
 
 		for _, card := range cards {
-			cardsList = append(cardsList, card)
+			cardMap[card.Name] = card
 		}
-		page += 1
+
+		page++
+	}
+
+	cardsList := make([]domain.Card, 0, len(cardMap))
+	for _, card := range cardMap {
+		cardsList = append(cardsList, card)
 	}
 
 	return cardsList, nil
@@ -305,6 +312,7 @@ func fetchToken() (token, error) {
 	}
 
 	var tokenDto dto.Token
+
 	err = json.Unmarshal(body, &tokenDto)
 	if err != nil {
 		return token{}, err
