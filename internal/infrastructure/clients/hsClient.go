@@ -305,6 +305,10 @@ func fetchToken() (token, error) {
 		return token{}, err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return token{}, fmt.Errorf("received stautus code %v while trying to fetch token", resp.StatusCode)
+	}
+
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

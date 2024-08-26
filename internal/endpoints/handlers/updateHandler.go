@@ -69,10 +69,10 @@ func (c *CardUpdateHandler) UpdateWithRetries(maxRetries int, retryDelay time.Du
 		log.Printf("Maximum retries reached for %s. Giving up.", serviceName)
 	}
 
+	go retryFunc(c.setService.Update, "set")
+	go retryFunc(c.classService.Update, "class")
+	go retryFunc(c.rarityService.Update, "rarity")
+	go retryFunc(c.typeService.Update, "type")
+	go retryFunc(c.keywordService.Update, "keyword")
 	retryFunc(c.cardService.Update, "card")
-	retryFunc(c.setService.Update, "set")
-	retryFunc(c.classService.Update, "class")
-	retryFunc(c.rarityService.Update, "rarity")
-	retryFunc(c.typeService.Update, "type")
-	retryFunc(c.keywordService.Update, "keyword")
 }
