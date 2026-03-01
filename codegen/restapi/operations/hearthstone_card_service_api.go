@@ -62,8 +62,8 @@ func NewHearthstoneCardServiceAPI(spec *loads.Document) *HearthstoneCardServiceA
 		RaritiesGetRaritiesHandler: rarities.GetRaritiesHandlerFunc(func(params rarities.GetRaritiesParams) middleware.Responder {
 			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
 		}),
-		CardsGetRichcardsHandler: cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
-			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
+		CardsGetRichCardsHandler: cards.GetRichCardsHandlerFunc(func(params cards.GetRichCardsParams) middleware.Responder {
+			return middleware.NotImplemented("operation cards.GetRichCards has not yet been implemented")
 		}),
 		SetsGetSetsHandler: sets.GetSetsHandlerFunc(func(params sets.GetSetsParams) middleware.Responder {
 			return middleware.NotImplemented("operation sets.GetSets has not yet been implemented")
@@ -132,8 +132,8 @@ type HearthstoneCardServiceAPI struct {
 	KeywordsGetKeywordsHandler keywords.GetKeywordsHandler
 	// RaritiesGetRaritiesHandler sets the operation handler for the get rarities operation
 	RaritiesGetRaritiesHandler rarities.GetRaritiesHandler
-	// CardsGetRichcardsHandler sets the operation handler for the get richcards operation
-	CardsGetRichcardsHandler cards.GetRichcardsHandler
+	// CardsGetRichCardsHandler sets the operation handler for the get rich cards operation
+	CardsGetRichCardsHandler cards.GetRichCardsHandler
 	// SetsGetSetsHandler sets the operation handler for the get sets operation
 	SetsGetSetsHandler sets.GetSetsHandler
 	// TypesGetTypesHandler sets the operation handler for the get types operation
@@ -233,8 +233,8 @@ func (o *HearthstoneCardServiceAPI) Validate() error {
 	if o.RaritiesGetRaritiesHandler == nil {
 		unregistered = append(unregistered, "rarities.GetRaritiesHandler")
 	}
-	if o.CardsGetRichcardsHandler == nil {
-		unregistered = append(unregistered, "cards.GetRichcardsHandler")
+	if o.CardsGetRichCardsHandler == nil {
+		unregistered = append(unregistered, "cards.GetRichCardsHandler")
 	}
 	if o.SetsGetSetsHandler == nil {
 		unregistered = append(unregistered, "sets.GetSetsHandler")
@@ -360,7 +360,7 @@ func (o *HearthstoneCardServiceAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/richcards"] = cards.NewGetRichcards(o.context, o.CardsGetRichcardsHandler)
+	o.handlers["GET"]["/richcards"] = cards.NewGetRichCards(o.context, o.CardsGetRichCardsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -414,6 +414,6 @@ func (o *HearthstoneCardServiceAPI) AddMiddlewareFor(method, path string, builde
 	}
 	o.Init()
 	if h, ok := o.handlers[um][path]; ok {
-		o.handlers[method][path] = builder(h)
+		o.handlers[um][path] = builder(h)
 	}
 }

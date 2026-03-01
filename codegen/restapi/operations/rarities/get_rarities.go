@@ -32,7 +32,7 @@ func NewGetRarities(ctx *middleware.Context, handler GetRaritiesHandler) *GetRar
 /*
 	GetRarities swagger:route GET /rarities rarities getRarities
 
-Serves the different rarities a card can have. Fx "Common" or "Legendary"
+Serves card rarities, e.g. Common or Legendary.
 */
 type GetRarities struct {
 	Context *middleware.Context

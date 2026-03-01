@@ -11,29 +11,29 @@ import (
 	"github.com/go-openapi/runtime"
 )
 
-// PostUpdateOKCode is the HTTP code returned for type PostUpdateOK
-const PostUpdateOKCode int = 200
+// PostUpdateAcceptedCode is the HTTP code returned for type PostUpdateAccepted
+const PostUpdateAcceptedCode int = 202
 
 /*
-PostUpdateOK OK
+PostUpdateAccepted Update started
 
-swagger:response postUpdateOK
+swagger:response postUpdateAccepted
 */
-type PostUpdateOK struct {
+type PostUpdateAccepted struct {
 }
 
-// NewPostUpdateOK creates PostUpdateOK with default headers values
-func NewPostUpdateOK() *PostUpdateOK {
+// NewPostUpdateAccepted creates PostUpdateAccepted with default headers values
+func NewPostUpdateAccepted() *PostUpdateAccepted {
 
-	return &PostUpdateOK{}
+	return &PostUpdateAccepted{}
 }
 
 // WriteResponse to the client
-func (o *PostUpdateOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *PostUpdateAccepted) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(202)
 }
 
 // PostUpdateUnauthorizedCode is the HTTP code returned for type PostUpdateUnauthorized

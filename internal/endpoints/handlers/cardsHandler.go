@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"math"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -11,7 +10,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 )
 
 type CardHandler struct {
@@ -29,59 +28,21 @@ func NewCardHandler(api *operations.HearthstoneCardServiceAPI, cardService *appl
 func (c *CardHandler) SetupHandler() {
 	c.api.CardsGetCardsHandler = cards.GetCardsHandlerFunc(
 		func(params cards.GetCardsParams) middleware.Responder {
+			ctx := params.HTTPRequest.Context()
 
-			filter := bson.M{}
-			if params.Name != nil {
-				filter["name"] = bson.M{"$regex": ".*" + *params.Name + ".*", "$options": "i"}
-			}
-			if params.ManaCost != nil {
-				if *params.ManaCost == 99 {
-					filter["manacost"] = bson.M{"$gte": 7}
-				} else {
-					filter["manacost"] = params.ManaCost
-				}
-			}
-			if params.Health != nil {
-				if *params.Health == 99 {
-					filter["health"] = bson.M{"$gte": 7}
-				} else {
-					filter["health"] = params.Health
-				}
-			}
-			if params.Attack != nil {
-				if *params.Attack == 99 {
-					filter["attack"] = bson.M{"$gte": 7}
-				} else {
-					filter["attack"] = params.Attack
-				}
-			}
-			if params.Class != nil {
-				filter["classid"] = params.Class
-			}
-			if params.Rarity != nil {
-				filter["rarityid"] = params.Rarity
-			}
-			if params.Type != nil && len(params.Type) > 0 {
-				filter["cardtypeid"] = bson.M{"$in": params.Type}
-			}
-			if params.Set != nil {
-				filter["cardsetid"] = params.Set
-			}
-			if params.Keywords != nil && len(params.Keywords) > 0 {
-				filter["keywordids"] = bson.M{"$all": params.Keywords}
-			}
+			filter := newCardFilter(params.Name, params.ManaCost, params.Health, params.Attack, params.Class, params.Rarity, params.Type, params.Set, params.Keywords)
 
 			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting cards")
-				log.Printf("Error occured in GetCardsHandlerFunc: %v", err)
+				logging.Errorf(ctx, "Error occured in GetCardsHandlerFunc: %v", err)
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCards := mapCardsToExternal(foundCards)
 			pageCount := math.Ceil(float64(count) / float64(*params.Limit))
 
-			log.Printf("Handled %s request (%d)", params.HTTPRequest.URL, len(mappedCards))
+			logging.Debugf(ctx, "Handled %s request (%d)", params.HTTPRequest.URL, len(mappedCards))
 			response := models.Cards{
 				Page:      *params.Page,
 				PageCount: int64(pageCount),

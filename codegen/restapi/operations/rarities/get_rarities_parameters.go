@@ -23,7 +23,7 @@ func NewGetRaritiesParams() GetRaritiesParams {
 // GetRaritiesParams contains all the bound params for the get rarities operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetRarities
+// swagger:parameters getRarities
 type GetRaritiesParams struct {
 
 	// HTTP Request Object

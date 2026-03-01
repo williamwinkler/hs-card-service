@@ -23,7 +23,7 @@ func NewGetClassesParams() GetClassesParams {
 // GetClassesParams contains all the bound params for the get classes operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetClasses
+// swagger:parameters getClasses
 type GetClassesParams struct {
 
 	// HTTP Request Object

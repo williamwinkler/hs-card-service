@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"log"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/williamwinkler/hs-card-service/codegen/models"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/classes"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
@@ -27,11 +26,12 @@ func NewClassesHandler(api *operations.HearthstoneCardServiceAPI, classRepo *rep
 func (i *ClassesHandler) SetupHandler() {
 	i.api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(
 		func(req classes.GetClassesParams) middleware.Responder {
-			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
+			ctx := req.HTTPRequest.Context()
+			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
 
 			cardClasses, err := i.classRepo.FindAll()
 			if err != nil {
-				log.Printf("Error occurred in GET /classes: %v", err)
+				logging.Errorf(ctx, "Error occurred in GET /classes: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
 				classes.NewGetClassesInternalServerError().WithPayload(errorMessage)
 			}

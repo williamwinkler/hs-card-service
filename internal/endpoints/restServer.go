@@ -2,7 +2,10 @@ package endpoints
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/go-openapi/loads"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi"
@@ -78,7 +81,7 @@ func (s *RestServer) StartServer() {
 
 	// parse flags
 	flag.Parse()
-	server.Port = *portFlag
+	server.Port = resolveServerPort()
 
 	// inizalize handlers
 	handlers := []Handler{
@@ -91,9 +94,13 @@ func (s *RestServer) StartServer() {
 		handlers.NewRaritiesHandler(api, s.rarityRepo),
 		handlers.NewKeywordsHandler(api, s.keywordRepo),
 	}
-	inizializeHandlers(handlers)
+	for _, handler := range handlers {
+		handler.SetupHandler()
+	}
 
 	server.ConfigureAPI()
+
+	log.Println("Starting API")
 
 	//serve API
 	if err := server.Serve(); err != nil {
@@ -101,12 +108,33 @@ func (s *RestServer) StartServer() {
 	}
 }
 
-type Handler interface {
-	SetupHandler()
+func resolveServerPort() int {
+	port := *portFlag
+	portSetByFlag := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "port" {
+			portSetByFlag = true
+		}
+	})
+
+	// Allow cloud platforms and container runtimes to inject the listening port.
+	if !portSetByFlag {
+		envPort, exists := os.LookupEnv("PORT")
+		if exists && envPort != "" {
+			parsedPort, err := strconv.Atoi(envPort)
+			if err != nil {
+				log.Fatalf("invalid PORT value %q: %v", envPort, err)
+			}
+			if parsedPort < 1 || parsedPort > 65535 {
+				log.Fatalf("invalid PORT value %q: %s", envPort, fmt.Sprintf("must be between 1 and 65535"))
+			}
+			port = parsedPort
+		}
+	}
+
+	return port
 }
 
-func inizializeHandlers(handlers []Handler) {
-	for _, handler := range handlers {
-		handler.SetupHandler()
-	}
+type Handler interface {
+	SetupHandler()
 }

@@ -32,7 +32,7 @@ func NewGetSets(ctx *middleware.Context, handler GetSetsHandler) *GetSets {
 /*
 	GetSets swagger:route GET /sets sets getSets
 
-Cards can belong to different sets or expansions. This serves all sets and their info.
+Cards can belong to different sets or expansions. Returns all sets.
 */
 type GetSets struct {
 	Context *middleware.Context

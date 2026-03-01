@@ -23,7 +23,7 @@ func NewGetSetsParams() GetSetsParams {
 // GetSetsParams contains all the bound params for the get sets operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetSets
+// swagger:parameters getSets
 type GetSetsParams struct {
 
 	// HTTP Request Object

@@ -17,7 +17,7 @@ import (
 const GetCardsOKCode int = 200
 
 /*
-GetCardsOK Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
+GetCardsOK Returns cards by query. If there is no query, cards are returned by manaCost ascending.
 
 swagger:response getCardsOK
 */

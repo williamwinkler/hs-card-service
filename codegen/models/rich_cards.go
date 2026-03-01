@@ -22,8 +22,7 @@ type RichCards struct {
 	// card count
 	CardCount int64 `json:"cardCount,omitempty"`
 
-	// if there a no cards, the array is null
-	// Example: []
+	// if there are no cards, the array can be null
 	Cards []*RichCard `json:"cards"`
 
 	// page
@@ -92,6 +91,11 @@ func (m *RichCards) contextValidateCards(ctx context.Context, formats strfmt.Reg
 	for i := 0; i < len(m.Cards); i++ {
 
 		if m.Cards[i] != nil {
+
+			if swag.IsZero(m.Cards[i]) { // not required
+				return nil
+			}
+
 			if err := m.Cards[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cards" + "." + strconv.Itoa(i))

@@ -1,58 +1,64 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type KeywordRepository struct {
-	keywords *mongo.Collection
+	db *gorm.DB
 }
 
-func NewKeywordRepository(db *mongo.Database) *KeywordRepository {
-	keywords := db.Collection(migrations.CARDS_KEYWORDS_COLLECTION)
-
-	return &KeywordRepository{
-		keywords: keywords,
-	}
+func NewKeywordRepository(db *gorm.DB) *KeywordRepository {
+	return &KeywordRepository{db: db}
 }
 
-func (c *KeywordRepository) InsertMany(Keywords []domain.Keyword) error {
-	keywordInterfaces := make([]interface{}, len(Keywords))
-	for i, Keyword := range Keywords {
-		keywordInterfaces[i] = Keyword
+func (c *KeywordRepository) InsertMany(keywords []domain.Keyword) error {
+	if len(keywords) == 0 {
+		return nil
 	}
-	_, err := c.keywords.InsertMany(context.TODO(), keywordInterfaces)
-	return err
+
+	rows := make([]keywordRecord, 0, len(keywords))
+	for _, item := range keywords {
+		rows = append(rows, keywordRecord{
+			ID:        item.ID,
+			Slug:      item.Slug,
+			Name:      item.Name,
+			RefText:   item.RefText,
+			Text:      item.Text,
+			GameModes: toInt64Array(item.GameModes),
+		})
+	}
+
+	return c.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"slug", "name", "ref_text", "text", "game_modes",
+		}),
+	}).Create(&rows).Error
 }
 
 func (c *KeywordRepository) DeleteAll() error {
-	_, err := c.keywords.DeleteMany(context.TODO(), bson.M{}, nil)
-	return err
+	return c.db.Exec("DELETE FROM keywords").Error
 }
 
 func (c *KeywordRepository) FindAll() ([]domain.Keyword, error) {
-	cursor, err := c.keywords.Find(context.TODO(), bson.M{})
-	if err != nil {
+	var rows []keywordRecord
+	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Keyword{}, err
 	}
 
-	return decodeToKeywords(cursor)
-}
-
-func decodeToKeywords(cursor *mongo.Cursor) ([]domain.Keyword, error) {
-	var keywords []domain.Keyword
-	for cursor.Next(context.TODO()) {
-		var keyword domain.Keyword
-		err := cursor.Decode(&keyword)
-		if err != nil {
-			return []domain.Keyword{}, err
-		}
-		keywords = append(keywords, keyword)
+	keywords := make([]domain.Keyword, 0, len(rows))
+	for _, row := range rows {
+		keywords = append(keywords, domain.Keyword{
+			ID:        row.ID,
+			Slug:      row.Slug,
+			Name:      row.Name,
+			RefText:   row.RefText,
+			Text:      row.Text,
+			GameModes: fromInt64Array(row.GameModes),
+		})
 	}
 
 	return keywords, nil

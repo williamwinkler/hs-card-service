@@ -1,7 +1,48 @@
 # Hearthstone Card Service
 Serves cards from Blizzards card game [Hearthstone](https://hearthstone.blizzard.com/en-us).
 
-The program gets its data from [Blizzards Hearthstone API](https://develop.battle.net/documentation/hearthstone/game-data-apis) and stores it in a mongoDB database.
+The program gets its data from [Blizzards Hearthstone API](https://develop.battle.net/documentation/hearthstone/game-data-apis) and stores it in a Postgres database.
+
+## Development
+### Prerequisites
+- Go 1.19+
+- Postgres instance (local or remote)
+- Blizzard API credentials (`CLIENT_ID` and `CLIENT_SECRET`)
+
+### Environment Variables
+Create a `.env` file in the project root:
+```env
+CLIENT_ID=<blizzard_client_id>
+CLIENT_SECRET=<blizzard_client_secret>
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+LOG_LEVEL=info
+BASIC_AUTH_USERNAME=<basic_auth_username>
+BASIC_AUTH_PASSWORD=<basic_auth_password>
+PORT=8080
+```
+
+Notes:
+- `PORT` is optional. Default is `8080`.
+- `--port` flag overrides `PORT` (for example: `go run ./cmd --port 9090`).
+- `DATABASE_URL` is optional. If omitted, the service uses `postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable`.
+- `LOG_LEVEL` is optional. Use `info` (default) or `debug`.
+
+### Run Locally
+From the project root:
+```bash
+go run ./cmd
+```
+
+### Common Dev Commands
+Run all tests:
+```bash
+go test ./...
+```
+
+Run only internal tests:
+```bash
+go test ./internal/tests/...
+```
 
 ## API
 The API is defined in [./api/swagger.yml](./api/swagger.yml) which is used to generate the server located in [./codegen](./codegen/). <br>

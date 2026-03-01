@@ -1,108 +1,125 @@
 package migrations
 
 import (
-	"context"
+	"database/sql"
+	"embed"
 	"fmt"
 	"log"
 	"os"
+	"sort"
+	"strings"
+	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-const DATABASE = "hs-card"
-const CARDS_COLLECTION = "cards"
-const CARDS_UPDATE_META_COLLECTION = "update-meta"
-const CARDS_SETS_COLLECTION = "sets"
-const CARDS_CLASSES_COLLECTION = "classes"
-const CARDS_RARITY_COLLECTION = "rarities"
-const CARDS_TYPES_COLLECTION = "types"
-const CARDS_KEYWORDS_COLLECTION = "keywords"
+const defaultDatabaseURL = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+
+//go:embed sql/*.sql
+var migrationFiles embed.FS
 
 type Database struct {
-	Client *mongo.Client
-	Db     *mongo.Database
+	Db *gorm.DB
 }
 
-// TODO make sure that a db and collections are created
-// use the mongoDB Go Driver to do so. No need to care about migrations at this point
 func SetupDatabase() (*Database, error) {
-	// Connect to client
-	client, err := getClient()
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		databaseURL = defaultDatabaseURL
+	}
+
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
+		return &Database{}, fmt.Errorf("failed connecting to postgres: %w", err)
+	}
+
+	if err := pingDatabase(db); err != nil {
 		return &Database{}, err
 	}
 
-	// Apply migrations
-	createDatabase(client, DATABASE)
-	db := client.Database(DATABASE)
-
-	collections := []string{
-		CARDS_COLLECTION,
-		CARDS_UPDATE_META_COLLECTION,
-		CARDS_SETS_COLLECTION,
-		CARDS_CLASSES_COLLECTION,
-		CARDS_RARITY_COLLECTION,
-		CARDS_TYPES_COLLECTION,
-		CARDS_KEYWORDS_COLLECTION,
+	if err := applyMigrations(db); err != nil {
+		return &Database{}, err
 	}
 
-	for _, collection := range collections {
-		err = createCollection(db, collection)
-		if err != nil {
-			return &Database{}, err
-		}
-	}
-
-	return &Database{
-		Client: client,
-		Db:     db,
-	}, nil
+	return &Database{Db: db}, nil
 }
 
-func createDatabase(client *mongo.Client, dbName string) {
-	// Check if the database exists
-	err := client.Database(dbName).RunCommand(context.TODO(), bson.M{"ping": 1}).Err()
-	if err != nil {
-		// Create the database
-		client.Database(dbName).RunCommand(context.TODO(), bson.M{"create": dbName})
-		log.Printf("Database '%s' created successfully", dbName)
+func pingDatabase(db *gorm.DB) error {
+	var result int
+	if err := db.Raw("SELECT 1").Scan(&result).Error; err != nil {
+		return fmt.Errorf("postgres ping failed: %w", err)
 	}
-
-	log.Printf("Database '%s' already exists", dbName)
-}
-
-func createCollection(db *mongo.Database, collectionName string) error {
-	err := db.CreateCollection(context.TODO(), collectionName)
-	if err != nil {
-		if err.Error() == fmt.Sprintf("(NamespaceExists) Collection %s.%s already exists.", db.Name(), collectionName) { // TODO: better error checking
-			log.Printf("Collection '%s' already exists", collectionName)
-			return nil
-		}
-		return fmt.Errorf("Failed to create collection '%s' in database '%s': %v", collectionName, db.Name(), err)
-	}
-
-	log.Printf("Collection '%s' was created", collectionName)
 	return nil
 }
 
-func getClient() (*mongo.Client, error) {
-	connection_string, present := os.LookupEnv("mongodb_connection_string")
-	if !present {
-		return &mongo.Client{}, fmt.Errorf("mongodb_connection_string is not present in .env")
+func applyMigrations(db *gorm.DB) error {
+	if err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS schema_migrations (
+			version TEXT PRIMARY KEY,
+			applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)
+	`).Error; err != nil {
+		return fmt.Errorf("failed creating schema_migrations: %w", err)
 	}
-	clientOptions := options.Client().ApplyURI(connection_string)
 
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	entries, err := migrationFiles.ReadDir("sql")
 	if err != nil {
-		return &mongo.Client{}, err
+		return fmt.Errorf("failed reading migration directory: %w", err)
 	}
 
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		return &mongo.Client{}, err
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
+			continue
+		}
+		names = append(names, entry.Name())
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		var count int64
+		if err := db.Raw("SELECT COUNT(*) FROM schema_migrations WHERE version = ?", name).Scan(&count).Error; err != nil {
+			return fmt.Errorf("failed checking migration %s: %w", name, err)
+		}
+		if count > 0 {
+			continue
+		}
+
+		content, err := migrationFiles.ReadFile("sql/" + name)
+		if err != nil {
+			return fmt.Errorf("failed reading migration %s: %w", name, err)
+		}
+
+		if err := executeSQLStatements(db, string(content)); err != nil {
+			return fmt.Errorf("failed running migration %s: %w", name, err)
+		}
+
+		if err := db.Exec("INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)", name, time.Now().UTC()).Error; err != nil {
+			return fmt.Errorf("failed storing migration %s: %w", name, err)
+		}
+		log.Printf("Applied migration %s", name)
 	}
 
-	return client, nil
+	return nil
+}
+
+func executeSQLStatements(db *gorm.DB, migrationSQL string) error {
+	statements := strings.Split(migrationSQL, ";")
+	for _, statement := range statements {
+		trimmed := strings.TrimSpace(statement)
+		if trimmed == "" {
+			continue
+		}
+		if err := db.Exec(trimmed).Error; err != nil {
+			if err == sql.ErrNoRows {
+				continue
+			}
+			return err
+		}
+	}
+	return nil
 }

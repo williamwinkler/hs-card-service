@@ -20,16 +20,16 @@ import (
 type Cards struct {
 
 	// card count
-	CardCount int64 `json:"cardCount"`
+	CardCount int64 `json:"cardCount,omitempty"`
 
-	// if there a no cards, the array is null
+	// if there are no cards, the array can be null
 	Cards []*Card `json:"cards"`
 
 	// page
-	Page int64 `json:"page"`
+	Page int64 `json:"page,omitempty"`
 
 	// page count
-	PageCount int64 `json:"pageCount"`
+	PageCount int64 `json:"pageCount,omitempty"`
 }
 
 // Validate validates this cards
@@ -91,6 +91,11 @@ func (m *Cards) contextValidateCards(ctx context.Context, formats strfmt.Registr
 	for i := 0; i < len(m.Cards); i++ {
 
 		if m.Cards[i] != nil {
+
+			if swag.IsZero(m.Cards[i]) { // not required
+				return nil
+			}
+
 			if err := m.Cards[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("cards" + "." + strconv.Itoa(i))

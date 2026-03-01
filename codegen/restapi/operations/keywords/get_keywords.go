@@ -32,7 +32,7 @@ func NewGetKeywords(ctx *middleware.Context, handler GetKeywordsHandler) *GetKey
 /*
 	GetKeywords swagger:route GET /keywords keywords getKeywords
 
-Serves the different keywords cards can have. Fx "Taunt" or "Quest"
+Serves card keywords, e.g. Taunt or Quest.
 */
 type GetKeywords struct {
 	Context *middleware.Context

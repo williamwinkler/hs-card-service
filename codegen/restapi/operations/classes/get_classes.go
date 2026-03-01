@@ -32,7 +32,7 @@ func NewGetClasses(ctx *middleware.Context, handler GetClassesHandler) *GetClass
 /*
 	GetClasses swagger:route GET /classes classes getClasses
 
-Serves the different classes cards can have. Fx "Warlock" or "Neutral"
+Serves card classes, e.g. Warlock or Neutral.
 */
 type GetClasses struct {
 	Context *middleware.Context

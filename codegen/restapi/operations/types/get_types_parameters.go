@@ -23,7 +23,7 @@ func NewGetTypesParams() GetTypesParams {
 // GetTypesParams contains all the bound params for the get types operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetTypes
+// swagger:parameters getTypes
 type GetTypesParams struct {
 
 	// HTTP Request Object

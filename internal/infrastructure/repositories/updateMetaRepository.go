@@ -1,45 +1,30 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
 
 type UpdateMetaRepository struct {
-	updateMeta *mongo.Collection
+	db *gorm.DB
 }
 
-func NewUpdateMetaRepository(db *mongo.Database) *UpdateMetaRepository {
-	metaCollection := db.Collection(migrations.CARDS_UPDATE_META_COLLECTION)
-
-	return &UpdateMetaRepository{
-		updateMeta: metaCollection,
-	}
+func NewUpdateMetaRepository(db *gorm.DB) *UpdateMetaRepository {
+	return &UpdateMetaRepository{db: db}
 }
 
 func (c *UpdateMetaRepository) InsertOne(cardMeta domain.CardMeta) error {
-	_, err := c.updateMeta.InsertOne(context.Background(), cardMeta)
-	return err
+	row := updateMetaRecord{
+		UpdatedAt: cardMeta.Updated,
+		IsChanged: cardMeta.IsChanged,
+	}
+	return c.db.Create(&row).Error
 }
 
-// TODO: query does not work
 func (c *UpdateMetaRepository) FindNewest() (domain.CardMeta, error) {
-	pipeline := []bson.M{{"$sort": bson.M{"updated": -1, "limit": 1}}}
-
-	result, err := c.updateMeta.Aggregate(context.TODO(), pipeline)
-	if err != nil {
+	var row updateMetaRecord
+	if err := c.db.Order("updated DESC").Limit(1).Take(&row).Error; err != nil {
 		return domain.CardMeta{}, err
 	}
-
-	var cardMeta domain.CardMeta
-	err = result.Decode(&cardMeta)
-	if err != nil {
-		return domain.CardMeta{}, err
-	}
-
-	return cardMeta, nil
+	return domain.CardMeta{Updated: row.UpdatedAt, IsChanged: row.IsChanged}, nil
 }

@@ -1,456 +1,456 @@
 swagger: "2.0"
 info:
-    contact:
-      name: William Winkler
-      email: williambwinkler@gmail.com
-    description: Serves Hearthstone cards
-    title: Hearthstone Card Service API
-    version: 1.0.0
+  contact:
+    name: William Winkler
+    email: williambwinkler@gmail.com
+  description: Serves Hearthstone cards
+  title: Hearthstone Card Service API
+  version: 1.0.0
 schemes:
-    - http
+  - http
 consumes:
-    - application/json
+  - application/json
 produces:
-    - application/json
+  - application/json
 securityDefinitions:
   basicAuth:
     type: basic
 basePath: /api/v1
 paths:
+  /update:
+    post:
+      operationId: postUpdate
+      description: Checks for updates to Hearthstone, if there are any, they are applied to the database
+      parameters: []
+      security:
+        - basicAuth: []
+      tags:
+        - update
+      responses:
+        202:
+          description: Update started
+        401:
+          description: Unauthorized request
 
-    /update:
-        post:
-            description: Checks for updates to Hearthstone, if there are any, they are applied to the database
-            parameters: []
-            security:
-                - basicAuth: []
-            tags:
-                - update
-            responses:
-                200:
-                    description: OK
-                401:
-                    description: Unauthorized request
-    /cards:
-        get:
-            description: Returns cards as they are stored
-            tags:
-                - cards
-            parameters:
-                - $ref: "#/parameters/cardNameParam"
-                - $ref: "#/parameters/manaCostParam"
-                - $ref: "#/parameters/healthParam"
-                - $ref: "#/parameters/attackParam"
-                - $ref: "#/parameters/classParam"
-                - $ref: "#/parameters/rarityParam"
-                - $ref: "#/parameters/typeParam"
-                - $ref: "#/parameters/keywordsParam"
-                - $ref: "#/parameters/setParam"
-                - $ref: "#/parameters/pageParam"
-                - $ref: "#/parameters/limitParam"
-            responses:
-                200:
-                    description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
-                    schema:
-                        $ref: "#/definitions/cards"
-                500:
-                    description: Something went wrong internally
-                    schema:
-                        $ref: "#/definitions/error"
-    /richcards:
-        get:
-            description: Rich cards contains names instead of ids of fx CardType "Minion", "Spell", "Secret" etc
-            tags:
-                - cards
-            parameters:
-                - $ref: "#/parameters/cardNameParam"
-                - $ref: "#/parameters/manaCostParam"
-                - $ref: "#/parameters/healthParam"
-                - $ref: "#/parameters/attackParam"
-                - $ref: "#/parameters/classParam"
-                - $ref: "#/parameters/rarityParam"
-                - $ref: "#/parameters/typeParam"
-                - $ref: "#/parameters/keywordsParam"
-                - $ref: "#/parameters/setParam"
-                - $ref: "#/parameters/pageParam"
-                - $ref: "#/parameters/limitParam"
-            responses:
-                200:
-                    description: Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.
-                    schema:
-                        $ref: "#/definitions/richCards"
-                500:
-                    description: Something went wrong internally
-                    schema:
-                        $ref: "#/definitions/error"
-    /sets:
-        get:
-            description: Cards can belong to different sets or expansions. This serves all sets and their info.
-            tags:
-                - sets
-            parameters: []
-            responses:
-              200:
-                description: Returns all sets
-                schema:
-                    type: array
-                    items:
-                        $ref: "#/definitions/sets"
-              500:
-                description: Something went wrong internally
-                schema:
-                    $ref: "#/definitions/error"
-    /types:
-        get:
-            description: Serves the different types cards can be. Fx "Minion" or "Spell"
-            tags:
-                - types
-            parameters: []
-            responses:
-              200:
-                description: Returns all types
-                schema:
-                    type: array
-                    items:
-                        $ref: "#/definitions/types"
-              500:
-                description: Something went wrong internally
-                schema:
-                    $ref: "#/definitions/error"
-    /classes:
-        get:
-            description: Serves the different classes cards can have. Fx "Warlock" or "Neutral"
-            tags:
-                - classes
-            parameters: []
-            responses:
-              200:
-                description: Returns all classes
-                schema:
-                    type: array
-                    items:
-                        $ref: "#/definitions/classes"
-              500:
-                description: Something went wrong internally
-                schema:
-                    $ref: "#/definitions/error"
-    /rarities:
-        get:
-            description: Serves the different rarities a card can have. Fx "Common" or "Legendary"
-            tags:
-                - rarities
-            parameters: []
-            responses:
-              200:
-                description: Returns all rarities
-                schema:
-                    type: array
-                    items:
-                        $ref: "#/definitions/rarities"
-              500:
-                description: Something went wrong internally
-                schema:
-                    $ref: "#/definitions/error"
-    /keywords:
-        get:
-            description: Serves the different keywords cards can have. Fx "Taunt" or "Quest"
-            tags:
-                - keywords
-            parameters: []
-            responses:
-              200:
-                description: Returns all keywords
-                schema:
-                    type: array
-                    items:
-                        $ref: "#/definitions/keywords"
-              500:
-                description: Something went wrong internally
-                schema:
-                    $ref: "#/definitions/error"
+  /cards:
+    get:
+      operationId: getCards
+      description: Returns cards as they are stored
+      tags:
+        - cards
+      parameters:
+        - $ref: "#/parameters/cardNameParam"
+        - $ref: "#/parameters/manaCostParam"
+        - $ref: "#/parameters/healthParam"
+        - $ref: "#/parameters/attackParam"
+        - $ref: "#/parameters/classParam"
+        - $ref: "#/parameters/rarityParam"
+        - $ref: "#/parameters/typeParam"
+        - $ref: "#/parameters/keywordsParam"
+        - $ref: "#/parameters/setParam"
+        - $ref: "#/parameters/pageParam"
+        - $ref: "#/parameters/limitParam"
+      responses:
+        200:
+          description: Returns cards by query. If there is no query, cards are returned by manaCost ascending.
+          schema:
+            $ref: "#/definitions/cards"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /richcards:
+    get:
+      operationId: getRichCards
+      description: Rich cards contain names instead of IDs for e.g. CardType and CardSet.
+      tags:
+        - cards
+      parameters:
+        - $ref: "#/parameters/cardNameParam"
+        - $ref: "#/parameters/manaCostParam"
+        - $ref: "#/parameters/healthParam"
+        - $ref: "#/parameters/attackParam"
+        - $ref: "#/parameters/classParam"
+        - $ref: "#/parameters/rarityParam"
+        - $ref: "#/parameters/typeParam"
+        - $ref: "#/parameters/keywordsParam"
+        - $ref: "#/parameters/setParam"
+        - $ref: "#/parameters/pageParam"
+        - $ref: "#/parameters/limitParam"
+      responses:
+        200:
+          description: Returns rich cards by query. If there is no query, cards are returned by manaCost ascending.
+          schema:
+            $ref: "#/definitions/richCards"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /sets:
+    get:
+      operationId: getSets
+      description: Cards can belong to different sets or expansions. Returns all sets.
+      tags:
+        - sets
+      parameters: []
+      responses:
+        200:
+          description: Returns all sets
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/sets"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /types:
+    get:
+      operationId: getTypes
+      description: Serves card types, e.g. Minion or Spell.
+      tags:
+        - types
+      parameters: []
+      responses:
+        200:
+          description: Returns all types
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/types"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /classes:
+    get:
+      operationId: getClasses
+      description: Serves card classes, e.g. Warlock or Neutral.
+      tags:
+        - classes
+      parameters: []
+      responses:
+        200:
+          description: Returns all classes
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/classes"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /rarities:
+    get:
+      operationId: getRarities
+      description: Serves card rarities, e.g. Common or Legendary.
+      tags:
+        - rarities
+      parameters: []
+      responses:
+        200:
+          description: Returns all rarities
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/rarities"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
+
+  /keywords:
+    get:
+      operationId: getKeywords
+      description: Serves card keywords, e.g. Taunt or Quest.
+      tags:
+        - keywords
+      parameters: []
+      responses:
+        200:
+          description: Returns all keywords
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/keywords"
+        500:
+          description: Something went wrong internally
+          schema:
+            $ref: "#/definitions/error"
 
 parameters:
-    cardNameParam:
-        name: name
-        in: query
-        type: string
-        minLength: 1
-    manaCostParam:
-        name: manaCost
-        in: query
-        type: integer
-        minimum: 0
-        maximum: 99
-    healthParam:
-        name: health
-        in: query
-        type: integer
-        minimum: 0
-    attackParam:
-        name: attack
-        in: query
-        type: integer
-        minimum: 0
-    classParam:
-        name: class
-        in: query
-        type: integer
-        minimum: 1
-        maximum: 14
-    rarityParam:
-        name: rarity
-        in: query
-        type: integer
-        minimum: 1
-        maximum: 5
-    typeParam:
-        name: type
-        in: query
-        type: array
-        items:
-            type: integer
-    keywordsParam:
-        name: keywords
-        in: query
-        type: array
-        items:
-            type: integer
-    setParam:
-        name: set
-        in: query
-        type: integer
-    pageParam:
-        name: page
-        in: query
-        type: integer
-        default: 1
-        minimum: 1
-    limitParam:
-        name: limit
-        in: query
-        type: integer
-        minimum: 1
-        default: 20
-        maximum: 100
-
+  cardNameParam:
+    name: name
+    in: query
+    type: string
+    minLength: 1
+  manaCostParam:
+    name: manaCost
+    in: query
+    type: integer
+    minimum: 0
+    maximum: 99
+  healthParam:
+    name: health
+    in: query
+    type: integer
+    minimum: 0
+  attackParam:
+    name: attack
+    in: query
+    type: integer
+    minimum: 0
+  classParam:
+    name: class
+    in: query
+    type: integer
+    minimum: 1
+    maximum: 14
+  rarityParam:
+    name: rarity
+    in: query
+    type: integer
+    minimum: 1
+    maximum: 5
+  typeParam:
+    name: type
+    in: query
+    type: array
+    collectionFormat: multi
+    items:
+      type: integer
+  keywordsParam:
+    name: keywords
+    in: query
+    type: array
+    collectionFormat: multi
+    items:
+      type: integer
+  setParam:
+    name: set
+    in: query
+    type: integer
+  pageParam:
+    name: page
+    in: query
+    type: integer
+    default: 1
+    minimum: 1
+  limitParam:
+    name: limit
+    in: query
+    type: integer
+    minimum: 1
+    default: 20
+    maximum: 100
 
 definitions:
-    info:
-        type: object
-        properties:
-            amountOfCards:
-                type: integer
-                x-omitempty: false
-            lastUpdate:
-                type: string
-                format: date-time
-                description: formatted as RFC 3339
-            systemStartTime:
-                type: string
-                format: date-time
-                description: formatted as RFC 3339
-    cards:
-        type: object
-        properties:
-            page:
-                type: integer
-                x-omitempty: false
-            pageCount:
-                type: integer
-                x-omitempty: false
-            cardCount:
-                type: integer
-                x-omitempty: false
-            cards:
-                type: array
-                description: if there a no cards, the array is null
-                items:
-                    x-omitempty: false
-                    $ref: "#/definitions/card"
-    card:
-        type: object
-        properties:
-            id:
-                type: integer
-                description: This is the ID from blizzards API
-            collectible:
-                type: integer
-                x-omitempty: false
-            classId:
-                type: integer
-                x-omitempty: false
-            cardTypeId:
-                type: integer
-                x-omitempty: false
-            cardSetId:
-                type: integer
-                x-omitempty: false
-            rarityId:
-                type: integer
-                x-omitempty: false
-            artistName:
-                type: string
-                x-omitempty: false
-            health:
-                type: integer
-                x-omitempty: false
-            attack:
-                type: integer
-                x-omitempty: false
-            manaCost:
-                type: integer
-                x-omitempty: false
-            name:
-                type: string
-            text:
-                type: string
-            keywordIds:
-                type: array
-                items:
-                    type: integer
-            image:
-                type: string
-                description: Links to a png-image of the card
-            imageGold:
-                type: string
-                description: Links to a png-image of the golden version of the card
-            flavorText:
-                type: string
-            parentId:
-                type: integer
-                x-omitempty: false
-            duals:
-                $ref: "#/definitions/duals"
-    richCards:
-        type: object
-        properties:
-            page:
-                type: integer
-            pageCount:
-                type: integer
-            cardCount:
-                type: integer
-            cards:
-                type: array
-                description: if there a no cards, the array is null
-                example: []
-                items:
-                    $ref: "#/definitions/richCard"
-    richCard:
-        type: object
-        properties:
-            id:
-                type: integer
-                description: This is the ID from blizzards API
-            collectible:
-                type: integer
-                x-omitempty: false
-            class:
-                type: string
-                x-omitempty: false
-            cardType:
-                type: string
-                x-omitempty: false
-            cardSet:
-                type: string
-                x-omitempty: false
-            rarity:
-                type: string
-                x-omitempty: false
-            artistName:
-                type: string
-                x-omitempty: false
-            health:
-                type: integer
-                x-omitempty: false
-            attack:
-                type: integer
-                x-omitempty: false
-            manaCost:
-                type: integer
-                x-omitempty: false
-            name:
-                type: string
-            text:
-                type: string
-            keywords:
-                type: array
-                items:
-                    type: string
-            image:
-                type: string
-                description: Links to a png-image of the card
-            imageGold:
-                type: string
-                description: Links to a png-image of the golden version of the card
-            flavorText:
-                type: string
-            parentId:
-                type: integer
-                x-omitempty: false
-            duals:
-                $ref: "#/definitions/duals"
-    duals:
-        type: object
-        properties:
-            relevant:
-                type: boolean
-            constructed:
-                type: boolean
-    sets:
-        type: object
-        properties:
-            id:
-                type: integer
-            name:
-                type: string
-            type:
-                type: string
-    types:
-        type: object
-        properties:
-            id:
-                type: integer
-            name:
-                type: string
-    classes:
-        type: object
-        properties:
-            id:
-                type: integer
-            name:
-                type: string
-    rarities:
-        type: object
-        properties:
-            id:
-                type: integer
-            name:
-                type: string
-            craftingcost:
-                type: array
-                items:
-                    type: integer
-            dustvalue:
-                type: array
-                items:
-                    type: integer
-    keywords:
-        type: object
-        properties:
-            id:
-                type: integer
-            name:
-                type: string
-            text:
-                type: string
-    error:
-        type: object
-        required:
-            - message
-        properties:
-            code:
-                type: integer
-                description: HTTPS reponse 400+
-            message:
-                type: string
+  info:
+    type: object
+    properties:
+      amountOfCards:
+        type: integer
+      lastUpdate:
+        type: string
+        format: date-time
+        description: formatted as RFC 3339
+      systemStartTime:
+        type: string
+        format: date-time
+        description: formatted as RFC 3339
+
+  cards:
+    type: object
+    properties:
+      page:
+        type: integer
+      pageCount:
+        type: integer
+      cardCount:
+        type: integer
+      cards:
+        type: array
+        description: if there are no cards, the array can be null
+        items:
+          $ref: "#/definitions/card"
+
+  card:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: This is the ID from Blizzard's API
+      collectible:
+        type: integer
+      classId:
+        type: integer
+      cardTypeId:
+        type: integer
+      cardSetId:
+        type: integer
+      rarityId:
+        type: integer
+      artistName:
+        type: string
+      health:
+        type: integer
+      attack:
+        type: integer
+      manaCost:
+        type: integer
+      name:
+        type: string
+      text:
+        type: string
+      keywordIds:
+        type: array
+        items:
+          type: integer
+      image:
+        type: string
+        description: Link to a PNG image of the card
+      imageGold:
+        type: string
+        description: Link to a PNG image of the golden version of the card
+      flavorText:
+        type: string
+      parentId:
+        type: integer
+      duals:
+        $ref: "#/definitions/duals"
+
+  richCards:
+    type: object
+    properties:
+      page:
+        type: integer
+      pageCount:
+        type: integer
+      cardCount:
+        type: integer
+      cards:
+        type: array
+        description: if there are no cards, the array can be null
+        items:
+          $ref: "#/definitions/richCard"
+
+  richCard:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: This is the ID from Blizzard's API
+      collectible:
+        type: integer
+      class:
+        type: string
+      cardType:
+        type: string
+      cardSet:
+        type: string
+      rarity:
+        type: string
+      artistName:
+        type: string
+      health:
+        type: integer
+      attack:
+        type: integer
+      manaCost:
+        type: integer
+      name:
+        type: string
+      text:
+        type: string
+      keywords:
+        type: array
+        items:
+          type: string
+      image:
+        type: string
+        description: Link to a PNG image of the card
+      imageGold:
+        type: string
+        description: Link to a PNG image of the golden version of the card
+      flavorText:
+        type: string
+      parentId:
+        type: integer
+      duals:
+        $ref: "#/definitions/duals"
+
+  duals:
+    type: object
+    properties:
+      relevant:
+        type: boolean
+      constructed:
+        type: boolean
+
+  sets:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+
+  types:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+
+  classes:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+
+  rarities:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      craftingcost:
+        type: array
+        items:
+          type: integer
+      dustvalue:
+        type: array
+        items:
+          type: integer
+
+  keywords:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      text:
+        type: string
+
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        description: HTTP response code >= 400
+      message:
+        type: string

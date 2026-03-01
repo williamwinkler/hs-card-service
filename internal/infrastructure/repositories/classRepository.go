@@ -1,58 +1,64 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ClassRepository struct {
-	classes *mongo.Collection
+	db *gorm.DB
 }
 
-func NewClassRepository(db *mongo.Database) *ClassRepository {
-	classes := db.Collection(migrations.CARDS_CLASSES_COLLECTION)
-
-	return &ClassRepository{
-		classes: classes,
-	}
+func NewClassRepository(db *gorm.DB) *ClassRepository {
+	return &ClassRepository{db: db}
 }
 
 func (c *ClassRepository) InsertMany(classes []domain.Class) error {
-	classInterfaces := make([]interface{}, len(classes))
-	for i, set := range classes {
-		classInterfaces[i] = set
+	if len(classes) == 0 {
+		return nil
 	}
-	_, err := c.classes.InsertMany(context.TODO(), classInterfaces)
-	return err
+
+	rows := make([]classRecord, 0, len(classes))
+	for _, item := range classes {
+		rows = append(rows, classRecord{
+			Slug:                 item.Slug,
+			ID:                   item.ID,
+			Name:                 item.Name,
+			CardID:               item.CardID,
+			HeroPowerCardID:      item.HeroPowerCardID,
+			AlternateHeroCardIDs: toInt64Array(item.AlternateHeroCardIds),
+		})
+	}
+
+	return c.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"slug", "name", "card_id", "hero_power_card_id", "alternate_hero_card_ids",
+		}),
+	}).Create(&rows).Error
 }
 
 func (c *ClassRepository) DeleteAll() error {
-	_, err := c.classes.DeleteMany(context.TODO(), bson.M{}, nil)
-	return err
+	return c.db.Exec("DELETE FROM classes").Error
 }
 
 func (c *ClassRepository) FindAll() ([]domain.Class, error) {
-	cursor, err := c.classes.Find(context.TODO(), bson.M{})
-	if err != nil {
+	var rows []classRecord
+	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Class{}, err
 	}
 
-	return decodeToClasses(cursor)
-}
-
-func decodeToClasses(cursor *mongo.Cursor) ([]domain.Class, error) {
-	var classes []domain.Class
-	for cursor.Next(context.TODO()) {
-		var class domain.Class
-		err := cursor.Decode(&class)
-		if err != nil {
-			return []domain.Class{}, err
-		}
-		classes = append(classes, class)
+	classes := make([]domain.Class, 0, len(rows))
+	for _, row := range rows {
+		classes = append(classes, domain.Class{
+			Slug:                 row.Slug,
+			ID:                   row.ID,
+			Name:                 row.Name,
+			CardID:               row.CardID,
+			HeroPowerCardID:      row.HeroPowerCardID,
+			AlternateHeroCardIds: fromInt64Array(row.AlternateHeroCardIDs),
+		})
 	}
 
 	return classes, nil

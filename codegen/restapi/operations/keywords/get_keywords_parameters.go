@@ -23,7 +23,7 @@ func NewGetKeywordsParams() GetKeywordsParams {
 // GetKeywordsParams contains all the bound params for the get keywords operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetKeywords
+// swagger:parameters getKeywords
 type GetKeywordsParams struct {
 
 	// HTTP Request Object

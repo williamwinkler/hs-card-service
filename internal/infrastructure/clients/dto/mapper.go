@@ -7,7 +7,7 @@ import (
 func MapToCards(cardsDto CardsDto) []domain.Card {
 	var cards []domain.Card
 	for _, p := range cardsDto.Cards {
-		if p.CopyOfCardID != 0 {
+		if p.CopyOfCardID.HasValue() {
 			continue // if CopyOfCard is not 0, it's an unwanted outdated version
 		}
 
@@ -17,6 +17,7 @@ func MapToCards(cardsDto CardsDto) []domain.Card {
 		c.Slug = p.Slug
 		c.ClassID = p.ClassID
 		c.MultiClassIds = p.MultiClassIds
+		c.SpellSchoolID = p.SpellSchoolID
 		c.CardTypeID = p.CardTypeID
 		c.CardSetID = p.CardSetID
 		c.RarityID = p.RarityID
@@ -32,6 +33,14 @@ func MapToCards(cardsDto CardsDto) []domain.Card {
 		c.CropImage = p.CropImage
 		c.ParentID = p.ParentID
 		c.KeywordIds = p.KeywordIds
+		c.CopyOfCardIDs = p.CopyOfCardID.Values
+		c.MinionTypeID = p.MinionTypeID
+		c.ChildIDs = p.ChildIds
+		c.Durability = p.Durability
+		c.MultiTypeIDs = p.MultiTypeIds
+		c.Armor = p.Armor
+		c.IsZilliaxFunctionalModule = p.IsZilliaxFunctionalModule
+		c.IsZilliaxCosmeticModule = p.IsZilliaxCosmeticModule
 		c.Duels = p.Duels
 
 		cards = append(cards, c)

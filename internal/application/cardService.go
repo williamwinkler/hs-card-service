@@ -5,7 +5,6 @@ import (
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CardService struct {
@@ -22,7 +21,7 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 	}
 }
 
-func (c *CardService) GetCards(filter bson.M, page int, limit int) ([]domain.Card, int64, error) {
+func (c *CardService) GetCards(filter domain.CardFilter, page int, limit int) ([]domain.Card, int64, error) {
 	cards, err := c.cardRepo.FindWithFilter(filter, page, limit)
 	if err != nil {
 		return []domain.Card{}, 0, err
@@ -36,7 +35,7 @@ func (c *CardService) GetCards(filter bson.M, page int, limit int) ([]domain.Car
 	return cards, count, nil
 }
 
-func (c *CardService) GetRichCards(filter bson.M, page int, limit int) ([]domain.RichCard, int64, error) {
+func (c *CardService) GetRichCards(filter domain.CardFilter, page int, limit int) ([]domain.RichCard, int64, error) {
 	richCards, err := c.cardRepo.FindRichWithFilter(filter, page, limit)
 	if err != nil {
 		return []domain.RichCard{}, 0, err

@@ -30,13 +30,10 @@ func Test_GetCards(t *testing.T) {
 	cardService := application.NewCardService(nil, cardRepoMock, nil)
 
 	// Test the GetCards method
-	cards, _, err := cardService.GetCards(nil, 1, 100)
+	cards, _, err := cardService.GetCards(domain.CardFilter{}, 1, 100)
 	assert.NoError(t, err)
 	assert.Equal(t, len(mockCards), len(cards))
-	for i, card := range cards {
-		assert.Equal(t, mockCards[i].ID, card.ID)
-		assert.Equal(t, mockCards[i].Name, card.Name)
-	}
+	assert.ElementsMatch(t, mockCards, cards)
 
 	// Assert that the repository was not modified
 	actualCards, err := cardRepoMock.FindAll()

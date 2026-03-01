@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"log"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/williamwinkler/hs-card-service/codegen/models"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
@@ -27,11 +26,12 @@ func NewSetsHandler(api *operations.HearthstoneCardServiceAPI, setRepo *reposito
 func (i *SetsHandler) SetupHandler() {
 	i.api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(
 		func(req sets.GetSetsParams) middleware.Responder {
-			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
+			ctx := req.HTTPRequest.Context()
+			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
 
 			cardSets, err := i.setRepo.FindAll()
 			if err != nil {
-				log.Printf("Error occurred in GET /sets: %v", err)
+				logging.Errorf(ctx, "Error occurred in GET /sets: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
 				sets.NewGetSetsInternalServerError().WithPayload(errorMessage)
 			}

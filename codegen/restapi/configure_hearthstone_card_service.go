@@ -23,6 +23,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/sets"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/types"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 )
 
 //go:generate swagger generate server --target ../../codegen --name HearthstoneCardService --spec ../../api/swagger.yml --principal interface{} --exclude-main
@@ -80,8 +81,8 @@ func configureAPI(api *operations.HearthstoneCardServiceAPI) http.Handler {
 			return middleware.NotImplemented("operation rarities.GetRarities has not yet been implemented")
 		})
 	}
-	if api.CardsGetRichcardsHandler == nil {
-		api.CardsGetRichcardsHandler = cards.GetRichcardsHandlerFunc(func(params cards.GetRichcardsParams) middleware.Responder {
+	if api.CardsGetRichCardsHandler == nil {
+		api.CardsGetRichCardsHandler = cards.GetRichCardsHandlerFunc(func(params cards.GetRichCardsParams) middleware.Responder {
 			return middleware.NotImplemented("operation cards.GetRichcards has not yet been implemented")
 		})
 	}
@@ -135,8 +136,12 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Apply the CORS middleware for other endpoints.
-		c := cors.New(cors.Options{AllowedOrigins: []string{"*"}})
-		c.Handler(handler).ServeHTTP(w, r)
+		// Apply correlation-id middleware, then CORS.
+		withCorrelation := logging.CorrelationIDMiddleware(handler)
+		c := cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			ExposedHeaders: []string{logging.CorrelationIDHeader},
+		})
+		c.Handler(withCorrelation).ServeHTTP(w, r)
 	})
 }

@@ -17,9 +17,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewGetCardsParams creates a new GetCardsParams object
+// NewGetRichCardsParams creates a new GetRichCardsParams object
 // with the default values initialized.
-func NewGetCardsParams() GetCardsParams {
+func NewGetRichCardsParams() GetRichCardsParams {
 
 	var (
 		// initialize parameters with default values
@@ -29,18 +29,18 @@ func NewGetCardsParams() GetCardsParams {
 		pageDefault = int64(1)
 	)
 
-	return GetCardsParams{
+	return GetRichCardsParams{
 		Limit: &limitDefault,
 
 		Page: &pageDefault,
 	}
 }
 
-// GetCardsParams contains all the bound params for the get cards operation
+// GetRichCardsParams contains all the bound params for the get rich cards operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters getCards
-type GetCardsParams struct {
+// swagger:parameters getRichCards
+type GetRichCardsParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -110,8 +110,8 @@ type GetCardsParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetCardsParams() beforehand.
-func (o *GetCardsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetRichCardsParams() beforehand.
+func (o *GetRichCardsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -179,7 +179,7 @@ func (o *GetCardsParams) BindRequest(r *http.Request, route *middleware.MatchedR
 }
 
 // bindAttack binds and validates parameter Attack from query.
-func (o *GetCardsParams) bindAttack(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindAttack(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -206,7 +206,7 @@ func (o *GetCardsParams) bindAttack(rawData []string, hasKey bool, formats strfm
 }
 
 // validateAttack carries on validations for parameter Attack
-func (o *GetCardsParams) validateAttack(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateAttack(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("attack", "query", *o.Attack, 0, false); err != nil {
 		return err
@@ -216,7 +216,7 @@ func (o *GetCardsParams) validateAttack(formats strfmt.Registry) error {
 }
 
 // bindClass binds and validates parameter Class from query.
-func (o *GetCardsParams) bindClass(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindClass(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -243,7 +243,7 @@ func (o *GetCardsParams) bindClass(rawData []string, hasKey bool, formats strfmt
 }
 
 // validateClass carries on validations for parameter Class
-func (o *GetCardsParams) validateClass(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateClass(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("class", "query", *o.Class, 1, false); err != nil {
 		return err
@@ -257,7 +257,7 @@ func (o *GetCardsParams) validateClass(formats strfmt.Registry) error {
 }
 
 // bindHealth binds and validates parameter Health from query.
-func (o *GetCardsParams) bindHealth(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindHealth(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -284,7 +284,7 @@ func (o *GetCardsParams) bindHealth(rawData []string, hasKey bool, formats strfm
 }
 
 // validateHealth carries on validations for parameter Health
-func (o *GetCardsParams) validateHealth(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateHealth(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("health", "query", *o.Health, 0, false); err != nil {
 		return err
@@ -296,7 +296,7 @@ func (o *GetCardsParams) validateHealth(formats strfmt.Registry) error {
 // bindKeywords binds and validates array parameter Keywords from query.
 //
 // Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
-func (o *GetCardsParams) bindKeywords(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindKeywords(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	// CollectionFormat: multi
 	keywordsIC := rawData
 	if len(keywordsIC) == 0 {
@@ -319,7 +319,7 @@ func (o *GetCardsParams) bindKeywords(rawData []string, hasKey bool, formats str
 }
 
 // bindLimit binds and validates parameter Limit from query.
-func (o *GetCardsParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -329,7 +329,7 @@ func (o *GetCardsParams) bindLimit(rawData []string, hasKey bool, formats strfmt
 	// AllowEmptyValue: false
 
 	if raw == "" { // empty values pass all other validations
-		// Default values have been previously initialized by NewGetCardsParams()
+		// Default values have been previously initialized by NewGetRichCardsParams()
 		return nil
 	}
 
@@ -347,7 +347,7 @@ func (o *GetCardsParams) bindLimit(rawData []string, hasKey bool, formats strfmt
 }
 
 // validateLimit carries on validations for parameter Limit
-func (o *GetCardsParams) validateLimit(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateLimit(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("limit", "query", *o.Limit, 1, false); err != nil {
 		return err
@@ -361,7 +361,7 @@ func (o *GetCardsParams) validateLimit(formats strfmt.Registry) error {
 }
 
 // bindManaCost binds and validates parameter ManaCost from query.
-func (o *GetCardsParams) bindManaCost(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindManaCost(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -388,7 +388,7 @@ func (o *GetCardsParams) bindManaCost(rawData []string, hasKey bool, formats str
 }
 
 // validateManaCost carries on validations for parameter ManaCost
-func (o *GetCardsParams) validateManaCost(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateManaCost(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("manaCost", "query", *o.ManaCost, 0, false); err != nil {
 		return err
@@ -402,7 +402,7 @@ func (o *GetCardsParams) validateManaCost(formats strfmt.Registry) error {
 }
 
 // bindName binds and validates parameter Name from query.
-func (o *GetCardsParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -424,7 +424,7 @@ func (o *GetCardsParams) bindName(rawData []string, hasKey bool, formats strfmt.
 }
 
 // validateName carries on validations for parameter Name
-func (o *GetCardsParams) validateName(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateName(formats strfmt.Registry) error {
 
 	if err := validate.MinLength("name", "query", *o.Name, 1); err != nil {
 		return err
@@ -434,7 +434,7 @@ func (o *GetCardsParams) validateName(formats strfmt.Registry) error {
 }
 
 // bindPage binds and validates parameter Page from query.
-func (o *GetCardsParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -444,7 +444,7 @@ func (o *GetCardsParams) bindPage(rawData []string, hasKey bool, formats strfmt.
 	// AllowEmptyValue: false
 
 	if raw == "" { // empty values pass all other validations
-		// Default values have been previously initialized by NewGetCardsParams()
+		// Default values have been previously initialized by NewGetRichCardsParams()
 		return nil
 	}
 
@@ -462,7 +462,7 @@ func (o *GetCardsParams) bindPage(rawData []string, hasKey bool, formats strfmt.
 }
 
 // validatePage carries on validations for parameter Page
-func (o *GetCardsParams) validatePage(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validatePage(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("page", "query", *o.Page, 1, false); err != nil {
 		return err
@@ -472,7 +472,7 @@ func (o *GetCardsParams) validatePage(formats strfmt.Registry) error {
 }
 
 // bindRarity binds and validates parameter Rarity from query.
-func (o *GetCardsParams) bindRarity(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindRarity(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -499,7 +499,7 @@ func (o *GetCardsParams) bindRarity(rawData []string, hasKey bool, formats strfm
 }
 
 // validateRarity carries on validations for parameter Rarity
-func (o *GetCardsParams) validateRarity(formats strfmt.Registry) error {
+func (o *GetRichCardsParams) validateRarity(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("rarity", "query", *o.Rarity, 1, false); err != nil {
 		return err
@@ -513,7 +513,7 @@ func (o *GetCardsParams) validateRarity(formats strfmt.Registry) error {
 }
 
 // bindSet binds and validates parameter Set from query.
-func (o *GetCardsParams) bindSet(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindSet(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -538,7 +538,7 @@ func (o *GetCardsParams) bindSet(rawData []string, hasKey bool, formats strfmt.R
 // bindType binds and validates array parameter Type from query.
 //
 // Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
-func (o *GetCardsParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRichCardsParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	// CollectionFormat: multi
 	typeIC := rawData
 	if len(typeIC) == 0 {

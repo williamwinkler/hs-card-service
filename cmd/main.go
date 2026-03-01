@@ -8,6 +8,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
@@ -17,6 +18,7 @@ func main() {
 	if err != nil {
 		log.Println("Found no .env file")
 	}
+	logging.ConfigureFromEnv()
 
 	validUsername := os.Getenv("BASIC_AUTH_USERNAME")
 	validPassword := os.Getenv("BASIC_AUTH_PASSWORD")

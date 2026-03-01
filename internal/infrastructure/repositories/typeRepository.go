@@ -1,59 +1,61 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type TypeRepository struct {
-	types *mongo.Collection
+	db *gorm.DB
 }
 
-func NewTypeRepository(db *mongo.Database) *TypeRepository {
-	Types := db.Collection(migrations.CARDS_TYPES_COLLECTION)
-
-	return &TypeRepository{
-		types: Types,
-	}
+func NewTypeRepository(db *gorm.DB) *TypeRepository {
+	return &TypeRepository{db: db}
 }
 
 func (c *TypeRepository) InsertMany(types []domain.Type) error {
-	typeInterfaces := make([]interface{}, len(types))
-	for i, Type := range types {
-		typeInterfaces[i] = Type
+	if len(types) == 0 {
+		return nil
 	}
-	_, err := c.types.InsertMany(context.TODO(), typeInterfaces)
-	return err
+
+	rows := make([]typeRecord, 0, len(types))
+	for _, item := range types {
+		rows = append(rows, typeRecord{
+			Slug:      item.Slug,
+			ID:        item.ID,
+			Name:      item.Name,
+			GameModes: toInt64Array(item.GameModes),
+		})
+	}
+
+	return c.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"slug", "name", "game_modes",
+		}),
+	}).Create(&rows).Error
 }
 
 func (c *TypeRepository) DeleteAll() error {
-	_, err := c.types.DeleteMany(context.TODO(), bson.M{}, nil)
-	return err
+	return c.db.Exec("DELETE FROM types").Error
 }
 
 func (c *TypeRepository) FindAll() ([]domain.Type, error) {
-	cursor, err := c.types.Find(context.TODO(), bson.M{})
-	if err != nil {
+	var rows []typeRecord
+	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Type{}, err
 	}
 
-	return decodeToTypes(cursor)
-}
-
-func decodeToTypes(cursor *mongo.Cursor) ([]domain.Type, error) {
-	var sets []domain.Type
-	for cursor.Next(context.TODO()) {
-		var set domain.Type
-		err := cursor.Decode(&set)
-		if err != nil {
-			return []domain.Type{}, err
-		}
-		sets = append(sets, set)
+	types := make([]domain.Type, 0, len(rows))
+	for _, row := range rows {
+		types = append(types, domain.Type{
+			Slug:      row.Slug,
+			ID:        row.ID,
+			Name:      row.Name,
+			GameModes: fromInt64Array(row.GameModes),
+		})
 	}
 
-	return sets, nil
+	return types, nil
 }

@@ -20,7 +20,7 @@ import (
 type Info struct {
 
 	// amount of cards
-	AmountOfCards int64 `json:"amountOfCards"`
+	AmountOfCards int64 `json:"amountOfCards,omitempty"`
 
 	// formatted as RFC 3339
 	// Format: date-time

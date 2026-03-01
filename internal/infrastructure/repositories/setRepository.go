@@ -1,58 +1,71 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SetRepository struct {
-	sets *mongo.Collection
+	db *gorm.DB
 }
 
-func NewSetRepository(db *mongo.Database) *SetRepository {
-	sets := db.Collection(migrations.CARDS_SETS_COLLECTION)
-
-	return &SetRepository{
-		sets: sets,
-	}
+func NewSetRepository(db *gorm.DB) *SetRepository {
+	return &SetRepository{db: db}
 }
 
 func (c *SetRepository) InsertMany(sets []domain.Set) error {
-	setInterfaces := make([]interface{}, len(sets))
-	for i, set := range sets {
-		setInterfaces[i] = set
+	if len(sets) == 0 {
+		return nil
 	}
-	_, err := c.sets.InsertMany(context.TODO(), setInterfaces)
-	return err
+
+	rows := make([]setRecord, 0, len(sets))
+	for _, item := range sets {
+		rows = append(rows, setRecord{
+			ID:                          item.ID,
+			Name:                        item.Name,
+			Slug:                        item.Slug,
+			Type:                        item.Type,
+			CollectibleCount:            item.CollectibleCount,
+			CollectibleRevealedCount:    item.CollectibleRevealedCount,
+			NonCollectibleCount:         item.NonCollectibleCount,
+			NonCollectibleRevealedCount: item.NonCollectibleRevealedCount,
+			AliasSetIDs:                 toInt64Array(item.AliasSetIds),
+		})
+	}
+
+	return c.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"name", "slug", "type", "collectible_count", "collectible_revealed_count",
+			"non_collectible_count", "non_collectible_revealed_count", "alias_set_ids",
+		}),
+	}).Create(&rows).Error
 }
 
 func (c *SetRepository) DeleteAll() error {
-	_, err := c.sets.DeleteMany(context.TODO(), bson.M{}, nil)
-	return err
+	return c.db.Exec("DELETE FROM sets").Error
 }
 
 func (c *SetRepository) FindAll() ([]domain.Set, error) {
-	cursor, err := c.sets.Find(context.TODO(), bson.M{})
-	if err != nil {
+	var rows []setRecord
+	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Set{}, err
 	}
 
-	return decodeToSets(cursor)
-}
-
-func decodeToSets(cursor *mongo.Cursor) ([]domain.Set, error) {
-	var sets []domain.Set
-	for cursor.Next(context.TODO()) {
-		var set domain.Set
-		err := cursor.Decode(&set)
-		if err != nil {
-			return []domain.Set{}, err
-		}
-		sets = append(sets, set)
+	sets := make([]domain.Set, 0, len(rows))
+	for _, row := range rows {
+		sets = append(sets, domain.Set{
+			ID:                          row.ID,
+			Name:                        row.Name,
+			Slug:                        row.Slug,
+			Type:                        row.Type,
+			CollectibleCount:            row.CollectibleCount,
+			CollectibleRevealedCount:    row.CollectibleRevealedCount,
+			NonCollectibleCount:         row.NonCollectibleCount,
+			NonCollectibleRevealedCount: row.NonCollectibleRevealedCount,
+			AliasSetIds:                 fromInt64Array(row.AliasSetIDs),
+		})
 	}
 
 	return sets, nil

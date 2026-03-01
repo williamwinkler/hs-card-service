@@ -19,22 +19,22 @@ import (
 type Card struct {
 
 	// artist name
-	ArtistName string `json:"artistName"`
+	ArtistName string `json:"artistName,omitempty"`
 
 	// attack
-	Attack int64 `json:"attack"`
+	Attack int64 `json:"attack,omitempty"`
 
 	// card set Id
-	CardSetID int64 `json:"cardSetId"`
+	CardSetID int64 `json:"cardSetId,omitempty"`
 
 	// card type Id
-	CardTypeID int64 `json:"cardTypeId"`
+	CardTypeID int64 `json:"cardTypeId,omitempty"`
 
 	// class Id
-	ClassID int64 `json:"classId"`
+	ClassID int64 `json:"classId,omitempty"`
 
 	// collectible
-	Collectible int64 `json:"collectible"`
+	Collectible int64 `json:"collectible,omitempty"`
 
 	// duals
 	Duals *Duals `json:"duals,omitempty"`
@@ -43,31 +43,31 @@ type Card struct {
 	FlavorText string `json:"flavorText,omitempty"`
 
 	// health
-	Health int64 `json:"health"`
+	Health int64 `json:"health,omitempty"`
 
-	// This is the ID from blizzards API
+	// This is the ID from Blizzard's API
 	ID int64 `json:"id,omitempty"`
 
-	// Links to a png-image of the card
+	// Link to a PNG image of the card
 	Image string `json:"image,omitempty"`
 
-	// Links to a png-image of the golden version of the card
+	// Link to a PNG image of the golden version of the card
 	ImageGold string `json:"imageGold,omitempty"`
 
 	// keyword ids
 	KeywordIds []int64 `json:"keywordIds"`
 
 	// mana cost
-	ManaCost int64 `json:"manaCost"`
+	ManaCost int64 `json:"manaCost,omitempty"`
 
 	// name
 	Name string `json:"name,omitempty"`
 
 	// parent Id
-	ParentID int64 `json:"parentId"`
+	ParentID int64 `json:"parentId,omitempty"`
 
 	// rarity Id
-	RarityID int64 `json:"rarityId"`
+	RarityID int64 `json:"rarityId,omitempty"`
 
 	// text
 	Text string `json:"text,omitempty"`
@@ -123,6 +123,11 @@ func (m *Card) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 func (m *Card) contextValidateDuals(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Duals != nil {
+
+		if swag.IsZero(m.Duals) { // not required
+			return nil
+		}
+
 		if err := m.Duals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("duals")

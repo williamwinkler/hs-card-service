@@ -4,9 +4,9 @@ package mocks
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CardRepository struct {
@@ -40,14 +40,14 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	return cards, nil
 }
 
-func (c *CardRepository) FindWithFilter(filter bson.M, page int, limit int) ([]domain.Card, error) {
-	if filter != nil {
+func (c *CardRepository) FindWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.Card, error) {
+	if !reflect.DeepEqual(filter, domain.CardFilter{}) {
 		return []domain.Card{}, fmt.Errorf("Mock does not support filter")
 	}
 	return c.FindAll()
 }
 
-func (c *CardRepository) FindRichWithFilter(filter bson.M, page int, limit int) ([]domain.RichCard, error) {
+func (c *CardRepository) FindRichWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.RichCard, error) {
 	return []domain.RichCard{}, nil
 }
 
@@ -65,6 +65,6 @@ func (c *CardRepository) DeleteAll() error {
 	return nil
 }
 
-func (c *CardRepository) CountWithFilter(filter bson.M) (int64, error) {
+func (c *CardRepository) CountWithFilter(filter domain.CardFilter) (int64, error) {
 	return 0, nil
 }

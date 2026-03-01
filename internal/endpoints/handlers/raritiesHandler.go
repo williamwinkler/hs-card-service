@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"log"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/williamwinkler/hs-card-service/codegen/models"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/rarities"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
@@ -27,11 +26,12 @@ func NewRaritiesHandler(api *operations.HearthstoneCardServiceAPI, rarityRepo *r
 func (i *RaritiesHandler) SetupHandler() {
 	i.api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(
 		func(req rarities.GetRaritiesParams) middleware.Responder {
-			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
+			ctx := req.HTTPRequest.Context()
+			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
 
 			cardRarities, err := i.rarityRepo.FindAll()
 			if err != nil {
-				log.Printf("Error occurred in GET /Rarities: %v", err)
+				logging.Errorf(ctx, "Error occurred in GET /Rarities: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
 				rarities.NewGetRaritiesInternalServerError().WithPayload(errorMessage)
 			}

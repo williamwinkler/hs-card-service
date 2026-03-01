@@ -32,7 +32,7 @@ func NewGetTypes(ctx *middleware.Context, handler GetTypesHandler) *GetTypes {
 /*
 	GetTypes swagger:route GET /types types getTypes
 
-Serves the different types cards can be. Fx "Minion" or "Spell"
+Serves card types, e.g. Minion or Spell.
 */
 type GetTypes struct {
 	Context *middleware.Context

@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"log"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/williamwinkler/hs-card-service/codegen/models"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations"
 	types "github.com/williamwinkler/hs-card-service/codegen/restapi/operations/types"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
 )
 
@@ -27,11 +26,12 @@ func NewTypesHandler(api *operations.HearthstoneCardServiceAPI, typeRepo *reposi
 func (i *TypesHandler) SetupHandler() {
 	i.api.TypesGetTypesHandler = types.GetTypesHandlerFunc(
 		func(req types.GetTypesParams) middleware.Responder {
-			defer log.Printf("Handled %s request", req.HTTPRequest.URL)
+			ctx := req.HTTPRequest.Context()
+			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
 
 			cardTypes, err := i.typeRepo.FindAll()
 			if err != nil {
-				log.Printf("Error occurred in GET /Types: %v", err)
+				logging.Errorf(ctx, "Error occurred in GET /Types: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
 				types.NewGetTypesInternalServerError().WithPayload(errorMessage)
 			}

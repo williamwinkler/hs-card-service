@@ -334,13 +334,13 @@ func fetchToken() (token, error) {
 
 // returns clientId, clientSecret, error
 func getClientCredentials() (string, string, error) {
-	clientId, present := os.LookupEnv("client_id")
+	clientId, present := os.LookupEnv("CLIENT_ID")
 	if !present {
-		return "", "", fmt.Errorf("client_id is not present in .env")
+		return "", "", fmt.Errorf("CLIENT_ID is not present in .env")
 	}
-	clientSecret, present := os.LookupEnv("client_secret")
+	clientSecret, present := os.LookupEnv("CLIENT_SECRET")
 	if !present {
-		return "", "", fmt.Errorf("client_secret is not present in .env")
+		return "", "", fmt.Errorf("CLIENT_SECRET is not present in .env")
 	}
 	return clientId, clientSecret, nil
 }

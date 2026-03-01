@@ -45,6 +45,7 @@ func init() {
         "tags": [
           "cards"
         ],
+        "operationId": "getCards",
         "parameters": [
           {
             "$ref": "#/parameters/cardNameParam"
@@ -82,7 +83,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "description": "Returns cards by query. If there is no query, cards are returned by manaCost ascending.",
             "schema": {
               "$ref": "#/definitions/cards"
             }
@@ -98,10 +99,11 @@ func init() {
     },
     "/classes": {
       "get": {
-        "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
+        "description": "Serves card classes, e.g. Warlock or Neutral.",
         "tags": [
           "classes"
         ],
+        "operationId": "getClasses",
         "responses": {
           "200": {
             "description": "Returns all classes",
@@ -123,10 +125,11 @@ func init() {
     },
     "/keywords": {
       "get": {
-        "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
+        "description": "Serves card keywords, e.g. Taunt or Quest.",
         "tags": [
           "keywords"
         ],
+        "operationId": "getKeywords",
         "responses": {
           "200": {
             "description": "Returns all keywords",
@@ -148,10 +151,11 @@ func init() {
     },
     "/rarities": {
       "get": {
-        "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
+        "description": "Serves card rarities, e.g. Common or Legendary.",
         "tags": [
           "rarities"
         ],
+        "operationId": "getRarities",
         "responses": {
           "200": {
             "description": "Returns all rarities",
@@ -173,10 +177,11 @@ func init() {
     },
     "/richcards": {
       "get": {
-        "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
+        "description": "Rich cards contain names instead of IDs for e.g. CardType and CardSet.",
         "tags": [
           "cards"
         ],
+        "operationId": "getRichCards",
         "parameters": [
           {
             "$ref": "#/parameters/cardNameParam"
@@ -214,7 +219,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "description": "Returns rich cards by query. If there is no query, cards are returned by manaCost ascending.",
             "schema": {
               "$ref": "#/definitions/richCards"
             }
@@ -230,10 +235,11 @@ func init() {
     },
     "/sets": {
       "get": {
-        "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
+        "description": "Cards can belong to different sets or expansions. Returns all sets.",
         "tags": [
           "sets"
         ],
+        "operationId": "getSets",
         "responses": {
           "200": {
             "description": "Returns all sets",
@@ -255,10 +261,11 @@ func init() {
     },
     "/types": {
       "get": {
-        "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
+        "description": "Serves card types, e.g. Minion or Spell.",
         "tags": [
           "types"
         ],
+        "operationId": "getTypes",
         "responses": {
           "200": {
             "description": "Returns all types",
@@ -289,9 +296,10 @@ func init() {
         "tags": [
           "update"
         ],
+        "operationId": "postUpdate",
         "responses": {
-          "200": {
-            "description": "OK"
+          "202": {
+            "description": "Update started"
           },
           "401": {
             "description": "Unauthorized request"
@@ -305,28 +313,22 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "attack": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardSetId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardTypeId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "classId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "collectible": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -335,19 +337,18 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "id": {
-          "description": "This is the ID from blizzards API",
+          "description": "This is the ID from Blizzard's API",
           "type": "integer"
         },
         "image": {
-          "description": "Links to a png-image of the card",
+          "description": "Link to a PNG image of the card",
           "type": "string"
         },
         "imageGold": {
-          "description": "Links to a png-image of the golden version of the card",
+          "description": "Link to a PNG image of the golden version of the card",
           "type": "string"
         },
         "keywordIds": {
@@ -357,19 +358,16 @@ func init() {
           }
         },
         "manaCost": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "rarityId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "text": {
           "type": "string"
@@ -380,24 +378,20 @@ func init() {
       "type": "object",
       "properties": {
         "cardCount": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cards": {
-          "description": "if there a no cards, the array is null",
+          "description": "if there are no cards, the array can be null",
           "type": "array",
           "items": {
-            "x-omitempty": false,
             "$ref": "#/definitions/card"
           }
         },
         "page": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "pageCount": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         }
       }
     },
@@ -430,7 +424,7 @@ func init() {
       ],
       "properties": {
         "code": {
-          "description": "HTTPS reponse 400+",
+          "description": "HTTP response code \u003e= 400",
           "type": "integer"
         },
         "message": {
@@ -442,8 +436,7 @@ func init() {
       "type": "object",
       "properties": {
         "amountOfCards": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "lastUpdate": {
           "description": "formatted as RFC 3339",
@@ -498,28 +491,22 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "attack": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardSet": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "cardType": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "class": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "collectible": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -528,19 +515,18 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "id": {
-          "description": "This is the ID from blizzards API",
+          "description": "This is the ID from Blizzard's API",
           "type": "integer"
         },
         "image": {
-          "description": "Links to a png-image of the card",
+          "description": "Link to a PNG image of the card",
           "type": "string"
         },
         "imageGold": {
-          "description": "Links to a png-image of the golden version of the card",
+          "description": "Link to a PNG image of the golden version of the card",
           "type": "string"
         },
         "keywords": {
@@ -550,19 +536,16 @@ func init() {
           }
         },
         "manaCost": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "rarity": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "text": {
           "type": "string"
@@ -576,12 +559,11 @@ func init() {
           "type": "integer"
         },
         "cards": {
-          "description": "if there a no cards, the array is null",
+          "description": "if there are no cards, the array can be null",
           "type": "array",
           "items": {
             "$ref": "#/definitions/richCard"
-          },
-          "example": null
+          }
         },
         "page": {
           "type": "integer"
@@ -646,6 +628,7 @@ func init() {
       "items": {
         "type": "integer"
       },
+      "collectionFormat": "multi",
       "name": "keywords",
       "in": "query"
     },
@@ -687,6 +670,7 @@ func init() {
       "items": {
         "type": "integer"
       },
+      "collectionFormat": "multi",
       "name": "type",
       "in": "query"
     }
@@ -725,6 +709,7 @@ func init() {
         "tags": [
           "cards"
         ],
+        "operationId": "getCards",
         "parameters": [
           {
             "minLength": 1,
@@ -770,6 +755,7 @@ func init() {
             "items": {
               "type": "integer"
             },
+            "collectionFormat": "multi",
             "name": "type",
             "in": "query"
           },
@@ -778,6 +764,7 @@ func init() {
             "items": {
               "type": "integer"
             },
+            "collectionFormat": "multi",
             "name": "keywords",
             "in": "query"
           },
@@ -804,7 +791,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "description": "Returns cards by query. If there is no query, cards are returned by manaCost ascending.",
             "schema": {
               "$ref": "#/definitions/cards"
             }
@@ -820,10 +807,11 @@ func init() {
     },
     "/classes": {
       "get": {
-        "description": "Serves the different classes cards can have. Fx \"Warlock\" or \"Neutral\"",
+        "description": "Serves card classes, e.g. Warlock or Neutral.",
         "tags": [
           "classes"
         ],
+        "operationId": "getClasses",
         "responses": {
           "200": {
             "description": "Returns all classes",
@@ -845,10 +833,11 @@ func init() {
     },
     "/keywords": {
       "get": {
-        "description": "Serves the different keywords cards can have. Fx \"Taunt\" or \"Quest\"",
+        "description": "Serves card keywords, e.g. Taunt or Quest.",
         "tags": [
           "keywords"
         ],
+        "operationId": "getKeywords",
         "responses": {
           "200": {
             "description": "Returns all keywords",
@@ -870,10 +859,11 @@ func init() {
     },
     "/rarities": {
       "get": {
-        "description": "Serves the different rarities a card can have. Fx \"Common\" or \"Legendary\"",
+        "description": "Serves card rarities, e.g. Common or Legendary.",
         "tags": [
           "rarities"
         ],
+        "operationId": "getRarities",
         "responses": {
           "200": {
             "description": "Returns all rarities",
@@ -895,10 +885,11 @@ func init() {
     },
     "/richcards": {
       "get": {
-        "description": "Rich cards contains names instead of ids of fx CardType \"Minion\", \"Spell\", \"Secret\" etc",
+        "description": "Rich cards contain names instead of IDs for e.g. CardType and CardSet.",
         "tags": [
           "cards"
         ],
+        "operationId": "getRichCards",
         "parameters": [
           {
             "minLength": 1,
@@ -944,6 +935,7 @@ func init() {
             "items": {
               "type": "integer"
             },
+            "collectionFormat": "multi",
             "name": "type",
             "in": "query"
           },
@@ -952,6 +944,7 @@ func init() {
             "items": {
               "type": "integer"
             },
+            "collectionFormat": "multi",
             "name": "keywords",
             "in": "query"
           },
@@ -978,7 +971,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Returns the cards based on query. If there is no query, cards will be returned based on their manaCost in ascending order.",
+            "description": "Returns rich cards by query. If there is no query, cards are returned by manaCost ascending.",
             "schema": {
               "$ref": "#/definitions/richCards"
             }
@@ -994,10 +987,11 @@ func init() {
     },
     "/sets": {
       "get": {
-        "description": "Cards can belong to different sets or expansions. This serves all sets and their info.",
+        "description": "Cards can belong to different sets or expansions. Returns all sets.",
         "tags": [
           "sets"
         ],
+        "operationId": "getSets",
         "responses": {
           "200": {
             "description": "Returns all sets",
@@ -1019,10 +1013,11 @@ func init() {
     },
     "/types": {
       "get": {
-        "description": "Serves the different types cards can be. Fx \"Minion\" or \"Spell\"",
+        "description": "Serves card types, e.g. Minion or Spell.",
         "tags": [
           "types"
         ],
+        "operationId": "getTypes",
         "responses": {
           "200": {
             "description": "Returns all types",
@@ -1053,9 +1048,10 @@ func init() {
         "tags": [
           "update"
         ],
+        "operationId": "postUpdate",
         "responses": {
-          "200": {
-            "description": "OK"
+          "202": {
+            "description": "Update started"
           },
           "401": {
             "description": "Unauthorized request"
@@ -1069,28 +1065,22 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "attack": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardSetId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardTypeId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "classId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "collectible": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -1099,19 +1089,18 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "id": {
-          "description": "This is the ID from blizzards API",
+          "description": "This is the ID from Blizzard's API",
           "type": "integer"
         },
         "image": {
-          "description": "Links to a png-image of the card",
+          "description": "Link to a PNG image of the card",
           "type": "string"
         },
         "imageGold": {
-          "description": "Links to a png-image of the golden version of the card",
+          "description": "Link to a PNG image of the golden version of the card",
           "type": "string"
         },
         "keywordIds": {
@@ -1121,19 +1110,16 @@ func init() {
           }
         },
         "manaCost": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "rarityId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "text": {
           "type": "string"
@@ -1144,24 +1130,20 @@ func init() {
       "type": "object",
       "properties": {
         "cardCount": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cards": {
-          "description": "if there a no cards, the array is null",
+          "description": "if there are no cards, the array can be null",
           "type": "array",
           "items": {
-            "x-omitempty": false,
             "$ref": "#/definitions/card"
           }
         },
         "page": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "pageCount": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         }
       }
     },
@@ -1194,7 +1176,7 @@ func init() {
       ],
       "properties": {
         "code": {
-          "description": "HTTPS reponse 400+",
+          "description": "HTTP response code \u003e= 400",
           "type": "integer"
         },
         "message": {
@@ -1206,8 +1188,7 @@ func init() {
       "type": "object",
       "properties": {
         "amountOfCards": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "lastUpdate": {
           "description": "formatted as RFC 3339",
@@ -1262,28 +1243,22 @@ func init() {
       "type": "object",
       "properties": {
         "artistName": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "attack": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "cardSet": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "cardType": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "class": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "collectible": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "duals": {
           "$ref": "#/definitions/duals"
@@ -1292,19 +1267,18 @@ func init() {
           "type": "string"
         },
         "health": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "id": {
-          "description": "This is the ID from blizzards API",
+          "description": "This is the ID from Blizzard's API",
           "type": "integer"
         },
         "image": {
-          "description": "Links to a png-image of the card",
+          "description": "Link to a PNG image of the card",
           "type": "string"
         },
         "imageGold": {
-          "description": "Links to a png-image of the golden version of the card",
+          "description": "Link to a PNG image of the golden version of the card",
           "type": "string"
         },
         "keywords": {
@@ -1314,19 +1288,16 @@ func init() {
           }
         },
         "manaCost": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "name": {
           "type": "string"
         },
         "parentId": {
-          "type": "integer",
-          "x-omitempty": false
+          "type": "integer"
         },
         "rarity": {
-          "type": "string",
-          "x-omitempty": false
+          "type": "string"
         },
         "text": {
           "type": "string"
@@ -1340,12 +1311,11 @@ func init() {
           "type": "integer"
         },
         "cards": {
-          "description": "if there a no cards, the array is null",
+          "description": "if there are no cards, the array can be null",
           "type": "array",
           "items": {
             "$ref": "#/definitions/richCard"
-          },
-          "example": []
+          }
         },
         "page": {
           "type": "integer"
@@ -1412,6 +1382,7 @@ func init() {
       "items": {
         "type": "integer"
       },
+      "collectionFormat": "multi",
       "name": "keywords",
       "in": "query"
     },
@@ -1454,6 +1425,7 @@ func init() {
       "items": {
         "type": "integer"
       },
+      "collectionFormat": "multi",
       "name": "type",
       "in": "query"
     }

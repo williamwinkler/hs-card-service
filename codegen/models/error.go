@@ -19,7 +19,7 @@ import (
 // swagger:model error
 type Error struct {
 
-	// HTTPS reponse 400+
+	// HTTP response code >= 400
 	Code int64 `json:"code,omitempty"`
 
 	// message
