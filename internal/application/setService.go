@@ -1,6 +1,10 @@
 package application
 
-import "github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+)
 
 type SetService struct {
 	setRepo  interfaces.SetRepository
@@ -14,8 +18,8 @@ func NewSetService(setRepo interfaces.SetRepository, hsClient interfaces.HsClien
 	}
 }
 
-func (c *SetService) Update() error {
-	sets, err := c.hsClient.GetSets()
+func (c *SetService) Update(ctx context.Context) error {
+	sets, err := c.hsClient.GetSets(ctx)
 	if err != nil {
 		return err
 	}

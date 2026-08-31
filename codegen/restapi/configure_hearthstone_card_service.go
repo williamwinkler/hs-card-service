@@ -24,6 +24,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/types"
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/telemetry"
 )
 
 //go:generate swagger generate server --target ../../codegen --name HearthstoneCardService --spec ../../api/swagger.yml --principal interface{} --exclude-main
@@ -135,13 +136,16 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Apply correlation-id middleware, then CORS.
-		withCorrelation := logging.CorrelationIDMiddleware(handler)
-		c := cors.New(cors.Options{
-			AllowedOrigins: []string{"*"},
-			ExposedHeaders: []string{logging.CorrelationIDHeader},
-		})
-		c.Handler(withCorrelation).ServeHTTP(w, r)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		ExposedHeaders: []string{logging.CorrelationIDHeader},
 	})
+	baseHandler := c.Handler(logging.CorrelationIDMiddleware(handler))
+
+	metrics, err := telemetry.NewHTTPMiddleware()
+	if err != nil {
+		logging.Errorf(nil, "unable to initialize HTTP telemetry: %v", err)
+		return baseHandler
+	}
+	return metrics.Handler(baseHandler)
 }

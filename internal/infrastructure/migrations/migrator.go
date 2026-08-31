@@ -13,6 +13,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 const defaultDatabaseURL = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
@@ -35,6 +36,9 @@ func SetupDatabase() (*Database, error) {
 	})
 	if err != nil {
 		return &Database{}, fmt.Errorf("failed connecting to postgres: %w", err)
+	}
+	if err := db.Use(tracing.NewPlugin()); err != nil {
+		return &Database{}, fmt.Errorf("enable database telemetry: %w", err)
 	}
 
 	if err := pingDatabase(db); err != nil {

@@ -34,14 +34,14 @@ func (c *RichCardHandler) SetupHandler() {
 
 			foundCards, count, err := c.cardService.GetRichCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
-				errorMessage := utils.CreateErrorMessage(500, "Somthing went wrong with getting rich cards")
+				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting rich cards")
 				return cards.NewGetRichCardsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCards := mapRichCardsToExternal(foundCards)
 			pageCount := math.Ceil(float64(count) / float64(*params.Limit))
 
-			logging.Debugf(ctx, "Handled %s request (%d)", params.HTTPRequest.URL, len(mappedCards))
+			logging.Debugf(ctx, "Handled GET /richcards request (%d)", len(mappedCards))
 			response := models.RichCards{
 				Page:      *params.Page,
 				PageCount: int64(pageCount),

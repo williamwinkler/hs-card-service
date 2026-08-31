@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"time"
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
@@ -49,9 +50,9 @@ func (c *CardService) GetRichCards(filter domain.CardFilter, page int, limit int
 	return richCards, count, nil
 }
 
-func (c *CardService) Update() error {
+func (c *CardService) Update(ctx context.Context) error {
 	// TODO: make it smarter, so it only deletes/updates/adds affected cards
-	cards, err := c.hsClient.GetAllCards()
+	cards, err := c.hsClient.GetAllCards(ctx)
 	if err != nil {
 		return err
 	}

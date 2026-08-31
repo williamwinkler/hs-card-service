@@ -1,6 +1,10 @@
 package application
 
-import "github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+)
 
 type KeywordService struct {
 	keywordRepo interfaces.KeywordRepository
@@ -14,8 +18,8 @@ func NewKeywordService(keywordRepo interfaces.KeywordRepository, hsClient interf
 	}
 }
 
-func (c *KeywordService) Update() error {
-	keywords, err := c.hsClient.GetKeywords()
+func (c *KeywordService) Update(ctx context.Context) error {
+	keywords, err := c.hsClient.GetKeywords(ctx)
 	if err != nil {
 		return err
 	}

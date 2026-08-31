@@ -27,7 +27,7 @@ func (i *ClassesHandler) SetupHandler() {
 	i.api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(
 		func(req classes.GetClassesParams) middleware.Responder {
 			ctx := req.HTTPRequest.Context()
-			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
+			defer logging.Debugf(ctx, "Handled GET /classes request")
 
 			cardClasses, err := i.classRepo.FindAll()
 			if err != nil {

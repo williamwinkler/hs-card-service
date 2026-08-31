@@ -1,6 +1,10 @@
 package application
 
-import "github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+)
 
 type ClassService struct {
 	classRepo interfaces.ClassRepository
@@ -14,8 +18,8 @@ func NewClassService(ClassRepo interfaces.ClassRepository, hsClient interfaces.H
 	}
 }
 
-func (c *ClassService) Update() error {
-	classes, err := c.hsClient.GetClasses()
+func (c *ClassService) Update(ctx context.Context) error {
+	classes, err := c.hsClient.GetClasses(ctx)
 	if err != nil {
 		return err
 	}

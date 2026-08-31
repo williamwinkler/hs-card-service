@@ -27,7 +27,7 @@ func (i *SetsHandler) SetupHandler() {
 	i.api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(
 		func(req sets.GetSetsParams) middleware.Responder {
 			ctx := req.HTTPRequest.Context()
-			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
+			defer logging.Debugf(ctx, "Handled GET /sets request")
 
 			cardSets, err := i.setRepo.FindAll()
 			if err != nil {

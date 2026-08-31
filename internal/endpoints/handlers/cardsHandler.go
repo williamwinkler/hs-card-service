@@ -35,14 +35,14 @@ func (c *CardHandler) SetupHandler() {
 			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting cards")
-				logging.Errorf(ctx, "Error occured in GetCardsHandlerFunc: %v", err)
+				logging.Errorf(ctx, "Error occurred in GetCardsHandlerFunc: %v", err)
 				return cards.NewGetCardsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCards := mapCardsToExternal(foundCards)
 			pageCount := math.Ceil(float64(count) / float64(*params.Limit))
 
-			logging.Debugf(ctx, "Handled %s request (%d)", params.HTTPRequest.URL, len(mappedCards))
+			logging.Debugf(ctx, "Handled GET /cards request (%d)", len(mappedCards))
 			response := models.Cards{
 				Page:      *params.Page,
 				PageCount: int64(pageCount),

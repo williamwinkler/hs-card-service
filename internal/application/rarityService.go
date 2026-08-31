@@ -1,21 +1,25 @@
 package application
 
-import "github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+)
 
 type RarityService struct {
-	rarityRepo  interfaces.RarityRepository
-	hsClient interfaces.HsClient
+	rarityRepo interfaces.RarityRepository
+	hsClient   interfaces.HsClient
 }
 
 func NewRarityService(rarityRepo interfaces.RarityRepository, hsClient interfaces.HsClient) *RarityService {
 	return &RarityService{
-		rarityRepo:  rarityRepo,
-		hsClient: hsClient,
+		rarityRepo: rarityRepo,
+		hsClient:   hsClient,
 	}
 }
 
-func (c *RarityService) Update() error {
-	rarities, err := c.hsClient.GetRarities()
+func (c *RarityService) Update(ctx context.Context) error {
+	rarities, err := c.hsClient.GetRarities(ctx)
 	if err != nil {
 		return err
 	}

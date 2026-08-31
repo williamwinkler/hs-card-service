@@ -27,7 +27,7 @@ func (i *RaritiesHandler) SetupHandler() {
 	i.api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(
 		func(req rarities.GetRaritiesParams) middleware.Responder {
 			ctx := req.HTTPRequest.Context()
-			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
+			defer logging.Debugf(ctx, "Handled GET /rarities request")
 
 			cardRarities, err := i.rarityRepo.FindAll()
 			if err != nil {

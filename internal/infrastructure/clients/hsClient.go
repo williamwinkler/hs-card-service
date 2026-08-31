@@ -2,24 +2,32 @@ package clients
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+	"sync"
 	"time"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients/dto"
 )
 
-const PAGE_SIZE int = 250
+const (
+	PAGE_SIZE          = 250
+	httpRequestTimeout = 15 * time.Second
+)
 
 type HsClient struct {
 	token token
+
+	client  *http.Client
+	tokenMu sync.Mutex
 }
 
 type token struct {
@@ -28,319 +36,245 @@ type token struct {
 }
 
 func NewHsClient() (*HsClient, error) {
-	token, err := fetchToken()
+	client := newHTTPClient()
+	initialToken, err := fetchToken(context.Background(), client)
 	if err != nil {
 		return &HsClient{}, err
 	}
 
-	hsClient := HsClient{
-		token: token,
-	}
-	return &hsClient, nil
+	return &HsClient{token: initialToken, client: client}, nil
 }
 
-func (hc *HsClient) GetAllCards() ([]domain.Card, error) {
+func newHTTPClient() *http.Client {
+	return &http.Client{
+		Timeout:   httpRequestTimeout,
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
+}
+
+func (hc *HsClient) GetAllCards(ctx context.Context) ([]domain.Card, error) {
 	cardMap := make(map[string]domain.Card)
 
-	page := 1
-	for {
-		// log.Printf("Getting cards with page %d limit %d", page, PAGE_SIZE)
-		cards, err := hc.GetCardsWithPagination(page, PAGE_SIZE)
+	for page := 1; ; page++ {
+		cards, err := hc.GetCardsWithPagination(ctx, page, PAGE_SIZE)
 		if err != nil {
-			return []domain.Card{}, err
+			return nil, err
 		}
 		if len(cards) == 0 {
 			break
 		}
-
 		for _, card := range cards {
 			cardMap[card.Name] = card
 		}
-
-		page++
 	}
 
 	cardsList := make([]domain.Card, 0, len(cardMap))
 	for _, card := range cardMap {
 		cardsList = append(cardsList, card)
 	}
-
 	return cardsList, nil
 }
 
-func (hc *HsClient) GetCardsWithPagination(page int, pageSize int) ([]domain.Card, error) {
-	apiUrl := "https://eu.api.blizzard.com/hearthstone/cards"
-
+func (hc *HsClient) GetCardsWithPagination(ctx context.Context, page int, pageSize int) ([]domain.Card, error) {
 	queryParams := url.Values{}
 	queryParams.Set("locale", "en_US")
 	queryParams.Set("page", strconv.Itoa(page))
 	queryParams.Set("pageSize", strconv.Itoa(pageSize))
 
-	queryString := queryParams.Encode()
-
-	url := fmt.Sprintf("%s?%s", apiUrl, queryString)
-
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	response, err := hc.executeGetRequest(url)
+	response, err := hc.executeGetRequest(ctx, "https://eu.api.blizzard.com/hearthstone/cards?"+queryParams.Encode())
 	if err != nil {
-		return []domain.Card{}, err
-	}
-
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Card{}, err
-	}
-
-	var cardsDto dto.CardsDto
-	err = json.Unmarshal(body, &cardsDto)
-	if err != nil {
-		return []domain.Card{}, fmt.Errorf("failed to decode response from /cards: %v", err)
-	}
-
-	cards := dto.MapToCards(cardsDto)
-
-	return cards, nil
-}
-
-func (hc *HsClient) GetSets() ([]domain.Set, error) {
-	url := "https://us.api.blizzard.com/hearthstone/metadata/sets?locale=en_US"
-
-	response, err := hc.executeGetRequest(url)
-	if err != nil {
-		return []domain.Set{}, err
+		return nil, err
 	}
 	defer response.Body.Close()
 
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Set{}, err
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	var setsDto dto.SetsDto
-	err = json.Unmarshal(body, &setsDto)
-	if err != nil {
-		return []domain.Set{}, err
+	var cardsDTO dto.CardsDto
+	if err := json.NewDecoder(response.Body).Decode(&cardsDTO); err != nil {
+		return nil, fmt.Errorf("decode cards response: %w", err)
 	}
-
-	sets := dto.MapToSets(setsDto)
-
-	return sets, nil
+	return dto.MapToCards(cardsDTO), nil
 }
 
-func (hc *HsClient) GetClasses() ([]domain.Class, error) {
-	url := "https://us.api.blizzard.com/hearthstone/metadata/classes?locale=en_US"
-
-	response, err := hc.executeGetRequest(url)
+func (hc *HsClient) GetSets(ctx context.Context) ([]domain.Set, error) {
+	response, err := hc.executeGetRequest(ctx, "https://us.api.blizzard.com/hearthstone/metadata/sets?locale=en_US")
 	if err != nil {
-		return []domain.Class{}, err
+		return nil, err
 	}
 	defer response.Body.Close()
-
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Class{}, err
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	var classesDto dto.ClassesDto
-	err = json.Unmarshal(body, &classesDto)
-	if err != nil {
-		return []domain.Class{}, err
+	var setsDTO dto.SetsDto
+	if err := json.NewDecoder(response.Body).Decode(&setsDTO); err != nil {
+		return nil, fmt.Errorf("decode sets response: %w", err)
 	}
-
-	classes := dto.MapToClasses(classesDto)
-
-	return classes, nil
+	return dto.MapToSets(setsDTO), nil
 }
 
-func (hc *HsClient) GetRarities() ([]domain.Rarity, error) {
-	url := "https://us.api.blizzard.com/hearthstone/metadata/rarities?locale=en_US"
-
-	response, err := hc.executeGetRequest(url)
+func (hc *HsClient) GetClasses(ctx context.Context) ([]domain.Class, error) {
+	response, err := hc.executeGetRequest(ctx, "https://us.api.blizzard.com/hearthstone/metadata/classes?locale=en_US")
 	if err != nil {
-		return []domain.Rarity{}, err
+		return nil, err
 	}
 	defer response.Body.Close()
-
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Rarity{}, err
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	var raritiesDto dto.RaritiesDto
-	err = json.Unmarshal(body, &raritiesDto)
-	if err != nil {
-		return []domain.Rarity{}, err
+	var classesDTO dto.ClassesDto
+	if err := json.NewDecoder(response.Body).Decode(&classesDTO); err != nil {
+		return nil, fmt.Errorf("decode classes response: %w", err)
 	}
-
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	rarities := dto.MapToRariteis(raritiesDto)
-
-	return rarities, nil
+	return dto.MapToClasses(classesDTO), nil
 }
 
-func (hc *HsClient) GetTypes() ([]domain.Type, error) {
-	url := "https://us.api.blizzard.com/hearthstone/metadata/types?locale=en_US"
-
-	response, err := hc.executeGetRequest(url)
+func (hc *HsClient) GetRarities(ctx context.Context) ([]domain.Rarity, error) {
+	response, err := hc.executeGetRequest(ctx, "https://us.api.blizzard.com/hearthstone/metadata/rarities?locale=en_US")
 	if err != nil {
-		return []domain.Type{}, err
+		return nil, err
 	}
 	defer response.Body.Close()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Type{}, err
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	var typesDto dto.TypesDto
-	err = json.Unmarshal(body, &typesDto)
-	if err != nil {
-		return []domain.Type{}, err
+	var raritiesDTO dto.RaritiesDto
+	if err := json.NewDecoder(response.Body).Decode(&raritiesDTO); err != nil {
+		return nil, fmt.Errorf("decode rarities response: %w", err)
 	}
-
-	types := dto.MapToTypes(typesDto)
-
-	return types, nil
+	return dto.MapToRariteis(raritiesDTO), nil
 }
 
-func (hc *HsClient) GetKeywords() ([]domain.Keyword, error) {
-	url := "https://us.api.blizzard.com/hearthstone/metadata/keywords?locale=en_US"
-
-	response, err := hc.executeGetRequest(url)
+func (hc *HsClient) GetTypes(ctx context.Context) ([]domain.Type, error) {
+	response, err := hc.executeGetRequest(ctx, "https://us.api.blizzard.com/hearthstone/metadata/types?locale=en_US")
 	if err != nil {
-		return []domain.Keyword{}, err
+		return nil, err
 	}
 	defer response.Body.Close()
-
-	log.Println(url)
-	time.Sleep(200 * time.Millisecond)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return []domain.Keyword{}, err
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	var keywordsDto dto.KeywordsDto
-	err = json.Unmarshal(body, &keywordsDto)
-	if err != nil {
-		return []domain.Keyword{}, err
+	var typesDTO dto.TypesDto
+	if err := json.NewDecoder(response.Body).Decode(&typesDTO); err != nil {
+		return nil, fmt.Errorf("decode types response: %w", err)
 	}
-
-	keywords := dto.MapToKeywords(keywordsDto)
-
-	return keywords, nil
+	return dto.MapToTypes(typesDTO), nil
 }
 
-func (hc *HsClient) executeGetRequest(url string) (*http.Response, error) {
-	token, err := hc.getToken()
+func (hc *HsClient) GetKeywords(ctx context.Context) ([]domain.Keyword, error) {
+	response, err := hc.executeGetRequest(ctx, "https://us.api.blizzard.com/hearthstone/metadata/keywords?locale=en_US")
 	if err != nil {
-		return &http.Response{}, err
+		return nil, err
+	}
+	defer response.Body.Close()
+	if err := wait(ctx); err != nil {
+		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return &http.Response{}, fmt.Errorf("failed to create new GET-request for url: %s", url)
+	var keywordsDTO dto.KeywordsDto
+	if err := json.NewDecoder(response.Body).Decode(&keywordsDTO); err != nil {
+		return nil, fmt.Errorf("decode keywords response: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	return dto.MapToKeywords(keywordsDTO), nil
+}
+
+func (hc *HsClient) executeGetRequest(ctx context.Context, endpoint string) (*http.Response, error) {
+	accessToken, err := hc.getToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create Blizzard API request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client{}
-	resp, err := client.Do(req)
+	response, err := hc.client.Do(req)
 	if err != nil {
-		return &http.Response{}, fmt.Errorf("failed to GET url: %s", url)
+		return nil, fmt.Errorf("request Blizzard API: %w", err)
 	}
-
-	return resp, nil
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		response.Body.Close()
+		return nil, fmt.Errorf("Blizzard API returned HTTP %d", response.StatusCode)
+	}
+	return response, nil
 }
 
-func (hc *HsClient) getToken() (string, error) {
-	//hc.token.expireDate = hc.token.expireDate.AddDate(0, 0, -1)
-	if hc.token.expireDate.Before(time.Now()) {
-		newToken, err := fetchToken()
-		if err != nil {
-			return "", err
-		}
-		hc.token = newToken
-	}
+func (hc *HsClient) getToken(ctx context.Context) (string, error) {
+	hc.tokenMu.Lock()
+	defer hc.tokenMu.Unlock()
 
+	if hc.token.expireDate.After(time.Now().Add(30 * time.Second)) {
+		return hc.token.accessToken, nil
+	}
+	newToken, err := fetchToken(ctx, hc.client)
+	if err != nil {
+		return "", err
+	}
+	hc.token = newToken
 	return hc.token.accessToken, nil
 }
 
-func fetchToken() (token, error) {
-	urlAdress := "https://oauth.battle.net/token"
-	clientId, clientSecret, err := getClientCredentials()
+func fetchToken(ctx context.Context, client *http.Client) (token, error) {
+	clientID, clientSecret, err := getClientCredentials()
 	if err != nil {
 		return token{}, err
 	}
 
-	data := url.Values{}
-	data.Set("grant_type", "client_credentials")
-	req, err := http.NewRequest("POST", urlAdress, bytes.NewBufferString(data.Encode()))
+	data := url.Values{"grant_type": {"client_credentials"}}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://oauth.battle.net/token", bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		return token{}, err
+		return token{}, fmt.Errorf("create Blizzard token request: %w", err)
 	}
-	req.SetBasicAuth(clientId, clientSecret)
+	req.SetBasicAuth(clientID, clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	response, err := client.Do(req)
 	if err != nil {
-		return token{}, err
+		return token{}, fmt.Errorf("request Blizzard access token: %w", err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return token{}, fmt.Errorf("Blizzard token endpoint returned HTTP %d", response.StatusCode)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return token{}, fmt.Errorf("received stautus code %v while trying to fetch token", resp.StatusCode)
+	var tokenDTO dto.Token
+	if err := json.NewDecoder(response.Body).Decode(&tokenDTO); err != nil {
+		return token{}, fmt.Errorf("decode Blizzard access token response: %w", err)
 	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return token{}, err
-	}
-
-	var tokenDto dto.Token
-
-	err = json.Unmarshal(body, &tokenDto)
-	if err != nil {
-		return token{}, err
-	}
-
-	expireDate := time.Now().Add(time.Duration(tokenDto.ExpiresIn) * time.Second)
-	token := token{
-		accessToken: tokenDto.AccessToken,
-		expireDate:  expireDate,
-	}
-
-	log.Println("Received new token")
-	return token, nil
+	return token{
+		accessToken: tokenDTO.AccessToken,
+		expireDate:  time.Now().Add(time.Duration(tokenDTO.ExpiresIn) * time.Second),
+	}, nil
 }
 
-// returns clientId, clientSecret, error
+func wait(ctx context.Context) error {
+	timer := time.NewTimer(200 * time.Millisecond)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
+}
+
+// getClientCredentials returns client ID, client secret, and an error.
 func getClientCredentials() (string, string, error) {
-	clientId, present := os.LookupEnv("CLIENT_ID")
+	clientID, present := os.LookupEnv("CLIENT_ID")
 	if !present {
-		return "", "", fmt.Errorf("CLIENT_ID is not present in .env")
+		return "", "", fmt.Errorf("CLIENT_ID is not present in the environment")
 	}
 	clientSecret, present := os.LookupEnv("CLIENT_SECRET")
 	if !present {
-		return "", "", fmt.Errorf("CLIENT_SECRET is not present in .env")
+		return "", "", fmt.Errorf("CLIENT_SECRET is not present in the environment")
 	}
-	return clientId, clientSecret, nil
+	return clientID, clientSecret, nil
 }

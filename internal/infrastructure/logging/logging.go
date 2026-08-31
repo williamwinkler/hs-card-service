@@ -2,12 +2,18 @@ package logging
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Level string
@@ -15,15 +21,29 @@ type Level string
 const (
 	LevelInfo  Level = "info"
 	LevelDebug Level = "debug"
+	LevelError Level = "error"
 )
 
-var currentLevel = LevelInfo
+var (
+	currentLevel           = LevelInfo
+	output       io.Writer = os.Stdout
+	outputMu     sync.Mutex
+)
 
 const CorrelationIDHeader = "X-Correlation-Id"
 
 type contextKey string
 
 const correlationIDContextKey contextKey = "correlation_id"
+
+type entry struct {
+	Timestamp     string `json:"timestamp"`
+	Level         Level  `json:"level"`
+	Message       string `json:"message"`
+	CorrelationID string `json:"correlation_id,omitempty"`
+	TraceID       string `json:"trace_id,omitempty"`
+	SpanID        string `json:"span_id,omitempty"`
+}
 
 func ConfigureFromEnv() {
 	level := strings.ToLower(strings.TrimSpace(os.Getenv("LOG_LEVEL")))
@@ -33,7 +53,10 @@ func ConfigureFromEnv() {
 	default:
 		currentLevel = LevelInfo
 	}
-	log.Printf("Log level set to: %s", currentLevel)
+
+	log.SetFlags(0)
+	log.SetOutput(jsonWriter{})
+	Infof(context.Background(), "log level set to: %s", currentLevel)
 }
 
 func CorrelationIDMiddleware(next http.Handler) http.Handler {
@@ -64,23 +87,56 @@ func CorrelationIDFromContext(ctx context.Context) string {
 }
 
 func Infof(ctx context.Context, format string, args ...interface{}) {
-	log.Printf(prefix(ctx)+format, args...)
+	emit(ctx, LevelInfo, format, args...)
 }
 
 func Errorf(ctx context.Context, format string, args ...interface{}) {
-	log.Printf(prefix(ctx)+format, args...)
+	emit(ctx, LevelError, format, args...)
 }
 
 func Debugf(ctx context.Context, format string, args ...interface{}) {
 	if currentLevel == LevelDebug {
-		log.Printf("[DEBUG] "+prefix(ctx)+format, args...)
+		emit(ctx, LevelDebug, format, args...)
 	}
 }
 
-func prefix(ctx context.Context) string {
-	correlationID := CorrelationIDFromContext(ctx)
-	if correlationID == "" {
-		return ""
+func emit(ctx context.Context, level Level, format string, args ...interface{}) {
+	writeEntry(buildEntry(ctx, level, fmt.Sprintf(format, args...)))
+}
+
+func buildEntry(ctx context.Context, level Level, message string) entry {
+	result := entry{
+		Timestamp:     time.Now().UTC().Format(time.RFC3339Nano),
+		Level:         level,
+		Message:       message,
+		CorrelationID: CorrelationIDFromContext(ctx),
 	}
-	return "[cid=" + correlationID + "] "
+	if ctx == nil {
+		return result
+	}
+	spanContext := trace.SpanContextFromContext(ctx)
+	if spanContext.IsValid() {
+		result.TraceID = spanContext.TraceID().String()
+		result.SpanID = spanContext.SpanID().String()
+	}
+	return result
+}
+
+func writeEntry(entry entry) {
+	encoded, err := json.Marshal(entry)
+	if err != nil {
+		return
+	}
+	outputMu.Lock()
+	defer outputMu.Unlock()
+	_, _ = output.Write(append(encoded, '\n'))
+}
+
+// jsonWriter converts legacy standard-library log calls into structured stdout
+// entries. Request-aware code should call Infof/Errorf/Debugf to add trace IDs.
+type jsonWriter struct{}
+
+func (jsonWriter) Write(message []byte) (int, error) {
+	writeEntry(buildEntry(context.Background(), LevelInfo, strings.TrimSpace(string(message))))
+	return len(message), nil
 }

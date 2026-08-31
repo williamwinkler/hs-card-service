@@ -27,7 +27,7 @@ func (i *KeywordsHandler) SetupHandler() {
 	i.api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(
 		func(req keywords.GetKeywordsParams) middleware.Responder {
 			ctx := req.HTTPRequest.Context()
-			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
+			defer logging.Debugf(ctx, "Handled GET /keywords request")
 
 			cardKeywords, err := i.keywordRepo.FindAll()
 			if err != nil {

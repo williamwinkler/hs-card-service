@@ -49,10 +49,16 @@ func (c *CardUpdateHandler) SetupHandler() {
 		func(pup update.PostUpdateParams, i interface{}) middleware.Responder {
 			ctx := context.Background()
 			if pup.HTTPRequest != nil {
-				ctx = pup.HTTPRequest.Context()
+				// The response is accepted immediately, so preserve trace values while
+				// decoupling the background update from request cancellation.
+				ctx = context.WithoutCancel(pup.HTTPRequest.Context())
 			}
+			ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 
-			go c.UpdateWithRetries(ctx, 3, 1000*time.Millisecond)
+			go func() {
+				defer cancel()
+				c.UpdateWithRetries(ctx, 3, time.Second)
+			}()
 
 			return update.NewPostUpdateAccepted()
 		})
@@ -82,11 +88,11 @@ func (c *CardUpdateHandler) UpdateWithRetries(ctx context.Context, maxRetries in
 	}
 
 	metadataJobs := []updateJob{
-		{name: "set", fn: c.setService.Update},
-		{name: "class", fn: c.classService.Update},
-		{name: "rarity", fn: c.rarityService.Update},
-		{name: "type", fn: c.typeService.Update},
-		{name: "keyword", fn: c.keywordService.Update},
+		{name: "set", fn: func() error { return c.setService.Update(ctx) }},
+		{name: "class", fn: func() error { return c.classService.Update(ctx) }},
+		{name: "rarity", fn: func() error { return c.rarityService.Update(ctx) }},
+		{name: "type", fn: func() error { return c.typeService.Update(ctx) }},
+		{name: "keyword", fn: func() error { return c.keywordService.Update(ctx) }},
 	}
 
 	metadataErrors := make(chan error, len(metadataJobs))
@@ -109,7 +115,7 @@ func (c *CardUpdateHandler) UpdateWithRetries(ctx context.Context, maxRetries in
 		return
 	}
 
-	if err := retryFunc(c.cardService.Update, "card"); err != nil {
+	if err := retryFunc(func() error { return c.cardService.Update(ctx) }, "card"); err != nil {
 		logging.Errorf(ctx, "Card update failed: %v", err)
 	}
 }

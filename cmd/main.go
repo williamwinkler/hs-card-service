@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/williamwinkler/hs-card-service/internal/application"
@@ -11,6 +13,7 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/migrations"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/infrastructure/telemetry"
 )
 
 func main() {
@@ -20,21 +23,37 @@ func main() {
 	}
 	logging.ConfigureFromEnv()
 
+	providers, err := telemetry.Setup(context.Background())
+	if err != nil {
+		logging.Errorf(context.Background(), "OpenTelemetry disabled: %v", err)
+	} else {
+		defer func() {
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			if err := providers.Shutdown(shutdownCtx); err != nil {
+				logging.Errorf(context.Background(), "OpenTelemetry shutdown failed: %v", err)
+			}
+		}()
+	}
+
 	validUsername := os.Getenv("BASIC_AUTH_USERNAME")
 	validPassword := os.Getenv("BASIC_AUTH_PASSWORD")
 
 	if validUsername == "" || validPassword == "" {
-		log.Fatal("BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD is missing in the environment variables.")
+		logging.Errorf(context.Background(), "BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD is missing in the environment variables")
+		return
 	}
 
 	database, err := migrations.SetupDatabase()
 	if err != nil {
-		log.Fatalf("Failed to setup database: %v", err)
+		logging.Errorf(context.Background(), "Failed to setup database: %v", err)
+		return
 	}
 
 	hsClient, err := clients.NewHsClient()
 	if err != nil {
-		log.Fatalf("Failed to start HsClient: %v", err)
+		logging.Errorf(context.Background(), "Failed to start HsClient: %v", err)
+		return
 	}
 
 	// setup repositories
@@ -70,7 +89,9 @@ func main() {
 		typeService,
 		keywordService,
 	)
-	restServer.StartServer()
+	if err := restServer.StartServer(); err != nil {
+		logging.Errorf(context.Background(), "API server stopped with an error: %v", err)
+	}
 
 	log.Println("Program Ended")
 }

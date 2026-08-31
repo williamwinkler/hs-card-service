@@ -27,7 +27,7 @@ func (i *TypesHandler) SetupHandler() {
 	i.api.TypesGetTypesHandler = types.GetTypesHandlerFunc(
 		func(req types.GetTypesParams) middleware.Responder {
 			ctx := req.HTTPRequest.Context()
-			defer logging.Debugf(ctx, "Handled %s request", req.HTTPRequest.URL)
+			defer logging.Debugf(ctx, "Handled GET /types request")
 
 			cardTypes, err := i.typeRepo.FindAll()
 			if err != nil {

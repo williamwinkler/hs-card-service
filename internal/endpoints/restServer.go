@@ -66,11 +66,11 @@ func NewRestServer(
 	}
 }
 
-func (s *RestServer) StartServer() {
+func (s *RestServer) StartServer() error {
 	// load swagger spec
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
-		log.Fatalln(err)
+		return fmt.Errorf("load Swagger specification: %w", err)
 	}
 
 	// create new service API
@@ -104,8 +104,9 @@ func (s *RestServer) StartServer() {
 
 	//serve API
 	if err := server.Serve(); err != nil {
-		log.Fatalln(err)
+		return fmt.Errorf("serve API: %w", err)
 	}
+	return nil
 }
 
 func resolveServerPort() int {
