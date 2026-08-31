@@ -12,10 +12,13 @@ import (
 	"sync"
 	"time"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
 
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/clients/dto"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
 )
 
 const (
@@ -48,7 +51,7 @@ func NewHsClient() (*HsClient, error) {
 func newHTTPClient() *http.Client {
 	return &http.Client{
 		Timeout:   httpRequestTimeout,
-		Transport: otelhttp.NewTransport(http.DefaultTransport),
+		Transport: http.DefaultTransport,
 	}
 }
 
@@ -184,24 +187,33 @@ func (hc *HsClient) GetKeywords(ctx context.Context) ([]domain.Keyword, error) {
 }
 
 func (hc *HsClient) executeGetRequest(ctx context.Context, endpoint string) (*http.Response, error) {
+	ctx, span := observability.Start(ctx, "blizzard.api.request", attribute.String("http.request.method", http.MethodGet))
+	defer span.End()
+
 	accessToken, err := hc.getToken(ctx)
 	if err != nil {
+		observability.Fail(span, "upstream_auth_failed")
 		return nil, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
+		observability.Fail(span, "upstream_request_invalid")
 		return nil, fmt.Errorf("create Blizzard API request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	req.Header.Set("Content-Type", "application/json")
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	response, err := hc.client.Do(req)
 	if err != nil {
+		observability.Fail(span, "upstream_request_failed")
 		return nil, fmt.Errorf("request Blizzard API: %w", err)
 	}
+	span.SetAttributes(attribute.Int("http.response.status_code", response.StatusCode))
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		response.Body.Close()
+		observability.Fail(span, "upstream_non_success")
 		return nil, fmt.Errorf("Blizzard API returned HTTP %d", response.StatusCode)
 	}
 	return response, nil
@@ -223,8 +235,12 @@ func (hc *HsClient) getToken(ctx context.Context) (string, error) {
 }
 
 func fetchToken(ctx context.Context, client *http.Client) (token, error) {
+	ctx, span := observability.Start(ctx, "blizzard.oauth.token", attribute.String("http.request.method", http.MethodPost))
+	defer span.End()
+
 	clientID, clientSecret, err := getClientCredentials()
 	if err != nil {
+		observability.Fail(span, "upstream_auth_configuration_failed")
 		return token{}, err
 	}
 
@@ -235,18 +251,23 @@ func fetchToken(ctx context.Context, client *http.Client) (token, error) {
 	}
 	req.SetBasicAuth(clientID, clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	response, err := client.Do(req)
 	if err != nil {
+		observability.Fail(span, "upstream_request_failed")
 		return token{}, fmt.Errorf("request Blizzard access token: %w", err)
 	}
 	defer response.Body.Close()
+	span.SetAttributes(attribute.Int("http.response.status_code", response.StatusCode))
 	if response.StatusCode != http.StatusOK {
+		observability.Fail(span, "upstream_non_success")
 		return token{}, fmt.Errorf("Blizzard token endpoint returned HTTP %d", response.StatusCode)
 	}
 
 	var tokenDTO dto.Token
 	if err := json.NewDecoder(response.Body).Decode(&tokenDTO); err != nil {
+		observability.Fail(span, "upstream_decode_failed")
 		return token{}, fmt.Errorf("decode Blizzard access token response: %w", err)
 	}
 	return token{

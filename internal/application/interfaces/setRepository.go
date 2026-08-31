@@ -1,8 +1,12 @@
 package interfaces
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 type SetRepository interface {
-	InsertMany(sets []domain.Set) error
-	DeleteAll() error
+	InsertMany(ctx context.Context, sets []domain.Set) error
+	DeleteAll(ctx context.Context) error
 }

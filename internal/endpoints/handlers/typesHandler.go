@@ -9,6 +9,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type TypesHandler struct {
@@ -26,14 +28,16 @@ func NewTypesHandler(api *operations.HearthstoneCardServiceAPI, typeRepo *reposi
 func (i *TypesHandler) SetupHandler() {
 	i.api.TypesGetTypesHandler = types.GetTypesHandlerFunc(
 		func(req types.GetTypesParams) middleware.Responder {
-			ctx := req.HTTPRequest.Context()
+			ctx, span := observability.Start(req.HTTPRequest.Context(), "metadata.get", attribute.String("app.metadata.resource", "type"))
+			defer span.End()
 			defer logging.Debugf(ctx, "Handled GET /types request")
 
-			cardTypes, err := i.typeRepo.FindAll()
+			cardTypes, err := i.typeRepo.FindAll(ctx)
 			if err != nil {
+				observability.Fail(span, "database_failed")
 				logging.Errorf(ctx, "Error occurred in GET /Types: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				types.NewGetTypesInternalServerError().WithPayload(errorMessage)
+				return types.NewGetTypesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardTypes := mapTypesToExternal(cardTypes)

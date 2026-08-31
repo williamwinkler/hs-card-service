@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"sort"
 	"strings"
 
@@ -23,16 +24,16 @@ func NewCardRepository(db *gorm.DB) *CardRepository {
 	return &CardRepository{db: db}
 }
 
-func (c *CardRepository) InsertOne(card domain.Card) error {
-	return c.InsertMany([]domain.Card{card})
+func (c *CardRepository) InsertOne(ctx context.Context, card domain.Card) error {
+	return c.InsertMany(ctx, []domain.Card{card})
 }
 
-func (c *CardRepository) InsertMany(cards []domain.Card) error {
+func (c *CardRepository) InsertMany(ctx context.Context, cards []domain.Card) error {
 	if len(cards) == 0 {
 		return nil
 	}
 
-	return c.db.Transaction(func(tx *gorm.DB) error {
+	return c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		cardRows := make([]cardRecord, 0, len(cards))
 		cardIDs := make([]int, 0, len(cards))
 		keywordRows := make([]cardKeywordRecord, 0)
@@ -84,17 +85,17 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 	})
 }
 
-func (c *CardRepository) FindAll() ([]domain.Card, error) {
+func (c *CardRepository) FindAll(ctx context.Context) ([]domain.Card, error) {
 	var rows []cardRecord
-	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Card{}, err
 	}
-	return c.toDomainCards(rows)
+	return c.toDomainCards(ctx, rows)
 }
 
-func (c *CardRepository) FindWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.Card, error) {
+func (c *CardRepository) FindWithFilter(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.Card, error) {
 	var rows []cardRecord
-	query := c.applyFilter(c.db.Model(&cardRecord{}), filter)
+	query := c.applyFilter(c.db.WithContext(ctx).Model(&cardRecord{}), filter)
 
 	if err := query.Order("manacost ASC, name ASC").
 		Offset((page - 1) * limit).
@@ -103,11 +104,11 @@ func (c *CardRepository) FindWithFilter(filter domain.CardFilter, page int, limi
 		return []domain.Card{}, err
 	}
 
-	return c.toDomainCards(rows)
+	return c.toDomainCards(ctx, rows)
 }
 
-func (c *CardRepository) FindRichWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.RichCard, error) {
-	cards, err := c.FindWithFilter(filter, page, limit)
+func (c *CardRepository) FindRichWithFilter(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.RichCard, error) {
+	cards, err := c.FindWithFilter(ctx, filter, page, limit)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
@@ -115,23 +116,23 @@ func (c *CardRepository) FindRichWithFilter(filter domain.CardFilter, page int, 
 		return []domain.RichCard{}, nil
 	}
 
-	classNames, err := c.fetchClassNames()
+	classNames, err := c.fetchClassNames(ctx)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
-	setNames, err := c.fetchSetNames()
+	setNames, err := c.fetchSetNames(ctx)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
-	rarityNames, err := c.fetchRarityNames()
+	rarityNames, err := c.fetchRarityNames(ctx)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
-	typeNames, err := c.fetchTypeNames()
+	typeNames, err := c.fetchTypeNames(ctx)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
-	keywordNames, err := c.fetchKeywordNames()
+	keywordNames, err := c.fetchKeywordNames(ctx)
 	if err != nil {
 		return []domain.RichCard{}, err
 	}
@@ -174,12 +175,12 @@ func (c *CardRepository) FindRichWithFilter(filter domain.CardFilter, page int, 
 	return richCards, nil
 }
 
-func (c *CardRepository) UpdateOne(card domain.Card) error {
-	return c.InsertOne(card)
+func (c *CardRepository) UpdateOne(ctx context.Context, card domain.Card) error {
+	return c.InsertOne(ctx, card)
 }
 
-func (c *CardRepository) DeleteOne(card domain.Card) error {
-	return c.db.Transaction(func(tx *gorm.DB) error {
+func (c *CardRepository) DeleteOne(ctx context.Context, card domain.Card) error {
+	return c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("card_id = ?", card.ID).Delete(&cardKeywordRecord{}).Error; err != nil {
 			return err
 		}
@@ -187,8 +188,8 @@ func (c *CardRepository) DeleteOne(card domain.Card) error {
 	})
 }
 
-func (c *CardRepository) DeleteAll() error {
-	return c.db.Transaction(func(tx *gorm.DB) error {
+func (c *CardRepository) DeleteAll(ctx context.Context) error {
+	return c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("DELETE FROM card_keywords").Error; err != nil {
 			return err
 		}
@@ -196,17 +197,17 @@ func (c *CardRepository) DeleteAll() error {
 	})
 }
 
-func (c *CardRepository) Count() (int64, error) {
-	return c.CountWithFilter(domain.CardFilter{})
+func (c *CardRepository) Count(ctx context.Context) (int64, error) {
+	return c.CountWithFilter(ctx, domain.CardFilter{})
 }
 
-func (c *CardRepository) CountWithFilter(filter domain.CardFilter) (int64, error) {
+func (c *CardRepository) CountWithFilter(ctx context.Context, filter domain.CardFilter) (int64, error) {
 	var count int64
-	err := c.applyFilter(c.db.Model(&cardRecord{}), filter).Count(&count).Error
+	err := c.applyFilter(c.db.WithContext(ctx).Model(&cardRecord{}), filter).Count(&count).Error
 	return count, err
 }
 
-func (c *CardRepository) toDomainCards(rows []cardRecord) ([]domain.Card, error) {
+func (c *CardRepository) toDomainCards(ctx context.Context, rows []cardRecord) ([]domain.Card, error) {
 	if len(rows) == 0 {
 		return []domain.Card{}, nil
 	}
@@ -216,7 +217,7 @@ func (c *CardRepository) toDomainCards(rows []cardRecord) ([]domain.Card, error)
 		cardIDs = append(cardIDs, row.ID)
 	}
 
-	keywordIDsMap, err := c.fetchKeywordIDsByCard(cardIDs)
+	keywordIDsMap, err := c.fetchKeywordIDsByCard(ctx, cardIDs)
 	if err != nil {
 		return []domain.Card{}, err
 	}
@@ -229,9 +230,9 @@ func (c *CardRepository) toDomainCards(rows []cardRecord) ([]domain.Card, error)
 	return cards, nil
 }
 
-func (c *CardRepository) fetchKeywordIDsByCard(cardIDs []int) (map[int][]int, error) {
+func (c *CardRepository) fetchKeywordIDsByCard(ctx context.Context, cardIDs []int) (map[int][]int, error) {
 	var mappings []cardKeywordRecord
-	if err := c.db.Where("card_id IN ?", cardIDs).Order("keyword_id ASC").Find(&mappings).Error; err != nil {
+	if err := c.db.WithContext(ctx).Where("card_id IN ?", cardIDs).Order("keyword_id ASC").Find(&mappings).Error; err != nil {
 		return nil, err
 	}
 
@@ -246,9 +247,9 @@ func (c *CardRepository) fetchKeywordIDsByCard(cardIDs []int) (map[int][]int, er
 	return result, nil
 }
 
-func (c *CardRepository) fetchClassNames() (map[int]string, error) {
+func (c *CardRepository) fetchClassNames(ctx context.Context) (map[int]string, error) {
 	var rows []classRecord
-	if err := c.db.Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	result := make(map[int]string, len(rows))
@@ -258,9 +259,9 @@ func (c *CardRepository) fetchClassNames() (map[int]string, error) {
 	return result, nil
 }
 
-func (c *CardRepository) fetchSetNames() (map[int]string, error) {
+func (c *CardRepository) fetchSetNames(ctx context.Context) (map[int]string, error) {
 	var rows []setRecord
-	if err := c.db.Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	result := make(map[int]string, len(rows))
@@ -270,9 +271,9 @@ func (c *CardRepository) fetchSetNames() (map[int]string, error) {
 	return result, nil
 }
 
-func (c *CardRepository) fetchRarityNames() (map[int]string, error) {
+func (c *CardRepository) fetchRarityNames(ctx context.Context) (map[int]string, error) {
 	var rows []rarityRecord
-	if err := c.db.Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	result := make(map[int]string, len(rows))
@@ -282,9 +283,9 @@ func (c *CardRepository) fetchRarityNames() (map[int]string, error) {
 	return result, nil
 }
 
-func (c *CardRepository) fetchTypeNames() (map[int]string, error) {
+func (c *CardRepository) fetchTypeNames(ctx context.Context) (map[int]string, error) {
 	var rows []typeRecord
-	if err := c.db.Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	result := make(map[int]string, len(rows))
@@ -294,9 +295,9 @@ func (c *CardRepository) fetchTypeNames() (map[int]string, error) {
 	return result, nil
 }
 
-func (c *CardRepository) fetchKeywordNames() (map[int]string, error) {
+func (c *CardRepository) fetchKeywordNames(ctx context.Context) (map[int]string, error) {
 	var rows []keywordRecord
-	if err := c.db.Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	result := make(map[int]string, len(rows))
@@ -345,7 +346,7 @@ func (c *CardRepository) applyFilter(query *gorm.DB, filter domain.CardFilter) *
 		query = query.Where("cardsetid = ?", *filter.SetID)
 	}
 	if len(filter.KeywordIDsAll) > 0 {
-		subQuery := c.db.Table("card_keywords").
+		subQuery := query.Session(&gorm.Session{}).Table("card_keywords").
 			Select("card_id").
 			Where("keyword_id IN ?", filter.KeywordIDsAll).
 			Group("card_id").

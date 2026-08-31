@@ -9,6 +9,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type SetsHandler struct {
@@ -26,14 +28,16 @@ func NewSetsHandler(api *operations.HearthstoneCardServiceAPI, setRepo *reposito
 func (i *SetsHandler) SetupHandler() {
 	i.api.SetsGetSetsHandler = sets.GetSetsHandlerFunc(
 		func(req sets.GetSetsParams) middleware.Responder {
-			ctx := req.HTTPRequest.Context()
+			ctx, span := observability.Start(req.HTTPRequest.Context(), "metadata.get", attribute.String("app.metadata.resource", "set"))
+			defer span.End()
 			defer logging.Debugf(ctx, "Handled GET /sets request")
 
-			cardSets, err := i.setRepo.FindAll()
+			cardSets, err := i.setRepo.FindAll(ctx)
 			if err != nil {
+				observability.Fail(span, "database_failed")
 				logging.Errorf(ctx, "Error occurred in GET /sets: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				sets.NewGetSetsInternalServerError().WithPayload(errorMessage)
+				return sets.NewGetSetsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardSets := mapSetsToExternal(cardSets)

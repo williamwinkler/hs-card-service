@@ -9,6 +9,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type RaritiesHandler struct {
@@ -26,14 +28,16 @@ func NewRaritiesHandler(api *operations.HearthstoneCardServiceAPI, rarityRepo *r
 func (i *RaritiesHandler) SetupHandler() {
 	i.api.RaritiesGetRaritiesHandler = rarities.GetRaritiesHandlerFunc(
 		func(req rarities.GetRaritiesParams) middleware.Responder {
-			ctx := req.HTTPRequest.Context()
+			ctx, span := observability.Start(req.HTTPRequest.Context(), "metadata.get", attribute.String("app.metadata.resource", "rarity"))
+			defer span.End()
 			defer logging.Debugf(ctx, "Handled GET /rarities request")
 
-			cardRarities, err := i.rarityRepo.FindAll()
+			cardRarities, err := i.rarityRepo.FindAll(ctx)
 			if err != nil {
+				observability.Fail(span, "database_failed")
 				logging.Errorf(ctx, "Error occurred in GET /Rarities: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				rarities.NewGetRaritiesInternalServerError().WithPayload(errorMessage)
+				return rarities.NewGetRaritiesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardRarities := mapRaritiesToExternal(cardRarities)

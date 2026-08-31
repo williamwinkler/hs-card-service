@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +16,7 @@ func NewSetRepository(db *gorm.DB) *SetRepository {
 	return &SetRepository{db: db}
 }
 
-func (c *SetRepository) InsertMany(sets []domain.Set) error {
+func (c *SetRepository) InsertMany(ctx context.Context, sets []domain.Set) error {
 	if len(sets) == 0 {
 		return nil
 	}
@@ -34,7 +36,7 @@ func (c *SetRepository) InsertMany(sets []domain.Set) error {
 		})
 	}
 
-	return c.db.Clauses(clause.OnConflict{
+	return c.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"name", "slug", "type", "collectible_count", "collectible_revealed_count",
@@ -43,13 +45,13 @@ func (c *SetRepository) InsertMany(sets []domain.Set) error {
 	}).Create(&rows).Error
 }
 
-func (c *SetRepository) DeleteAll() error {
-	return c.db.Exec("DELETE FROM sets").Error
+func (c *SetRepository) DeleteAll(ctx context.Context) error {
+	return c.db.WithContext(ctx).Exec("DELETE FROM sets").Error
 }
 
-func (c *SetRepository) FindAll() ([]domain.Set, error) {
+func (c *SetRepository) FindAll(ctx context.Context) ([]domain.Set, error) {
 	var rows []setRecord
-	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Set{}, err
 	}
 

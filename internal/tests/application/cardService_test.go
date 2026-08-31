@@ -1,6 +1,7 @@
 package application_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,13 +31,13 @@ func Test_GetCards(t *testing.T) {
 	cardService := application.NewCardService(nil, cardRepoMock, nil)
 
 	// Test the GetCards method
-	cards, _, err := cardService.GetCards(domain.CardFilter{}, 1, 100)
+	cards, _, err := cardService.GetCards(context.Background(), domain.CardFilter{}, 1, 100)
 	assert.NoError(t, err)
 	assert.Equal(t, len(mockCards), len(cards))
 	assert.ElementsMatch(t, mockCards, cards)
 
 	// Assert that the repository was not modified
-	actualCards, err := cardRepoMock.FindAll()
+	actualCards, err := cardRepoMock.FindAll(context.Background())
 
 	assert.NoError(t, err)
 	assert.ElementsMatch(t, mockCards, actualCards)

@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type TypeService struct {
@@ -19,15 +21,21 @@ func NewTypeService(typeRepo interfaces.TypeRepository, hsClient interfaces.HsCl
 }
 
 func (c *TypeService) Update(ctx context.Context) error {
+	ctx, span := observability.Start(ctx, "cards.update.metadata", attribute.String("app.update.resource", "type"))
+	defer span.End()
+
 	types, err := c.hsClient.GetTypes(ctx)
 	if err != nil {
+		observability.Fail(span, "upstream_failed")
 		return err
 	}
-
-	err = c.typeRepo.DeleteAll()
-	if err != nil {
+	if err := c.typeRepo.DeleteAll(ctx); err != nil {
+		observability.Fail(span, "database_failed")
 		return err
 	}
-
-	return c.typeRepo.InsertMany(types)
+	if err := c.typeRepo.InsertMany(ctx, types); err != nil {
+		observability.Fail(span, "database_failed")
+		return err
+	}
+	return nil
 }

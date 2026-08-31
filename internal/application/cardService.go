@@ -6,6 +6,7 @@ import (
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
 	"github.com/williamwinkler/hs-card-service/internal/domain"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
 )
 
 type CardService struct {
@@ -22,52 +23,70 @@ func NewCardService(hsclient interfaces.HsClient, cardRepo interfaces.CardReposi
 	}
 }
 
-func (c *CardService) GetCards(filter domain.CardFilter, page int, limit int) ([]domain.Card, int64, error) {
-	cards, err := c.cardRepo.FindWithFilter(filter, page, limit)
+func (c *CardService) GetCards(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.Card, int64, error) {
+	ctx, span := observability.Start(ctx, "cards.get")
+	defer span.End()
+
+	cards, err := c.cardRepo.FindWithFilter(ctx, filter, page, limit)
 	if err != nil {
-		return []domain.Card{}, 0, err
+		observability.Fail(span, "database_failed")
+		return nil, 0, err
 	}
 
-	count, err := c.cardRepo.CountWithFilter(filter)
+	count, err := c.cardRepo.CountWithFilter(ctx, filter)
 	if err != nil {
-		return []domain.Card{}, 0, err
+		observability.Fail(span, "database_failed")
+		return nil, 0, err
 	}
 
 	return cards, count, nil
 }
 
-func (c *CardService) GetRichCards(filter domain.CardFilter, page int, limit int) ([]domain.RichCard, int64, error) {
-	richCards, err := c.cardRepo.FindRichWithFilter(filter, page, limit)
+func (c *CardService) GetRichCards(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.RichCard, int64, error) {
+	ctx, span := observability.Start(ctx, "cards.get_rich")
+	defer span.End()
+
+	richCards, err := c.cardRepo.FindRichWithFilter(ctx, filter, page, limit)
 	if err != nil {
-		return []domain.RichCard{}, 0, err
+		observability.Fail(span, "database_failed")
+		return nil, 0, err
 	}
 
-	count, err := c.cardRepo.CountWithFilter(filter)
+	count, err := c.cardRepo.CountWithFilter(ctx, filter)
 	if err != nil {
-		return []domain.RichCard{}, 0, err
+		observability.Fail(span, "database_failed")
+		return nil, 0, err
 	}
 
 	return richCards, count, nil
 }
 
 func (c *CardService) Update(ctx context.Context) error {
-	// TODO: make it smarter, so it only deletes/updates/adds affected cards
+	ctx, span := observability.Start(ctx, "cards.update.cards")
+	defer span.End()
+
 	cards, err := c.hsClient.GetAllCards(ctx)
 	if err != nil {
+		observability.Fail(span, "upstream_failed")
 		return err
 	}
 
-	err = c.cardRepo.DeleteAll()
-	if err != nil {
+	if err := c.cardRepo.DeleteAll(ctx); err != nil {
+		observability.Fail(span, "database_failed")
 		return err
 	}
 
-	// TODO: make sure to save the if the update made changes
-	// currently it only saves that a update happend, but not what happened
-	c.cardMetaRepo.InsertOne(domain.CardMeta{
+	if err := c.cardMetaRepo.InsertOne(ctx, domain.CardMeta{
 		Updated:   time.Now(),
 		IsChanged: false,
-	})
+	}); err != nil {
+		observability.Fail(span, "database_failed")
+		return err
+	}
 
-	return c.cardRepo.InsertMany(cards)
+	if err := c.cardRepo.InsertMany(ctx, cards); err != nil {
+		observability.Fail(span, "database_failed")
+		return err
+	}
+	return nil
 }

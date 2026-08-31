@@ -1,8 +1,12 @@
 package interfaces
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 type TypeRepository interface {
-	InsertMany(types []domain.Type) error
-	DeleteAll() error
+	InsertMany(ctx context.Context, types []domain.Type) error
+	DeleteAll(ctx context.Context) error
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/williamwinkler/hs-card-service/internal/application/interfaces"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type SetService struct {
@@ -19,15 +21,21 @@ func NewSetService(setRepo interfaces.SetRepository, hsClient interfaces.HsClien
 }
 
 func (c *SetService) Update(ctx context.Context) error {
+	ctx, span := observability.Start(ctx, "cards.update.metadata", attribute.String("app.update.resource", "set"))
+	defer span.End()
+
 	sets, err := c.hsClient.GetSets(ctx)
 	if err != nil {
+		observability.Fail(span, "upstream_failed")
 		return err
 	}
-
-	err = c.setRepo.DeleteAll()
-	if err != nil {
+	if err := c.setRepo.DeleteAll(ctx); err != nil {
+		observability.Fail(span, "database_failed")
 		return err
 	}
-
-	return c.setRepo.InsertMany(sets)
+	if err := c.setRepo.InsertMany(ctx, sets); err != nil {
+		observability.Fail(span, "database_failed")
+		return err
+	}
+	return nil
 }

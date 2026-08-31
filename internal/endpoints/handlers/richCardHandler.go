@@ -32,7 +32,7 @@ func (c *RichCardHandler) SetupHandler() {
 
 			filter := newCardFilter(params.Name, params.ManaCost, params.Health, params.Attack, params.Class, params.Rarity, params.Type, params.Set, params.Keywords)
 
-			foundCards, count, err := c.cardService.GetRichCards(filter, int(*params.Page), int(*params.Limit))
+			foundCards, count, err := c.cardService.GetRichCards(ctx, filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting rich cards")
 				return cards.NewGetRichCardsInternalServerError().WithPayload(errorMessage)

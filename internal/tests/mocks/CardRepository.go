@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -19,11 +20,11 @@ func NewCardRepository() CardRepository {
 	}
 }
 
-func (c *CardRepository) InsertOne(card domain.Card) error {
+func (c *CardRepository) InsertOne(ctx context.Context, card domain.Card) error {
 	return nil
 }
 
-func (c *CardRepository) InsertMany(cards []domain.Card) error {
+func (c *CardRepository) InsertMany(ctx context.Context, cards []domain.Card) error {
 	for _, card := range cards {
 		c.Cards[card.ID] = card
 	}
@@ -31,7 +32,7 @@ func (c *CardRepository) InsertMany(cards []domain.Card) error {
 	return nil
 }
 
-func (c *CardRepository) FindAll() ([]domain.Card, error) {
+func (c *CardRepository) FindAll(ctx context.Context) ([]domain.Card, error) {
 	var cards []domain.Card
 	for _, card := range c.Cards {
 		cards = append(cards, card)
@@ -40,31 +41,31 @@ func (c *CardRepository) FindAll() ([]domain.Card, error) {
 	return cards, nil
 }
 
-func (c *CardRepository) FindWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.Card, error) {
+func (c *CardRepository) FindWithFilter(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.Card, error) {
 	if !reflect.DeepEqual(filter, domain.CardFilter{}) {
 		return []domain.Card{}, fmt.Errorf("Mock does not support filter")
 	}
-	return c.FindAll()
+	return c.FindAll(ctx)
 }
 
-func (c *CardRepository) FindRichWithFilter(filter domain.CardFilter, page int, limit int) ([]domain.RichCard, error) {
+func (c *CardRepository) FindRichWithFilter(ctx context.Context, filter domain.CardFilter, page int, limit int) ([]domain.RichCard, error) {
 	return []domain.RichCard{}, nil
 }
 
-func (c *CardRepository) UpdateOne(card domain.Card) error {
+func (c *CardRepository) UpdateOne(ctx context.Context, card domain.Card) error {
 	c.Cards[card.ID] = card
 	return nil
 }
 
-func (c *CardRepository) DeleteOne(card domain.Card) error {
+func (c *CardRepository) DeleteOne(ctx context.Context, card domain.Card) error {
 	delete(c.Cards, card.ID)
 	return nil
 }
 
-func (c *CardRepository) DeleteAll() error {
+func (c *CardRepository) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
-func (c *CardRepository) CountWithFilter(filter domain.CardFilter) (int64, error) {
+func (c *CardRepository) CountWithFilter(ctx context.Context, filter domain.CardFilter) (int64, error) {
 	return 0, nil
 }

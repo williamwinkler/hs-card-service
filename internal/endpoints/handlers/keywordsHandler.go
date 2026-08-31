@@ -9,6 +9,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type KeywordsHandler struct {
@@ -26,14 +28,16 @@ func NewKeywordsHandler(api *operations.HearthstoneCardServiceAPI, keywordRepo *
 func (i *KeywordsHandler) SetupHandler() {
 	i.api.KeywordsGetKeywordsHandler = keywords.GetKeywordsHandlerFunc(
 		func(req keywords.GetKeywordsParams) middleware.Responder {
-			ctx := req.HTTPRequest.Context()
+			ctx, span := observability.Start(req.HTTPRequest.Context(), "metadata.get", attribute.String("app.metadata.resource", "keyword"))
+			defer span.End()
 			defer logging.Debugf(ctx, "Handled GET /keywords request")
 
-			cardKeywords, err := i.keywordRepo.FindAll()
+			cardKeywords, err := i.keywordRepo.FindAll(ctx)
 			if err != nil {
+				observability.Fail(span, "database_failed")
 				logging.Errorf(ctx, "Error occurred in GET /keywords: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				keywords.NewGetKeywordsInternalServerError().WithPayload(errorMessage)
+				return keywords.NewGetKeywordsInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardKeywords := mapKeywordsToExternal(cardKeywords)

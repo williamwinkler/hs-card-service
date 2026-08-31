@@ -9,6 +9,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/internal/endpoints/handlers/utils"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/repositories"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type ClassesHandler struct {
@@ -26,14 +28,16 @@ func NewClassesHandler(api *operations.HearthstoneCardServiceAPI, classRepo *rep
 func (i *ClassesHandler) SetupHandler() {
 	i.api.ClassesGetClassesHandler = classes.GetClassesHandlerFunc(
 		func(req classes.GetClassesParams) middleware.Responder {
-			ctx := req.HTTPRequest.Context()
+			ctx, span := observability.Start(req.HTTPRequest.Context(), "metadata.get", attribute.String("app.metadata.resource", "class"))
+			defer span.End()
 			defer logging.Debugf(ctx, "Handled GET /classes request")
 
-			cardClasses, err := i.classRepo.FindAll()
+			cardClasses, err := i.classRepo.FindAll(ctx)
 			if err != nil {
+				observability.Fail(span, "database_failed")
 				logging.Errorf(ctx, "Error occurred in GET /classes: %v", err)
 				errorMessage := utils.CreateErrorMessage(500)
-				classes.NewGetClassesInternalServerError().WithPayload(errorMessage)
+				return classes.NewGetClassesInternalServerError().WithPayload(errorMessage)
 			}
 
 			mappedCardClasses := mapClassesToExternal(cardClasses)

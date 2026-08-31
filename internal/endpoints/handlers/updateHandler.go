@@ -12,6 +12,8 @@ import (
 	"github.com/williamwinkler/hs-card-service/codegen/restapi/operations/update"
 	"github.com/williamwinkler/hs-card-service/internal/application"
 	"github.com/williamwinkler/hs-card-service/internal/infrastructure/logging"
+	"github.com/williamwinkler/hs-card-service/internal/observability"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type CardUpdateHandler struct {
@@ -57,42 +59,53 @@ func (c *CardUpdateHandler) SetupHandler() {
 
 			go func() {
 				defer cancel()
-				c.UpdateWithRetries(ctx, 3, time.Second)
+				workflowCtx, span := observability.Start(ctx, "cards.update")
+				defer span.End()
+				if err := c.UpdateWithRetries(workflowCtx, 3, time.Second); err != nil {
+					observability.Fail(span, "update_failed")
+				}
 			}()
 
 			return update.NewPostUpdateAccepted()
 		})
 }
 
-func (c *CardUpdateHandler) UpdateWithRetries(ctx context.Context, maxRetries int, retryDelay time.Duration) {
-	logging.Infof(ctx, "Handling request POST /cards/update...")
-	defer logging.Debugf(ctx, "Handled /update request")
+func (c *CardUpdateHandler) UpdateWithRetries(ctx context.Context, maxRetries int, retryDelay time.Duration) error {
+	logging.Infof(ctx, "Handling request POST /cards/update")
+	defer logging.Debugf(ctx, "Handled POST /cards/update")
 
-	retryFunc := func(updateFunc func() error, serviceName string) error {
-		retries := 0
-		for retries < maxRetries {
-			err := updateFunc()
+	retryFunc := func(updateFunc func(context.Context) error, resource string) error {
+		for attempt := 1; attempt <= maxRetries; attempt++ {
+			attemptCtx, span := observability.Start(ctx, "cards.update.attempt",
+				attribute.String("app.update.resource", resource),
+				attribute.Int("app.retry.attempt", attempt),
+			)
+			err := updateFunc(attemptCtx)
 			if err == nil {
+				span.End()
 				return nil
 			}
-			logging.Errorf(ctx, "Error occurred in POST /cards/update (%s): %v", serviceName, err)
-			retries++
-			time.Sleep(retryDelay)
+			observability.Fail(span, "update_attempt_failed")
+			span.End()
+			logging.Errorf(attemptCtx, "POST /cards/update attempt failed for %s", resource)
+			if err := waitForRetry(attemptCtx, retryDelay); err != nil {
+				return err
+			}
 		}
-		return fmt.Errorf("maximum retries reached for %s", serviceName)
+		return fmt.Errorf("maximum retries reached for %s", resource)
 	}
 
 	type updateJob struct {
 		name string
-		fn   func() error
+		fn   func(context.Context) error
 	}
 
 	metadataJobs := []updateJob{
-		{name: "set", fn: func() error { return c.setService.Update(ctx) }},
-		{name: "class", fn: func() error { return c.classService.Update(ctx) }},
-		{name: "rarity", fn: func() error { return c.rarityService.Update(ctx) }},
-		{name: "type", fn: func() error { return c.typeService.Update(ctx) }},
-		{name: "keyword", fn: func() error { return c.keywordService.Update(ctx) }},
+		{name: "set", fn: c.setService.Update},
+		{name: "class", fn: c.classService.Update},
+		{name: "rarity", fn: c.rarityService.Update},
+		{name: "type", fn: c.typeService.Update},
+		{name: "keyword", fn: c.keywordService.Update},
 	}
 
 	metadataErrors := make(chan error, len(metadataJobs))
@@ -110,12 +123,25 @@ func (c *CardUpdateHandler) UpdateWithRetries(ctx context.Context, maxRetries in
 	wg.Wait()
 	close(metadataErrors)
 
-	for err := range metadataErrors {
-		logging.Errorf(ctx, "Aborting card update because metadata update failed: %v", err)
-		return
+	for range metadataErrors {
+		logging.Errorf(ctx, "Aborting card update because metadata update failed")
+		return fmt.Errorf("metadata update failed")
 	}
 
-	if err := retryFunc(func() error { return c.cardService.Update(ctx) }, "card"); err != nil {
-		logging.Errorf(ctx, "Card update failed: %v", err)
+	if err := retryFunc(c.cardService.Update, "card"); err != nil {
+		logging.Errorf(ctx, "Card update failed")
+		return err
+	}
+	return nil
+}
+
+func waitForRetry(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
 	}
 }

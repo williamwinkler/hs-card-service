@@ -1,8 +1,12 @@
 package interfaces
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 type UpdateMetaRepository interface {
-	InsertOne(domain.CardMeta) error
-	FindNewest() (domain.CardMeta, error)
+	InsertOne(ctx context.Context, cardMeta domain.CardMeta) error
+	FindNewest(ctx context.Context) (domain.CardMeta, error)
 }

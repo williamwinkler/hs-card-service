@@ -32,7 +32,7 @@ func (c *CardHandler) SetupHandler() {
 
 			filter := newCardFilter(params.Name, params.ManaCost, params.Health, params.Attack, params.Class, params.Rarity, params.Type, params.Set, params.Keywords)
 
-			foundCards, count, err := c.cardService.GetCards(filter, int(*params.Page), int(*params.Limit))
+			foundCards, count, err := c.cardService.GetCards(ctx, filter, int(*params.Page), int(*params.Limit))
 			if err != nil {
 				errorMessage := utils.CreateErrorMessage(500, "Something went wrong with getting cards")
 				logging.Errorf(ctx, "Error occurred in GetCardsHandlerFunc: %v", err)

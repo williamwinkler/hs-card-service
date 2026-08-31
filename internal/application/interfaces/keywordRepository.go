@@ -1,8 +1,12 @@
 package interfaces
 
-import "github.com/williamwinkler/hs-card-service/internal/domain"
+import (
+	"context"
+
+	"github.com/williamwinkler/hs-card-service/internal/domain"
+)
 
 type KeywordRepository interface {
-	InsertMany(keywords []domain.Keyword) error
-	DeleteAll() error
+	InsertMany(ctx context.Context, keywords []domain.Keyword) error
+	DeleteAll(ctx context.Context) error
 }

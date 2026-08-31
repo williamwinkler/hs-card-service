@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +16,7 @@ func NewClassRepository(db *gorm.DB) *ClassRepository {
 	return &ClassRepository{db: db}
 }
 
-func (c *ClassRepository) InsertMany(classes []domain.Class) error {
+func (c *ClassRepository) InsertMany(ctx context.Context, classes []domain.Class) error {
 	if len(classes) == 0 {
 		return nil
 	}
@@ -31,7 +33,7 @@ func (c *ClassRepository) InsertMany(classes []domain.Class) error {
 		})
 	}
 
-	return c.db.Clauses(clause.OnConflict{
+	return c.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"slug", "name", "card_id", "hero_power_card_id", "alternate_hero_card_ids",
@@ -39,13 +41,13 @@ func (c *ClassRepository) InsertMany(classes []domain.Class) error {
 	}).Create(&rows).Error
 }
 
-func (c *ClassRepository) DeleteAll() error {
-	return c.db.Exec("DELETE FROM classes").Error
+func (c *ClassRepository) DeleteAll(ctx context.Context) error {
+	return c.db.WithContext(ctx).Exec("DELETE FROM classes").Error
 }
 
-func (c *ClassRepository) FindAll() ([]domain.Class, error) {
+func (c *ClassRepository) FindAll(ctx context.Context) ([]domain.Class, error) {
 	var rows []classRecord
-	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Class{}, err
 	}
 

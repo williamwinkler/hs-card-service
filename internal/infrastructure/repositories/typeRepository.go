@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +16,7 @@ func NewTypeRepository(db *gorm.DB) *TypeRepository {
 	return &TypeRepository{db: db}
 }
 
-func (c *TypeRepository) InsertMany(types []domain.Type) error {
+func (c *TypeRepository) InsertMany(ctx context.Context, types []domain.Type) error {
 	if len(types) == 0 {
 		return nil
 	}
@@ -29,7 +31,7 @@ func (c *TypeRepository) InsertMany(types []domain.Type) error {
 		})
 	}
 
-	return c.db.Clauses(clause.OnConflict{
+	return c.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"slug", "name", "game_modes",
@@ -37,13 +39,13 @@ func (c *TypeRepository) InsertMany(types []domain.Type) error {
 	}).Create(&rows).Error
 }
 
-func (c *TypeRepository) DeleteAll() error {
-	return c.db.Exec("DELETE FROM types").Error
+func (c *TypeRepository) DeleteAll(ctx context.Context) error {
+	return c.db.WithContext(ctx).Exec("DELETE FROM types").Error
 }
 
-func (c *TypeRepository) FindAll() ([]domain.Type, error) {
+func (c *TypeRepository) FindAll(ctx context.Context) ([]domain.Type, error) {
 	var rows []typeRecord
-	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Type{}, err
 	}
 

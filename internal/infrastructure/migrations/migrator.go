@@ -37,7 +37,11 @@ func SetupDatabase() (*Database, error) {
 	if err != nil {
 		return &Database{}, fmt.Errorf("failed connecting to postgres: %w", err)
 	}
-	if err := db.Use(tracing.NewPlugin()); err != nil {
+	if err := db.Use(tracing.NewPlugin(
+		tracing.WithoutQueryVariables(),
+		tracing.WithoutServerAddress(),
+		tracing.WithQueryFormatter(databaseOperation),
+	)); err != nil {
 		return &Database{}, fmt.Errorf("enable database telemetry: %w", err)
 	}
 
@@ -50,6 +54,14 @@ func SetupDatabase() (*Database, error) {
 	}
 
 	return &Database{Db: db}, nil
+}
+
+func databaseOperation(query string) string {
+	fields := strings.Fields(query)
+	if len(fields) == 0 {
+		return ""
+	}
+	return fields[0]
 }
 
 func pingDatabase(db *gorm.DB) error {

@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/williamwinkler/hs-card-service/internal/domain"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +16,7 @@ func NewRarityRepository(db *gorm.DB) *RarityRepository {
 	return &RarityRepository{db: db}
 }
 
-func (c *RarityRepository) InsertMany(rarities []domain.Rarity) error {
+func (c *RarityRepository) InsertMany(ctx context.Context, rarities []domain.Rarity) error {
 	if len(rarities) == 0 {
 		return nil
 	}
@@ -30,7 +32,7 @@ func (c *RarityRepository) InsertMany(rarities []domain.Rarity) error {
 		})
 	}
 
-	return c.db.Clauses(clause.OnConflict{
+	return c.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"slug", "crafting_cost", "dust_value", "name",
@@ -38,13 +40,13 @@ func (c *RarityRepository) InsertMany(rarities []domain.Rarity) error {
 	}).Create(&rows).Error
 }
 
-func (c *RarityRepository) DeleteAll() error {
-	return c.db.Exec("DELETE FROM rarities").Error
+func (c *RarityRepository) DeleteAll(ctx context.Context) error {
+	return c.db.WithContext(ctx).Exec("DELETE FROM rarities").Error
 }
 
-func (c *RarityRepository) FindAll() ([]domain.Rarity, error) {
+func (c *RarityRepository) FindAll(ctx context.Context) ([]domain.Rarity, error) {
 	var rows []rarityRecord
-	if err := c.db.Order("name ASC").Find(&rows).Error; err != nil {
+	if err := c.db.WithContext(ctx).Order("name ASC").Find(&rows).Error; err != nil {
 		return []domain.Rarity{}, err
 	}
 
